@@ -5,8 +5,13 @@
  * @abstract
  */
 export class WebComponent extends HTMLElement {
-    static _template = null;
-    static _styles = null;
+
+    /*
+     * Type properties
+     */
+
+    static _template = null;    // The HTML template for the components internal DOM
+    static _styles = null;      // Internal style sheet
     /**
      * Provides the attributes and their types that this component recognises.
      * eg: {'attribute1': {type:Number,default:0}}
@@ -30,6 +35,11 @@ export class WebComponent extends HTMLElement {
 
     // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
     #root = null;
+
+
+    /*
+     * Component Setup
+     */
 
     constructor() {
         super();
@@ -65,6 +75,11 @@ export class WebComponent extends HTMLElement {
             }
         });
     }
+
+
+    /*
+     * Component internal DOM
+     */
 
     /**
      * Creates and appends a shadow dom to the component with the properties passed.
@@ -107,6 +122,11 @@ export class WebComponent extends HTMLElement {
         return this.#root.querySelectorAll(selector);
     }
 
+
+    /*
+     * Lifecycle events
+     */
+
     /**
      * Called when the component has been mounted and started on the page.
      */
@@ -126,6 +146,7 @@ export class WebComponent extends HTMLElement {
      * should be done here.
      */
     onRemoved() {}
+
 
     /*
      * API interface
@@ -150,5 +171,7 @@ export class WebComponent extends HTMLElement {
 
         if (this[property] != val) this[property] = val;
     }
+
+
 }
 
