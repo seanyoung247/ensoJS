@@ -1,0 +1,94 @@
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+/**
+ * Default styling for modal-dialog component
+ */
+:host {
+    --max-width: 1200px;
+    --border: 1px solid darkgrey;
+    --shadow: 0 0 10px 0 black;
+    --backdrop: #00000066;
+    --background: white;
+    --section-divider: 1px solid lightgray;
+}
+
+#modal-container {
+    display: none;
+}
+/* Applied if the web component has the show attribute */
+:host([show]) > #modal-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    background-color: var(--backdrop);
+}
+
+#modal-pane {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    background-color: var(--background);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    max-width: var(--max-width);
+}
+
+.modal-section {
+    padding: 1em 0.5em;
+}
+
+.modal-header {
+    position: relative;
+}
+
+#modal-close {
+    position: absolute;
+    top: 0; right: 0;
+    padding: 0 1rem;
+    height: 100%;
+    border: var(--background);
+    background: none;
+    font-size: 1.5em;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+#modal-close:hover {
+    opacity: 1;
+    border-left: var(--section-divider);
+}
+
+.modal-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    border-top: var(--section-divider);
+    border-bottom: var(--section-divider);
+}
+
+@media screen and (min-width: 481px) {
+    #modal-pane {
+        border-radius: 0.5em;
+        border: var(--border);
+        width: 95%;
+        height: 85%;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    #modal-pane {
+        width: 85%;
+        height: 75%;
+    }
+}

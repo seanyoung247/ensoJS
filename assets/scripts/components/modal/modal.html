@@ -1,0 +1,26 @@
+<template>
+
+    <div id="modal-container">
+        <div id="modal-pane">
+
+            <div class="modal-header">
+                <div class="modal-section">
+                    <slot name="modal-header"></slot>
+                </div>
+                <button id="modal-close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-content modal-section">
+                <slot name="modal-content"></slot>
+            </div>
+
+            <div class="modal-footer modal-section">
+                <slot name="modal-footer"></slot>
+            </div>
+
+        </div>
+    </div>
+
+</template>
