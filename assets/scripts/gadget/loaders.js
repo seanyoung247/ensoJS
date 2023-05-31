@@ -8,8 +8,8 @@ const createFragment = (html) =>
 
 /**
  * Imports HTML template from external html file.
- * @param {String} templateURL - relative path to template file
- * @param {String} baseUrl - url of calling file, eg. import.meta.url
+ * @param {String} templateURL  - relative path to template file
+ * @param {String} baseUrl      - url of calling file, eg. import.meta.url
  * @returns HTML Template
  */
 export const importTemplate = (templateURL, baseUrl) =>
@@ -18,8 +18,8 @@ export const importTemplate = (templateURL, baseUrl) =>
 
 /**
  * Imports HTML template from external html file.
- * @param {String} templateURL - relative path to template file
- * @param {String} baseUrl - url of calling file, eg. import.meta.url
+ * @param {String} templateURL  - relative path to template file
+ * @param {String} baseUrl      - url of calling file, eg. import.meta.url
  * @returns HTML Template
  */
 export const importStyles = (styleURL, baseUrl) => 
@@ -32,8 +32,8 @@ export const importStyles = (styleURL, baseUrl) =>
 
 /**
  * Creates a component from a WebComponent class implementation and template element
- * @param {Object} component - WebComponent class implementation
- * @param {Element} template - Internal HTML template
+ * @param {Object} component    - WebComponent class implementation
+ * @param {Element} template    - Internal HTML template
  */
 export function createComponent(component, template=null, styles=null) {
     component._template = template;

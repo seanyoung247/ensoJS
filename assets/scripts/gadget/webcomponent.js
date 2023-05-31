@@ -4,13 +4,13 @@
  * Handles much of the boilerplate needed for web components.
  * @abstract
  */
-export class WebComponent extends HTMLElement {
+export default class WebComponent extends HTMLElement {
 
     /*
      * Type properties
      */
 
-    static _template = null;    // The HTML template for the components internal DOM
+    static _template = null;    // The HTML template for the component's internal DOM
     static _styles = null;      // Internal style sheet
     /**
      * Provides the attributes and their types that this component recognises.
@@ -28,7 +28,7 @@ export class WebComponent extends HTMLElement {
         throw new Error(`${this.name} has no defined tag name! Have you provided a static get tagName method?`);
     }
 
-    /* Accessors for static properties */
+    /* Instance accessors for static properties */
     get styles() { return this.constructor._styles; }
     get template() { return this.constructor._template; }
     get attributes() { return this.constructor._attributes; }
@@ -71,7 +71,7 @@ export class WebComponent extends HTMLElement {
                 if (this[prop]) reflect(val);
                 else this.removeAttribute(attr);
                 // Alert child of property change
-                this._onPropertyChange(attr, val);
+                this.onPropertyChange(attr, val);
             }
         });
     }
@@ -172,6 +172,4 @@ export class WebComponent extends HTMLElement {
         if (this[property] != val) this[property] = val;
     }
 
-
 }
-
