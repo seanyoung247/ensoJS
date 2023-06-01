@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="assets/styles/styles.css">
+    <script src="assets/scripts/main.js" type="module"></script>
 
     <script src="assets/scripts/components/modal/modal.js" type="module"></script>
-
 
     <title>Web Component Examples</title>
 </head>
@@ -16,7 +16,7 @@
     <modal-dialog id="test-modal" show>
         <h3 class="modal-title" slot="modal-header">Test Modal</h3>
         <div slot="modal-content">
-            Here is some content!
+            <button id="modal-color-btn">Change Colour</button>
         </div>
         <div slot="modal-footer">Modal Footer</div>
     </modal-dialog>

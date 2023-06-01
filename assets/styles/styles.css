@@ -1,14 +1,14 @@
 
 @import url('./reset.css');
 
-/* Overriding a specific component styles */
+/* Overriding a specific component instance's styles */
 /* Overrides the modal component default styling on the close button */
-#test-modal::part(modal-close):hover {
+.colored::part(modal-close):hover {
     background: red;
 }
 
 /* Overrides the custom properties defined on the modal component */
-#test-modal {
+.colored {
     --backdrop: #00009966;
     --background: #cceeee;
 }
