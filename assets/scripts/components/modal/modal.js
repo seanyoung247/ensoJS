@@ -17,10 +17,6 @@ createComponent(
             }
         }
 
-        #clickOut = () => this.show = this.static
-        #clickClose = () => this.show = false;
-        #clickPane = e => e.stopPropagation();
-
         constructor() {
             super();
             this._createShadowDOM();

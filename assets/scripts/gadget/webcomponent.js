@@ -25,7 +25,7 @@ export default class WebComponent extends HTMLElement {
      * @return {String} - tag name
      */
     static get tagName() {
-        throw new Error(`${this.name} has no defined tag name! Have you provided a static get tagName method?`);
+        throw new Error(`${this.name} has no defined tag name! Have you provided a static get tagName?`);
     }
 
     /* Instance accessors for static properties */
@@ -33,10 +33,12 @@ export default class WebComponent extends HTMLElement {
     get template() { return this.constructor._template; }
     get attributes() { return this.constructor._attributes; }
 
-    // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
-    #root = null;
-    #events = [];   // Stores the events attached to child elements so they can be cleaned up automatically
+    /*
+     * Instance Properties
+     */
 
+    #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
+    #events = [];   // Stores the events attached to child elements so they can be cleaned up automatically
 
     /*
      * Component Setup
@@ -172,6 +174,7 @@ export default class WebComponent extends HTMLElement {
     connectedCallback() { this.onStart(); }
 
     disconnectedCallback() {
+        // Remove any registered event listeners
         for (const event of this.#events) {
             event.element.removeEventListener(event.event, event.handler, event.options);
         }
