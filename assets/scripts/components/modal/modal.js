@@ -17,29 +17,41 @@ createComponent(
             }
         }
 
-        #container = null;
-        #dialog = null;
-        #closeBtn = null;
+        #clickOut = () => this.show = this.static
+        #clickClose = () => this.show = false;
+        #clickPane = e => e.stopPropagation();
 
         constructor() {
             super();
             this._createShadowDOM();
-            this.#container = this.getElement('#modal-container');
-            this.#dialog = this.getElement('#modal-pane');
-            this.#closeBtn = this.getElement('#modal-close');
-
-            this.close = this.close.bind(this);
         }
 
         onStart() {
-            this.#dialog.addEventListener('click', e => e.stopPropagation());
-            this.#container.addEventListener('click', () => { if (!this.static) this.close(); } );
-            this.#closeBtn.addEventListener('click', this.close);
+            this.getElement('#modal-pane')
+                .addEventListener('click', this.#clickPane);
+
+            this.getElement('#modal-container')
+                .addEventListener('click', this.#clickOut );
+
+            this.getElement('#modal-close')
+                .addEventListener('click', this.#clickClose );
         }
 
-        close() {
-            this.show = false;
-            this.dispatchEvent(new Event('modal-closed', {bubbles: true}));
+        onRemoved() {
+            this.getElement('#modal-pane')
+                .removeEventListener('click', this.#clickPane);
+
+            this.getElement('#modal-container')
+                .removeEventListener('click', this.#clickOut );
+
+            this.getElement('#modal-close')
+                .removeEventListener('click', this.#clickClose );
+        }
+
+        onPropertyChange(prop, value) {
+            if (prop === 'show' && value === false) {
+                this.dispatchEvent(new Event('modal-closed', {bubbles: true}));
+            }
         }
     },
     template, styles
