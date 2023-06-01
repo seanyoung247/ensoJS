@@ -14,6 +14,7 @@
     --shadow: 0 0 10px 0 black;
     --backdrop: #00000066;
     --background: white;
+    --foreground: black;
     --section-divider: 1px solid lightgray;
 }
 
@@ -46,6 +47,7 @@
 
 .modal-section {
     padding: 1em 0.5em;
+    color: var(--foreground);
 }
 
 .modal-header {

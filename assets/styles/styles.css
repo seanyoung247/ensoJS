@@ -12,3 +12,9 @@
     --backdrop: #00009966;
     --background: #cceeee;
 }
+
+/* Styling slotted components */
+.modal-title {
+    width: 100%;
+    text-align: center;
+}
