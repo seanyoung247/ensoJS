@@ -35,6 +35,7 @@ export default class WebComponent extends HTMLElement {
 
     // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
     #root = null;
+    #events = [];   // Stores the events attached to child elements so they can be cleaned up automatically
 
 
     /*
@@ -122,6 +123,18 @@ export default class WebComponent extends HTMLElement {
         return this.#root.querySelectorAll(selector);
     }
 
+    /**
+     * Attaches an event listener to the element passed. 
+     * Event listeners will automatically be cleaned up when the component unmounts. 
+     * @param {HTMLElement} element - Element to attach listener to
+     * @param {String} event - The event to listen for
+     * @param {Function} handler - The event handler function
+     * @param {*} options - Event options (optional)
+     */
+    watchEvent(element, event, handler, options = null) {
+        element.addEventListener(event, handler, options);
+        this.#events.push({element, event, handler, options});
+    }
 
     /*
      * Lifecycle events
@@ -158,7 +171,12 @@ export default class WebComponent extends HTMLElement {
 
     connectedCallback() { this.onStart(); }
 
-    disconnectedCallback() { this.onRemoved(); }
+    disconnectedCallback() {
+        for (const event of this.#events) {
+            event.element.removeEventListener(event.event, event.handler, event.options);
+        }
+        this.onRemoved();
+    }
       
     adoptedCallback() {}
 
