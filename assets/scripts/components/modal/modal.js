@@ -1,7 +1,7 @@
 
 import { 
     WebComponent, createComponent, importTemplate, importStyles 
-} from "../../gadget/gadget.js";
+} from "../../enso/enso.js";
 
 const styles = await importStyles('modal.css', import.meta.url);
 const template = await importTemplate('modal.html', import.meta.url);
