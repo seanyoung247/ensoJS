@@ -27,25 +27,15 @@ createComponent(
         }
 
         onStart() {
-            this.getElement('#modal-pane')
-                .addEventListener('click', this.#clickPane);
-
-            this.getElement('#modal-container')
-                .addEventListener('click', this.#clickOut );
-
-            this.getElement('#modal-close')
-                .addEventListener('click', this.#clickClose );
-        }
-
-        onRemoved() {
-            this.getElement('#modal-pane')
-                .removeEventListener('click', this.#clickPane);
-
-            this.getElement('#modal-container')
-                .removeEventListener('click', this.#clickOut );
-
-            this.getElement('#modal-close')
-                .removeEventListener('click', this.#clickClose );
+            this.watchEvent(this.getElement('#modal-pane'),
+                'click', e => e.stopPropagation()
+            );
+            this.watchEvent(this.getElement('#modal-container'),
+                'click', () => this.show = this.static
+            );
+            this.watchEvent(this.getElement('#modal-close'),
+                'click', () => this.show = false
+            );
         }
 
         onPropertyChange(prop, value) {
