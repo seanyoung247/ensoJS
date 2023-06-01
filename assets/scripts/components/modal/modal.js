@@ -33,7 +33,7 @@ createComponent(
 
         onStart() {
             this.#dialog.addEventListener('click', e => e.stopPropagation());
-            this.#container.addEventListener('click', () => { if (!this.static) this.close } );
+            this.#container.addEventListener('click', () => { if (!this.static) this.close(); } );
             this.#closeBtn.addEventListener('click', this.close);
         }
 
