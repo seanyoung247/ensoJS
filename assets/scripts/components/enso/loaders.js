@@ -30,13 +30,3 @@ export const importStyles = (styleURL, baseUrl) =>
             return sheet;
         });
 
-/**
- * Creates a component from a WebComponent class implementation and template element
- * @param {Object} component    - WebComponent class implementation
- * @param {Element} template    - Internal HTML template
- */
-export function createComponent(component, template=null, styles=null) {
-    component._template = template;
-    component._styles = styles;
-    customElements.define(component.tagName, component);
-}
