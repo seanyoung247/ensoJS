@@ -84,13 +84,12 @@
         border-radius: 0.5em;
         border: var(--border);
         width: 95%;
-        height: 85%;
+        height: auto;
     }
 }
 
 @media screen and (min-width: 769px) {
     #modal-pane {
         width: 85%;
-        height: 75%;
     }
 }

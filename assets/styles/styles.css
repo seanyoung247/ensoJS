@@ -13,6 +13,11 @@
     --background: #cceeee;
 }
 
+.colored::part(modal-footer) {
+    color: white;
+    background: firebrick;
+}
+
 /* Styling slotted components */
 .modal-title {
     width: 100%;

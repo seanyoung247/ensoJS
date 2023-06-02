@@ -3,18 +3,18 @@
     <div id="modal-container">
         <div id="modal-pane" part="modal-pane">
 
-            <div class="modal-header modal-section">
+            <div part="modal-header modal-section" class="modal-header modal-section">
                 <slot name="modal-header"></slot>
                 <button part="modal-close" id="modal-close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
-            <div class="modal-content modal-section">
+            <div part="modal-content modal-section" class="modal-content modal-section">
                 <slot name="modal-content"></slot>
             </div>
 
-            <div class="modal-footer modal-section">
+            <div part="modal-footer modal-section" class="modal-footer modal-section">
                 <slot name="modal-footer"></slot>
             </div>
 
