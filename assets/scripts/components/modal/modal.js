@@ -17,11 +17,6 @@ createComponent(
             }
         }
 
-        constructor() {
-            super();
-            this._createShadowDOM();
-        }
-
         onStart() {
             this.watchEvent(this.getElement('#modal-pane'),
                 'click', e => e.stopPropagation()

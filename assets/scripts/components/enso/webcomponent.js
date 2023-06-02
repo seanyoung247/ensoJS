@@ -103,6 +103,7 @@ export default class WebComponent extends HTMLElement {
      * If the selector matches multiple elements, the first found
      * is returned.
      * @param {String} selector - The CSS selector to search for.
+     * @returns {Element} - The first element matching the CSS selector
      */
     getElement(selector) {
         return this.#root.querySelector(selector);
@@ -112,7 +113,7 @@ export default class WebComponent extends HTMLElement {
      * Gets all elements from the shadow DOM matching the
      * provided CSS selector.
      * @param {String} selector - The CSS selector to search for.
-     * @returns 
+     * @returns {NodeList} - The list of elements matching the CSS selector
      */
     getElements(selector) {
         return this.#root.querySelectorAll(selector);
@@ -157,7 +158,7 @@ export default class WebComponent extends HTMLElement {
 
 
     /*
-     * API interface
+     * Web component API interface
      */
     static get observedAttributes() {
         if (!this._attributes) return [];
@@ -168,8 +169,8 @@ export default class WebComponent extends HTMLElement {
 
     disconnectedCallback() {
         // Remove any registered event listeners
-        for (const event of this.#events) {
-            event.element.removeEventListener(event.event, event.handler, event.options);
+        for (const {element, event, handler, options} of this.#events) {
+            element.removeEventListener(event, handler, options);
         }
         this.onRemoved();
     }
@@ -182,7 +183,7 @@ export default class WebComponent extends HTMLElement {
         const val = this.attributes[property].type != Boolean ? 
             this.attributes[property].type(newValue) :
             this.hasAttribute(property);
-
+        // Reflect change to component properties
         if (this[property] != val) this[property] = val;
     }
 
