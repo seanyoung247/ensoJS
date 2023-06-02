@@ -44,7 +44,7 @@ export default class WebComponent extends HTMLElement {
      * Component Setup
      */
 
-    constructor() {
+    constructor(properties={mode:'open'}) {
         super();
 
         // If this component has custom attributes
@@ -58,6 +58,9 @@ export default class WebComponent extends HTMLElement {
                 this.#createDefaultAccessor(attr, propName, value.type);
             }
         }
+
+        // Create the component internal DOM
+        this.#createShadowDOM(properties);
     }
 
     #createDefaultAccessor(attr, prop, type) {
@@ -79,19 +82,7 @@ export default class WebComponent extends HTMLElement {
         });
     }
 
-
-    /*
-     * Component internal DOM
-     */
-
-    /**
-     * Creates and appends a shadow dom to the component with the properties passed.
-     * Intended only for use by derived classes.
-     * @protected
-     * @param {Object} properties - Shadow DOM properties
-     * @returns {Element} - Created shadow DOM
-     */
-    _createShadowDOM(properties={mode:'open'}) {
+    #createShadowDOM(properties={mode:'open'}) {
         this.#root = this.attachShadow(properties);
         
         if (this.template) {
@@ -101,9 +92,11 @@ export default class WebComponent extends HTMLElement {
         if (this.styles) {
             this.#root.adoptedStyleSheets = [this.styles];
         }
-
-        return this.#root;
     }
+
+    /*
+     * Component internal DOM
+     */
 
     /**
      * Gets an element from the shadow DOM using CSS selectors.
