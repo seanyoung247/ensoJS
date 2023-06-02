@@ -17,7 +17,7 @@ export default class WebComponent extends HTMLElement {
      * eg: {'attribute1': {type:Number,default:0}}
      * @static
      */
-    static get _attributes() { return null; }
+    static get _attributes() { return {}; }
     /**
      * Provides the DOM tag name for this component
      * @static
