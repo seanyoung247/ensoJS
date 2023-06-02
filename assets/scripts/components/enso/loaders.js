@@ -1,10 +1,8 @@
+import { createStyleSheet, createTemplate } from "./assembly.js";
 
 const buildURL = (fileURL, baseUrl) => new URL(fileURL, baseUrl).href;
 
 const loadResource = (url) => fetch(url).then(response => response.text());
-
-const createFragment = (html) => 
-    document.createRange().createContextualFragment(html);
 
 /**
  * Imports HTML template from external html file.
@@ -14,7 +12,7 @@ const createFragment = (html) =>
  */
 export const importTemplate = (templateURL, baseUrl) =>
     loadResource(buildURL(templateURL, baseUrl))
-        .then(html => createFragment(html).firstElementChild);
+        .then( createTemplate );
 
 /**
  * Imports HTML template from external html file.
@@ -24,9 +22,5 @@ export const importTemplate = (templateURL, baseUrl) =>
  */
 export const importStyles = (styleURL, baseUrl) => 
     loadResource(buildURL(styleURL, baseUrl))
-        .then(css => {
-            const sheet = new CSSStyleSheet();
-            sheet.replaceSync(css);
-            return sheet;
-        });
+        .then( createStyleSheet );
 
