@@ -36,8 +36,8 @@ export function createStyleSheet(css) {
 
 
 /**
- * Creates a component from a WebComponent class implementation and template element
- * @param {Object} component    - WebComponent class implementation
+ * Creates a component from a EnsoElement class implementation and template element
+ * @param {Object} component    - EnsoElement class implementation
  * @param {Element} template    - Internal HTML template
  */
 export function createComponent(component, template=null, styles=null) {

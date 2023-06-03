@@ -4,7 +4,7 @@
  * Handles much of the boilerplate needed for web components.
  * @abstract
  */
-export default class WebComponent extends HTMLElement {
+export default class EnsoElement extends HTMLElement {
 
     /*
      * Type properties
@@ -46,7 +46,8 @@ export default class WebComponent extends HTMLElement {
      */
 
     #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
-    #events = [];   // Stores the event handlers attached to child elements so they can be cleaned up automatically
+    //#events = [];   // Stores the event handlers attached to child elements so they can be cleaned up automatically
+    #events = new AbortController();
 
     /*
      * Component Setup
@@ -135,9 +136,9 @@ export default class WebComponent extends HTMLElement {
      * @param {Function} handler - The event handler function
      * @param {*} options - Event options (optional)
      */
-    watchEvent(element, event, handler, options = null) {
+    watchEvent(element, event, handler, options = {}) {
+        options.signal = this.#events.signal;
         element.addEventListener(event, handler, options);
-        this.#events.push({element, event, handler, options});
     }
 
     /*
@@ -164,7 +165,6 @@ export default class WebComponent extends HTMLElement {
      */
     onRemoved() {}
 
-
     /*
      * Web component API interface
      */
@@ -177,9 +177,7 @@ export default class WebComponent extends HTMLElement {
 
     disconnectedCallback() {
         // Remove any registered event listeners
-        for (const {element, event, handler, options} of this.#events) {
-            element.removeEventListener(event, handler, options);
-        }
+        this.#events.abort();
         this.onRemoved();
     }
       

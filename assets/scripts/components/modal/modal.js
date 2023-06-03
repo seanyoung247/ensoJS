@@ -1,6 +1,6 @@
 
 import { 
-    WebComponent, createComponent, importTemplate, importStyles 
+    EnsoElement, createComponent, importTemplate, importStyles 
 } from "../enso/enso.js";
 
 const styles = await importStyles('modal.css', import.meta.url);
@@ -8,7 +8,7 @@ const template = await importTemplate('modal.html', import.meta.url);
 
 createComponent(
 
-    class extends WebComponent {
+    class extends EnsoElement {
         static get tagName() { return 'modal-dialog'; }
         static get _attributes() {
             return {
