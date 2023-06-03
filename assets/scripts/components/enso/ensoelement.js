@@ -173,7 +173,9 @@ export default class EnsoElement extends HTMLElement {
         return Object.keys(this._attributes);
     }
 
-    connectedCallback() { this.onStart(); }
+    connectedCallback() { 
+        this.onStart();
+    }
 
     disconnectedCallback() {
         // Remove any registered event listeners
