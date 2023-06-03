@@ -46,8 +46,9 @@ export default class EnsoElement extends HTMLElement {
      */
 
     #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
-    //#events = [];   // Stores the event handlers attached to child elements so they can be cleaned up automatically
     #events = new AbortController();
+
+    _refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
     /*
      * Component Setup
@@ -173,7 +174,13 @@ export default class EnsoElement extends HTMLElement {
         return Object.keys(this._attributes);
     }
 
-    connectedCallback() { 
+    connectedCallback() {
+        // Collect this component's references
+        const refs = this.#root.querySelectorAll('[ref]');
+        for (const ref of refs) {
+            const key = ref.getAttribute('ref');
+            this._refs[key] = ref;
+        }
         this.onStart();
     }
 

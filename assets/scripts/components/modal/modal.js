@@ -18,15 +18,9 @@ createComponent(
         }
 
         onStart() {
-            this.watchEvent(this.getElement('#modal-pane'),
-                'click', e => e.stopPropagation()
-            );
-            this.watchEvent(this.getElement('#modal-container'),
-                'click', () => this.show = this.static
-            );
-            this.watchEvent(this.getElement('#modal-close'),
-                'click', () => this.show = false
-            );
+            this._refs.pane.onclick = e => e.stopPropagation();
+            this._refs.container.onclick = () => this.show = this.static;
+            this._refs['modal-close'].onclick = () => this.show = false;
         }
 
         onPropertyChange(prop, value) {

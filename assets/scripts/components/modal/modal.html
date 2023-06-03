@@ -1,11 +1,11 @@
 <template>
 
-    <div id="modal-container">
-        <div id="modal-pane" part="modal-pane">
+    <div id="modal-container" ref="container">
+        <div id="modal-pane" part="modal-pane" ref="pane">
 
             <div part="modal-header modal-section" class="modal-header modal-section">
                 <slot name="modal-header"></slot>
-                <button part="modal-close" id="modal-close">
+                <button id="modal-close" part="modal-close" ref="modal-close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
