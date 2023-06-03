@@ -15,7 +15,12 @@
     <title>Web Component Examples</title>
 </head>
 <body>
-    <button id="show-modal-btn">Show Modal</button>
+
+    <div class="controls">
+        <button id="show-modal-btn">Show Modal</button>
+        <button id="static-modal-btn">Toggle Modal Static</button>
+    </div>
+
     <modal-dialog id="test-modal" show>
         <h3 class="modal-title" slot="modal-header">Test Modal</h3>
         <div class="modal-content" slot="modal-content">

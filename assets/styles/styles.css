@@ -1,6 +1,10 @@
 
 @import url('./reset.css');
 
+body, html {
+    height: 100%;
+}
+
 /* Overriding a specific component instance's styles */
 /* Overrides the modal component default styling on the close button */
 .colored::part(modal-close):hover {
@@ -24,7 +28,10 @@
     text-align: center;
 }
 
-.modal-content, #cube-wrapper,
+body,
+.controls,
+.modal-content,
+#cube-wrapper,
 css3d-cuboid > div {
     display: flex;
     justify-content: center;
@@ -32,11 +39,19 @@ css3d-cuboid > div {
     flex-direction: column;
 }
 
+.controls {
+    gap: 0.25em;
+}
+
+.controls > button {
+    width: 100%;
+    padding: 0.25em;
+}
+
 #cube-wrapper {
     width: 15em;
     height: 15em;
     perspective: 100vw;
-    /* border: 1px solid black; */
 }
 
 css3d-cuboid {
