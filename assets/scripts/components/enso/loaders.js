@@ -1,4 +1,4 @@
-import { createStyleSheet, createTemplate } from "./assembly.js";
+import { createStyleSheet, createTemplate } from "./creators.js";
 
 const buildURL = (fileURL, baseUrl) => new URL(fileURL, baseUrl).href;
 
