@@ -15,9 +15,10 @@ const faces = [
 const styles = createStyleSheet(
     `
     :host {
-        transform-style: preserve-3d;
+        display: block;
         width: var(--width);
         height: var(--height);
+        transform-style: preserve-3d;
     }
     #faces {
         width: 100%;
@@ -43,7 +44,11 @@ const styles = createStyleSheet(
 
 const template = createTemplate(
     `<div id="faces">
-    ${faces.map(e => `<div id=${e.label} part="face" class="face"><slot name=${e.label}></slot></div>`).join('\n')}
+        ${faces.map(e => 
+            `<div id=${e.label} part="face" class="face">
+                <slot name=${e.label}></slot>
+            </div>`).join('\n')
+        }
     </div>`
 );
 
@@ -57,6 +62,9 @@ createComponent(
                 'height': {type: String, default: 0},
                 'depth': {type: String, default: 0}
             }
+        }
+        onPropertyChange(prop, value) {
+            this.style.setProperty(`--${prop}`, value);
         }
     },
     template, styles
