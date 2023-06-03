@@ -52,6 +52,7 @@ css3d-cuboid > div {
     width: 15em;
     height: 15em;
     perspective: 100vw;
+    background: url('../images/icon.svg') 0 0 / contain no-repeat;
 }
 
 css3d-cuboid {
