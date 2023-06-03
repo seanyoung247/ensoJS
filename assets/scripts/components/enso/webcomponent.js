@@ -14,7 +14,15 @@ export default class WebComponent extends HTMLElement {
     static _styles = null;      // Internal style sheet
     /**
      * Provides the attributes and their types that this component recognises.
-     * eg: {'attribute1': {type:Number,default:0}}
+     * If a derived component has HTML attributes it should override this method
+     * and return the attributes in an object litteral:
+     *  return: {
+     *      'attribute1': {type: Number, default: 0},
+     *      'attribute2': {type: String, default: 0}
+     *  }
+     * 
+     * Recognised types are limited to:
+     *  Boolean, String, Number
      * @static
      */
     static get _attributes() { return {}; }
@@ -38,7 +46,7 @@ export default class WebComponent extends HTMLElement {
      */
 
     #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
-    #events = [];   // Stores the events attached to child elements so they can be cleaned up automatically
+    #events = [];   // Stores the event handlers attached to child elements so they can be cleaned up automatically
 
     /*
      * Component Setup

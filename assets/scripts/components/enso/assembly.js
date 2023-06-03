@@ -1,4 +1,6 @@
 
+const validAtributeTypes = [Boolean, Number, String];
+
 const createFragment = html => 
     document.createRange().createContextualFragment(html);
 
@@ -10,7 +12,7 @@ const createFragment = html =>
 export function createTemplate(html) {
     const template = createFragment(html).firstElementChild;
 
-    // The root of the HTML is expected to be a template
+    // The root of the HTML is expected to be a template tag
     if (template.tagName != 'TEMPLATE') {
         const temp = document.createElement('TEMPLATE');
         temp.content.appendChild(template);
@@ -39,7 +41,17 @@ export function createStyleSheet(css) {
  * @param {Element} template    - Internal HTML template
  */
 export function createComponent(component, template=null, styles=null) {
+    // Check that the component has valid values
+    const attributes = component._attributes;
+    for (const attr in attributes) {
+        const type = attributes[attr].type;
+        if (!validAtributeTypes.includes(type)) {
+            throw new Error(`Component attribute '${attr}' has unsupported type`);
+        }
+    }
+    // Add template and styles
     component._template = template;
     component._styles = styles;
+    // Define custom element
     customElements.define(component.tagName, component);
 }
