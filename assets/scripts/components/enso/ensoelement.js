@@ -1,3 +1,4 @@
+import { domHandler } from "./elements.js";
 
 /**
  * Base class to help create Web Components. 
@@ -104,6 +105,14 @@ export default class EnsoElement extends HTMLElement {
         }
     }
 
+    #getReferences() {
+        const refs = this.#root.querySelectorAll('[ref]');
+        for (const ref of refs) {
+            const key = ref.getAttribute('ref');
+            this._refs[key] = new Proxy(ref, domHandler);
+        }
+    }
+
     /*
      * Lifecycle events
      */
@@ -138,11 +147,7 @@ export default class EnsoElement extends HTMLElement {
 
     connectedCallback() {
         // Collect this component's references
-        const refs = this.#root.querySelectorAll('[ref]');
-        for (const ref of refs) {
-            const key = ref.getAttribute('ref');
-            this._refs[key] = ref;
-        }
+        this.#getReferences();
         this.onStart();
     }
 

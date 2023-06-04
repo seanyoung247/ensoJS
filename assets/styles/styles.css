@@ -75,3 +75,11 @@ css3d-cuboid > div {
     background-color: #aa0000aa;
     border: 1px solid #aa0000;
 }
+
+/* .enso {
+    background: #aaaaaaaa url('../images/icon.svg') 0 0 / contain no-repeat;
+}
+
+.colored .enso {
+    background: #aa0000aa url('../images/icon.svg') 0 0 / contain no-repeat;
+} */
