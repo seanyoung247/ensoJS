@@ -8,7 +8,7 @@ export const domHandler = {
         console.log(`Getting: ${prop}`);
 
         if (typeof target[prop] === 'object' && !target[prop]._isProxy) {
-            target[prop] = new Proxy(obj[prop], domHandler());
+            target[prop] = new Proxy(target[prop], domHandler);
         }
         return target[prop];
     },
