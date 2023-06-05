@@ -1,5 +1,5 @@
 
-import { EnsoElement, createComponent, createStyleSheet, createTemplate } from "../enso/enso.js";
+import { Enso, createComponent, createStyleSheet, createTemplate } from "../enso/enso.js";
 
 
 const faces = [
@@ -54,7 +54,7 @@ const template = createTemplate(
 
 createComponent(
 
-    class extends EnsoElement {
+    class extends Enso {
         static get tagName() { return 'css3d-cuboid'; }
         static get _attributes() {
             return {

@@ -5,7 +5,7 @@ import { domHandler } from "./elements.js";
  * Handles much of the boilerplate needed for web components.
  * @abstract
  */
-export default class EnsoElement extends HTMLElement {
+export default class Enso extends HTMLElement {
 
     /*
      * Type properties
@@ -109,7 +109,7 @@ export default class EnsoElement extends HTMLElement {
         const refs = this.#root.querySelectorAll('[ref]');
         for (const ref of refs) {
             const key = ref.getAttribute('ref');
-            this._refs[key] = new Proxy(ref, domHandler);
+            this._refs[key] = ref;//new Proxy(ref, domHandler);
         }
     }
 
