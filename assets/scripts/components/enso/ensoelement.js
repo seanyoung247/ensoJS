@@ -1,8 +1,7 @@
 // import { domHandler } from "./elements.js";
 
 /**
- * Base class to help create Web Components. 
- * Handles much of the boilerplate needed for web components.
+ * Enso Web Component base class
  * @abstract
  */
 export default class Enso extends HTMLElement {
@@ -16,7 +15,7 @@ export default class Enso extends HTMLElement {
     /**
      * Provides the attributes and their types that this component recognises.
      * If a derived component has HTML attributes it should override this method
-     * and return the attributes in an object litteral:
+     * and return the attributes in an object litteral, ex:
      *  return: {
      *      'attribute1': {type: Number, default: 0},
      *      'attribute2': {type: String, default: 0}
@@ -47,7 +46,7 @@ export default class Enso extends HTMLElement {
      */
 
     #events = new AbortController();
-    #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
+    #root = null;   // Component root element
     #refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
     /*
@@ -70,7 +69,7 @@ export default class Enso extends HTMLElement {
         }
 
         // Create the component internal DOM
-        this.#createShadowDOM(properties);
+        this.#root = this.#createShadowDOM(properties);
     }
 
     #createDefaultAccessor(attr, prop, type) {
@@ -92,8 +91,8 @@ export default class Enso extends HTMLElement {
         });
     }
 
-    #createShadowDOM(properties={mode:'open'}) {
-        this.#root = this.attachShadow(properties);
+    #createShadowDOM(properties) {
+        const root = this.attachShadow(properties);
         
         if (this.template) {
             this.#root.append(this.template.content.cloneNode(true));
@@ -102,6 +101,8 @@ export default class Enso extends HTMLElement {
         if (this.styles) {
             this.#root.adoptedStyleSheets = [this.styles];
         }
+
+        return root;
     }
 
     #getReferences() {
