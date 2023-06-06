@@ -1,4 +1,4 @@
-import { domHandler } from "./elements.js";
+// import { domHandler } from "./elements.js";
 
 /**
  * Base class to help create Web Components. 
@@ -46,10 +46,9 @@ export default class Enso extends HTMLElement {
      * Instance Properties
      */
 
-    #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
     #events = new AbortController();
-
-    _refs = {};     // Holds the defined references for elements in the component's internal DOM.
+    #root = null;   // Stores the shadowRoot in a private variable to avoid exposing it if it is created closed
+    #refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
     /*
      * Component Setup
@@ -109,9 +108,14 @@ export default class Enso extends HTMLElement {
         const refs = this.#root.querySelectorAll('[ref]');
         for (const ref of refs) {
             const key = ref.getAttribute('ref');
-            this._refs[key] = ref;//new Proxy(ref, domHandler);
+            this.#refs[key] = ref;//new Proxy(ref, domHandler);
         }
     }
+
+    /*
+     * Accessors
+     */
+    get _refs() { return this.#refs; }
 
     /*
      * Lifecycle events
