@@ -49,13 +49,17 @@ css3d-cuboid > div {
 }
 
 #cube-wrapper {
-    width: 15em;
-    height: 15em;
+    --size: 15em;
+    width: var(--size);
+    height: var(--size);
     perspective: 100vw;
     background: url('../images/icon.svg') 0 0 / contain no-repeat;
 }
 
 css3d-cuboid {
+    --width: calc(var(--size) / 2);
+    --height: calc(var(--size) / 2);
+    --depth: calc(var(--size) / 2);
     animation: rotate 10s linear infinite;
 }
 
