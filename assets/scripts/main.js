@@ -15,4 +15,5 @@
     modalColorBtn.addEventListener('click', () => {
         testModal.classList.toggle('colored');
     });
+
 })();

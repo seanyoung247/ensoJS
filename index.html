@@ -9,8 +9,8 @@
     <script src="assets/scripts/main.js" type="module"></script>
 
     <!-- Component includes -->
-    <script src="assets/scripts/components/modal/modal.js" type="module"></script>
-    <script src="assets/scripts/components/cuboid/cuboid.js" type="module"></script>
+    <script src="assets/scripts/components/modal/modal.js" type="module" async></script>
+    <script src="assets/scripts/components/cuboid/cuboid.js" type="module" async></script>
 
     <title>Web Component Examples</title>
 </head>
@@ -26,7 +26,8 @@
         <div class="modal-content" slot="modal-content">
             <button id="modal-color-btn">Change Colour</button>
             <div id="cube-wrapper">
-                <css3d-cuboid width="7.5em" height="7.5em" depth="7.5em">
+                <!-- <css3d-cuboid width="7.5em" height="7.5em" depth="7.5em"> -->
+                <css3d-cuboid>  
                     <div class="enso" slot="front">Enso</div>
                     <div slot="right">HTML</div>
                     <div slot="left">CSS</div>
