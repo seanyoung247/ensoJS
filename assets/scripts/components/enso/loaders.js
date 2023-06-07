@@ -7,6 +7,9 @@ const loadResource = (url, builder) => fetch(url)
     .then(response => response.text())
     .then(builder);
 
+/**
+ * Resource loading functions
+ */
 export default {
     /**
      * Imports HTML template from external html file.
