@@ -7,10 +7,14 @@ const loadResource = (url, builder) => fetch(url)
     .then(response => response.text())
     .then(builder);
 
+
 const createFragment = html => 
     document.createRange().createContextualFragment(html);
 
 
+/**
+ * Resource loading functions
+ */
 export default {
     /**
      * Imports HTML template from external html file.
