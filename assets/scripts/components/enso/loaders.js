@@ -6,7 +6,7 @@ const loadResource = (url, builder) => fetch(url)
     .then(response => response.text())
     .then(builder);
 
-export const load = {
+export default {
     html: (url, baseUrl) => loadResource(
         buildURL(url, baseUrl), 
         createTemplate

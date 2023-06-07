@@ -1,5 +1,5 @@
 // Resource loaders
-export { load } from './loaders.js';
+export { default as load } from './loaders.js';
 // Component and resource creation helpers
 export { createTemplate, createStyleSheet } from './creators.js';
 // Web component boiler plate base class
