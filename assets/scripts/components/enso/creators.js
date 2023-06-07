@@ -1,6 +1,4 @@
 
-const validAtributeTypes = [Boolean, Number, String];
-
 const createFragment = html => 
     document.createRange().createContextualFragment(html);
 

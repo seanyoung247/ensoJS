@@ -2,25 +2,17 @@ import { createStyleSheet, createTemplate } from "./creators.js";
 
 const buildURL = (fileURL, baseUrl) => new URL(fileURL, baseUrl).href;
 
-const loadResource = (url) => fetch(url).then(response => response.text());
+const loadResource = (url, builder) => fetch(url)
+    .then(response => response.text())
+    .then(builder);
 
-/**
- * Imports HTML template from external html file.
- * @param {String} templateURL  - relative path to template file
- * @param {String} baseUrl      - url of calling file, eg. import.meta.url
- * @returns HTML Template
- */
-export const importTemplate = (templateURL, baseUrl) =>
-    loadResource(buildURL(templateURL, baseUrl))
-        .then( createTemplate );
-
-/**
- * Imports HTML template from external html file.
- * @param {String} templateURL  - relative path to template file
- * @param {String} baseUrl      - url of calling file, eg. import.meta.url
- * @returns HTML Template
- */
-export const importStyles = (styleURL, baseUrl) => 
-    loadResource(buildURL(styleURL, baseUrl))
-        .then( createStyleSheet );
-
+export const load = {
+    html: (url, baseUrl) => loadResource(
+        buildURL(url, baseUrl), 
+        createTemplate
+    ),
+    css: (url, baseUrl) => loadResource(
+        buildURL(url, baseUrl),
+        createStyleSheet
+    )
+}

@@ -1,10 +1,10 @@
 
 import { 
-    Enso, importTemplate, importStyles 
+    Enso, load
 } from "../enso/enso.js";
 
-const styles = await importStyles('modal.css', import.meta.url);
-const template = await importTemplate('modal.html', import.meta.url);
+const template = await load.html('modal.html', import.meta.url);
+const styles = await load.css('modal.css', import.meta.url);
 
 Enso.define(
     class extends Enso {
