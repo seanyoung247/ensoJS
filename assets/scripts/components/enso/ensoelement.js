@@ -1,5 +1,11 @@
 // import { domHandler } from "./elements.js";
 
+export const validAtributeTypes = Object.freeze([
+    Boolean, 
+    Number,
+    String
+]);
+
 /**
  * Enso Web Component base class
  * @abstract
@@ -34,6 +40,29 @@ export default class Enso extends HTMLElement {
      */
     static get tagName() {
         throw new Error(`${this.name} has no defined tag name! Have you provided a static get tagName?`);
+    }
+
+    /**
+     * Defines a new Enso component
+     * @param {Object} component - Enso derived class implementation
+     * @param {HTMLElement} template - (Optional) Template defining component HTML
+     * @param {CSSStyleSheet} styles - (Optional) Adoptable Style sheet
+     * @static
+     */
+    static define(component, template=null, styles=null) {
+        // Ensure that the component has valid attributes
+        const attributes = component._attributes;
+        for (const attr in attributes) {
+            const type = attributes[attr].type;
+            if (!validAtributeTypes.includes(type)) {
+                throw new Error(`Component attribute '${attr}' has unsupported type`);
+            }
+        }
+        // Add template and styles
+        component._template = template;
+        component._styles = styles;
+        // Define the custom element
+        customElements.define(component.tagName, component);
     }
 
     /* Instance accessors for static properties */
@@ -93,15 +122,13 @@ export default class Enso extends HTMLElement {
 
     #createShadowDOM(properties) {
         const root = this.attachShadow(properties);
-        
         if (this.template) {
-            this.#root.append(this.template.content.cloneNode(true));
+            root.append(this.template.content.cloneNode(true));
         }
 
         if (this.styles) {
-            this.#root.adoptedStyleSheets = [this.styles];
+            root.adoptedStyleSheets = [this.styles];
         }
-
         return root;
     }
 

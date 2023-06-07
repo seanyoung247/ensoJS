@@ -1,13 +1,12 @@
 
 import { 
-    Enso, createComponent, importTemplate, importStyles 
+    Enso, importTemplate, importStyles 
 } from "../enso/enso.js";
 
 const styles = await importStyles('modal.css', import.meta.url);
 const template = await importTemplate('modal.html', import.meta.url);
 
-createComponent(
-
+Enso.define(
     class extends Enso {
         static get tagName() { return 'modal-dialog'; }
         static get _attributes() {

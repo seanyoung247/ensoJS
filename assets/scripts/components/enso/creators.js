@@ -33,25 +33,3 @@ export function createStyleSheet(css) {
     sheet.replaceSync(css);
     return sheet;
 }
-
-
-/**
- * Creates a component from a EnsoElement class implementation and template element
- * @param {Object} component    - EnsoElement class implementation
- * @param {Element} template    - Internal HTML template
- */
-export function createComponent(component, template=null, styles=null) {
-    // Check that the component has valid values
-    const attributes = component._attributes;
-    for (const attr in attributes) {
-        const type = attributes[attr].type;
-        if (!validAtributeTypes.includes(type)) {
-            throw new Error(`Component attribute '${attr}' has unsupported type`);
-        }
-    }
-    // Add template and styles
-    component._template = template;
-    component._styles = styles;
-    // Define custom element
-    customElements.define(component.tagName, component);
-}
