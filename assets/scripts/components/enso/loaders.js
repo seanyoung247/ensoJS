@@ -1,6 +1,7 @@
 import { createStyleSheet, createTemplate } from "./creators.js";
 
-const buildURL = (fileURL, baseUrl) => new URL(fileURL, baseUrl).href;
+const buildURL = (fileURL, baseUrl) => 
+    new URL(fileURL, baseUrl).href;
 
 const loadResource = (url, builder) => fetch(url)
     .then(response => response.text())
