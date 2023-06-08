@@ -56,6 +56,11 @@ css3d-cuboid > div {
     background: url('../images/icon.svg') 0 0 / contain no-repeat;
 }
 
+
+css3d-cuboid:not(:defined) {
+    display: none; /* Don't show the cube at all if it's undefined */
+}
+
 css3d-cuboid {
     --width: calc(var(--size) / 2);
     --height: calc(var(--size) / 2);

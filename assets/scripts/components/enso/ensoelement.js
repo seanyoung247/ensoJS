@@ -32,14 +32,15 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {Object} properties                   - Component properties
-     *  @param {String} properties.tagName          - DOM tag name for this component
-     *  @param {HTMLElement} properties.template    - Template defining component HTML
-     *  @param {CSSStyleSheet} [properties.styles]  - (Optional) Adoptable Style sheet
-     *  @param {typeof Enso} [properties.component] - (Optional) Enso derived class implementation
+     * @param {Object} properties                    - Component properties
+     *  @param {String} properties.tagName           - DOM tag name for this component
+     *  @param {HTMLElement} properties.template     - Template defining component HTML
+     *  @param {CSSStyleSheet} [properties.styles]   - (Optional) Adoptable Style sheet
+     *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
+     *  @param {typeof Enso} [properties.component]  - (Optional) Enso derived class implementation
      * @static
      */
-    static define({tagName, template, styles=null, component=class extends Enso {}}) {
+    static define({tagName, template, styles=null, useShadow=true, component=class extends Enso {}}) {
         // Ensure that the component has valid attributes
         const attributes = component._attributes;
         for (const attr in attributes) {
@@ -48,8 +49,13 @@ export default class Enso extends HTMLElement {
                 throw new Error(`Component attribute '${attr}' has unsupported type`);
             }
         }
+        // Adoptable stylesheets make no sense if not using shadow dom.
+        if (!useShadow && styles) {
+            console.warn(`Ignoring stylesheet for ${tagName} as it doesn't use Shadow DOM.`);
+        }
         // Add template and styles to component
         Object.defineProperties(component, {
+            '_useShadow': { value: useShadow, writable: false },
             '_template': { value: template, writable: false },
             '_styles': { value: styles, writable: false }
         });
@@ -60,6 +66,7 @@ export default class Enso extends HTMLElement {
     /* Instance accessors for static properties */
     get styles() { return this.constructor._styles; }
     get template() { return this.constructor._template; }
+    get useShadow() { return this.constructor._useShadow; }
     get attributes() { return this.constructor._attributes; }
 
     /*
@@ -89,8 +96,8 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        // Create the component internal DOM
-        this.#root = this.#createShadowDOM(properties);
+        // Determine what this component's root node should be
+        this.#root = (this.useShadow) ? this.attachShadow(properties) : this;
     }
 
     #createDefaultAccessor(attr, prop, type) {
@@ -110,26 +117,6 @@ export default class Enso extends HTMLElement {
                 this.onPropertyChange(attr, val);
             }
         });
-    }
-
-    #createShadowDOM(properties) {
-        const root = this.attachShadow(properties);
-        if (this.template) {
-            root.append(this.template.content.cloneNode(true));
-        }
-
-        if (this.styles) {
-            root.adoptedStyleSheets = [this.styles];
-        }
-        return root;
-    }
-
-    #getReferences() {
-        const refs = this.#root.querySelectorAll('[ref]');
-        for (const ref of refs) {
-            const key = ref.getAttribute('ref');
-            this.#refs[key] = ref;
-        }
     }
 
     /*
@@ -173,8 +160,21 @@ export default class Enso extends HTMLElement {
     }
 
     connectedCallback() {
-        // Collect this component's references
-        this.#getReferences();
+
+        if (this.template) {
+            this.#root.append(this.template.content.cloneNode(true));
+        }
+
+        if (this.useShadow && this.styles) {
+            this.#root.adoptedStyleSheets = [this.styles];
+        }
+
+        const refs = this.#root.querySelectorAll('[ref]');
+        for (const ref of refs) {
+            const key = ref.getAttribute('ref');
+            this.#refs[key] = ref;
+        }
+
         this.onStart();
     }
 
