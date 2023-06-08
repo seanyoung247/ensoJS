@@ -54,9 +54,9 @@ const template = build.template(
 
 Enso.define({
 
+    tagName: 'css3d-cuboid',
     component:
     class extends Enso {
-        static get tagName() { return 'css3d-cuboid'; }
         static get _attributes() {
             return {
                 'width': {type: String, default: 0},

@@ -4,10 +4,10 @@ import { Enso, load } from "../enso/enso.js";
 const[template, styles] = await load.htmlAndCss('modal.html', 'modal.css', import.meta.url);
 
 Enso.define({
-    
+
+    tagName: 'modal-dialog',
     component:
     class extends Enso {
-        static get tagName() { return 'modal-dialog'; }
         static get _attributes() {
             return {
                 'show': {type: Boolean, default: false},    // Is the modal shown?

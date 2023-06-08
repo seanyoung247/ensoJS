@@ -31,21 +31,14 @@ export default class Enso extends HTMLElement {
      * @static
      */
     static get _attributes() { return {}; }
-    /**
-     * Provides the DOM tag name for this component
-     * @static
-     * @abstract
-     * @return {String} - tag name
-     */
-    static get tagName() {
-        throw new Error(`${this.name} has no defined tag name! Have you provided a static get tagName?`);
-    }
 
     /**
      * Defines a new Enso component
-     * @param {HTMLElement} template    - Template defining component HTML
-     * @param {CSSStyleSheet} styles    - (Optional) Adoptable Style sheet
-     * @param {Object} component        - (Optional) Enso derived class implementation
+     * @param {Object} properties                   - Component properties
+     * @param {String} properties.tagName           - DOM tag name for this component
+     * @param {HTMLElement} properties.template     - Template defining component HTML
+     * @param {CSSStyleSheet} [properties.styles]   - (Optional) Adoptable Style sheet
+     * @param {typeof Enso} [properties.component]  - (Optional) Enso derived class implementation
      * @static
      */
     static define({template, styles=null, component=class extends Enso {}}) {
@@ -61,7 +54,7 @@ export default class Enso extends HTMLElement {
         component._template = template;
         component._styles = styles;
         // Define the custom element
-        customElements.define(component.tagName, component);
+        customElements.define(tagName, component);
     }
 
     /* Instance accessors for static properties */
