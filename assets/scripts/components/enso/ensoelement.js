@@ -1,4 +1,3 @@
-// import { domHandler } from "./elements.js";
 
 export const validAtributeTypes = Object.freeze([
     Boolean, 
@@ -74,7 +73,7 @@ export default class Enso extends HTMLElement {
      * Instance Properties
      */
 
-    #events = new AbortController();
+    // #events = new AbortController();
     #root = null;   // Component root element
     #refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
@@ -136,7 +135,7 @@ export default class Enso extends HTMLElement {
         const refs = this.#root.querySelectorAll('[ref]');
         for (const ref of refs) {
             const key = ref.getAttribute('ref');
-            this.#refs[key] = ref;//new Proxy(ref, domHandler);
+            this.#refs[key] = ref;
         }
     }
 
@@ -151,6 +150,7 @@ export default class Enso extends HTMLElement {
 
     /**
      * Called when the component has been mounted and started on the page.
+     * @abstract
      */
     onStart() {}
 
@@ -160,12 +160,14 @@ export default class Enso extends HTMLElement {
      * reflection boilerplate.
      * @param {String} prop - String name of the property
      * @param {*} value - The new property value
+     * @abstract
      */
     onPropertyChange(prop, value) {}
 
     /**
      * Called when the component is removed from the page. Component cleanup
      * should be done here.
+     * @abstract
      */
     onRemoved() {}
 
@@ -185,7 +187,7 @@ export default class Enso extends HTMLElement {
 
     disconnectedCallback() {
         // Remove any registered event listeners
-        this.#events.abort();
+        // this.#events.abort();
         this.onRemoved();
     }
       
