@@ -3,7 +3,9 @@ import { Enso, load } from "../enso/enso.js";
 
 const[template, styles] = await load.htmlAndCss('modal.html', 'modal.css', import.meta.url);
 
-Enso.define(
+Enso.define({
+    
+    component:
     class extends Enso {
         static get tagName() { return 'modal-dialog'; }
         static get _attributes() {
@@ -27,4 +29,4 @@ Enso.define(
     },
     template, styles
     
-);
+});

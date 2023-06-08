@@ -52,8 +52,9 @@ const template = build.template(
     </div>`
 );
 
-Enso.define(
+Enso.define({
 
+    component:
     class extends Enso {
         static get tagName() { return 'css3d-cuboid'; }
         static get _attributes() {
@@ -69,4 +70,4 @@ Enso.define(
     },
     template, styles
 
-);
+});

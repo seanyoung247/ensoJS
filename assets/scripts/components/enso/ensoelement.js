@@ -43,12 +43,12 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component
-     * @param {Object} component - Enso derived class implementation
-     * @param {HTMLElement} template - (Optional) Template defining component HTML
-     * @param {CSSStyleSheet} styles - (Optional) Adoptable Style sheet
+     * @param {HTMLElement} template    - Template defining component HTML
+     * @param {CSSStyleSheet} styles    - (Optional) Adoptable Style sheet
+     * @param {Object} component        - (Optional) Enso derived class implementation
      * @static
      */
-    static define(component, template=null, styles=null) {
+    static define({template, styles=null, component=class extends Enso {}}) {
         // Ensure that the component has valid attributes
         const attributes = component._attributes;
         for (const attr in attributes) {
