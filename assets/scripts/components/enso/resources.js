@@ -44,9 +44,9 @@ export const build = {
 export const load = {
     /**
      * Imports HTML template from external html file.
-     * @param {String} url          - relative path to template file
+     * @param {String} url          - relative path to HTML template file
      * @param {String} baseUrl      - url of calling file, eg. import.meta.url
-     * @returns HTML Template
+     * @returns {Promise} HTML Template
      */
     html: (url, baseUrl) => loadResource(
         buildURL(url, baseUrl), 
@@ -55,13 +55,25 @@ export const load = {
 
     /**
      * Imports CSS stylesheet from external css file.
-     * @param {String} url          - relative path to template file
+     * @param {String} url          - relative path to CSS file
      * @param {String} baseUrl      - url of calling file, eg. import.meta.url
-     * @returns CSS Stylesheet                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+     * @returns {Promise} CSS Stylesheet                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
      */
     css: (url, baseUrl) => loadResource(
         buildURL(url, baseUrl),
         build.stylesheet
-    )
-}
+    ),
+
+    /**
+     * Imports HTML template and stylesheet from external files.
+     * @param {String} htmlUrl      - relative path to HTML template file
+     * @param {String} cssUrl       - relative path to CSS file
+     * @param {String} baseUrl      - url of calling file, eg. import.meta.url 
+     * @returns {Promise} [HTML template, CSS spreadsheet]
+     */
+    htmlAndCss: (htmlUrl, cssUrl, baseUrl) => Promise.all([
+        load.html(htmlUrl, baseUrl),
+        load.css(cssUrl, baseUrl)
+    ])
+};
 
