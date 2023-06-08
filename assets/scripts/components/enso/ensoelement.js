@@ -15,8 +15,6 @@ export default class Enso extends HTMLElement {
      * Type properties
      */
 
-    static _template = null;    // The HTML template for the component's internal DOM
-    static _styles = null;      // Internal style sheet
     /**
      * Provides the attributes and their types that this component recognises.
      * If a derived component has HTML attributes it should override this method
@@ -33,15 +31,15 @@ export default class Enso extends HTMLElement {
     static get _attributes() { return {}; }
 
     /**
-     * Defines a new Enso component
+     * Defines a new Enso component and registers it in the browser as a custom element.
      * @param {Object} properties                   - Component properties
-     * @param {String} properties.tagName           - DOM tag name for this component
-     * @param {HTMLElement} properties.template     - Template defining component HTML
-     * @param {CSSStyleSheet} [properties.styles]   - (Optional) Adoptable Style sheet
-     * @param {typeof Enso} [properties.component]  - (Optional) Enso derived class implementation
+     *  @param {String} properties.tagName          - DOM tag name for this component
+     *  @param {HTMLElement} properties.template    - Template defining component HTML
+     *  @param {CSSStyleSheet} [properties.styles]  - (Optional) Adoptable Style sheet
+     *  @param {typeof Enso} [properties.component] - (Optional) Enso derived class implementation
      * @static
      */
-    static define({template, styles=null, component=class extends Enso {}}) {
+    static define({tagName, template, styles=null, component=class extends Enso {}}) {
         // Ensure that the component has valid attributes
         const attributes = component._attributes;
         for (const attr in attributes) {
@@ -50,9 +48,11 @@ export default class Enso extends HTMLElement {
                 throw new Error(`Component attribute '${attr}' has unsupported type`);
             }
         }
-        // Add template and styles
-        component._template = template;
-        component._styles = styles;
+        // Add template and styles to component
+        Object.defineProperties(component, {
+            '_template': { value: template, writable: false },
+            '_styles': { value: styles, writable: false }
+        });
         // Define the custom element
         customElements.define(tagName, component);
     }
