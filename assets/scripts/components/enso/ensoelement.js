@@ -53,7 +53,7 @@ export default class Enso extends HTMLElement {
         if (!useShadow && styles) {
             console.warn(`Ignoring stylesheet for ${tagName} as it doesn't use Shadow DOM.`);
         }
-        // Add template and styles to component
+        // Add type properties
         Object.defineProperties(component, {
             '_useShadow': { value: useShadow, writable: false },
             '_template': { value: template, writable: false },
