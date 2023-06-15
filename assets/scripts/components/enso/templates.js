@@ -2,6 +2,22 @@
  * Templating
  */
 
+
+/* Need to store:
+ *  o   Referenced nodes
+ *  o   Event Listeners
+ *  o   Mutated nodes.
+ *        Nodes that have simple mutations,
+ *        Attributes or text content that changes
+ *        { 
+ *          NodeTag,    - An identifier for the node
+ *          attribute,  - List? of attributes that are mutated
+ *          operation   - Code run on change
+ *        }
+ *  o   Conditionals
+ *  o   ForEach
+ */
+
 export class EnsoTemplate {
     #template = null;
 
@@ -18,20 +34,10 @@ export class EnsoTemplate {
         this.#template = this.#parse(template);
     }
 
-    #parse() {
+    #parse(template) {
+        const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+
         // Strip templated directives out and prep them for evaluation
-        /* Need to store:
-         *  o   Referenced nodes
-         *  o   Mutated nodes.
-         *        Nodes that have simple mutations,
-         *        Attributes or text content that changes
-         *        { 
-         *          NodeTag,    - An identifier for the node
-         *          attribute,  - List? of attributes that are mutated
-         *          operation   - Code run on change
-         *        }
-         *  o   Conditionals
-         *  o   ForEach
-         */
+
     }
 }

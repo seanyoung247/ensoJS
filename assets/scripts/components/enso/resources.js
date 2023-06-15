@@ -13,8 +13,8 @@ const createFragment = html =>
 export const build = {
     /**
      * Creates a HTML template from the provided HTML string
-     * @param {String} html - String of HTML nodes
-     * @returns {HTMLElement} - The created HTML template
+     * @param {String} html     - String of HTML nodes
+     * @returns {HTMLElement}   - The created HTML template
      */
     template: html => {
         const template = createFragment(html).firstElementChild;
@@ -31,8 +31,8 @@ export const build = {
 
     /**
      * Creates a stylesheet object from string css styles
-     * @param {String} css - String of CSS style rules
-     * @returns {Object} - compiled StyleSheet
+     * @param {String} css      - String of CSS style rules
+     * @returns {Object}        - compiled StyleSheet
      */
     stylesheet: css => {
         const sheet = new CSSStyleSheet();
