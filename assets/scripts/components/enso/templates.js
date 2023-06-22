@@ -46,14 +46,14 @@ export default class EnsoTemplate {
         const walker = getWalker(rootNode);
 
         for (let node = walker.currentNode; node; node = walker.nextNode()) {
-            const attributes = node.attributes;
             const nodeDef = { 
                 watched: false,
                 index: this.#nodes.length,
                 ref: null,
                 events: []
             };
-            if (attributes) {
+            if (node.attributes) {
+                const attributes = Array.from(node.attributes);
                 for (const attr of attributes) {
                     const type = attr.name[0];
                     const name = attr.name.slice(1).toLowerCase();
@@ -62,10 +62,12 @@ export default class EnsoTemplate {
                     if (type === '#') {
                         nodeDef.watched = true;
                         nodeDef[name] = value;
+                        node.removeAttribute(attr.name);
                     }
                     if (type === '@') {
                         nodeDef.watched = true;
                         nodeDef.events.push({name,value});
+                        node.removeAttribute(attr.name);
                     }
                 }
             }
