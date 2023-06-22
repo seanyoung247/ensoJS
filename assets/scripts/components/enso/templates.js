@@ -56,7 +56,37 @@ export default class EnsoTemplate {
     }
 
     #parse(template) {
-        const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+        const rootNode = template.content.firstElementChild;
+        const walker = getWalker(rootNode, ignoreWhiteSpace);
+
+        for (let node = walker.currentNode; node; node = walker.nextNode()) {
+            const attributes = node.attributes;
+            const nodeDef = { 
+                watched: false,
+                index: this.#nodes.length + 1,
+                ref: null,
+
+            };
+            if (attributes) {
+                for (const attr of attributes) {
+                    const type = attr.name[0];
+                    const name = attr.name.slice(1).toLowerCase();
+                    const value = attr.value;
+                    if (type === '#') {
+                        nodeDef.watched = true;
+                        nodeDef[name] = value;
+                        node.removeAttribute(attr.name);
+                    }
+                }
+            }
+            if (nodeDef.watched) {
+                node.setAttribute('data-enso-id', nodeDef.index);
+                this.#nodes.push(nodeDef);
+            }
+        }
+
+        return template;
+    }
 
         // Strip templated directives out and prep them for evaluation
 
