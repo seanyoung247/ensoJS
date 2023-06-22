@@ -18,6 +18,8 @@ const getWalker = rootNode =>
     });
 
 
+const ENSO_ATTR = 'data-enso-idx';
+
 export default class EnsoTemplate {
     #template = null;   // The underlying HTML template
     #nodes = [];        // List of nodes that are referenced or mutated
@@ -42,7 +44,7 @@ export default class EnsoTemplate {
             const attributes = node.attributes;
             const nodeDef = { 
                 watched: false,
-                index: this.#nodes.length + 1,
+                index: this.#nodes.length,
                 ref: null,
 
             };
@@ -59,7 +61,7 @@ export default class EnsoTemplate {
                 }
             }
             if (nodeDef.watched) {
-                node.setAttribute('data-enso-id', nodeDef.index);
+                node.setAttribute(ENSO_ATTR, nodeDef.index);
                 this.#nodes.push(nodeDef);
             }
         }
@@ -71,13 +73,17 @@ export default class EnsoTemplate {
         const DOM = this.#template.content.cloneNode(true);
         const refs = {};
 
-        // Compile watched nodes
-        for (const node of this.#nodes) {
-            const el = DOM.querySelector(`[data-enso-id="${node.index}"]`);
+        const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
+        for (const el of elements) {
+            const idx = parseInt(el.getAttribute(ENSO_ATTR));
+            
+            const node = this.#nodes[idx];
+            console.log(idx,node, this.#nodes)
+
             if (node.ref) {
                 refs[node.ref] = el;
             }
-            el.removeAttribute('data-enso-id');
+            el.removeAttribute(ENSO_ATTR);
         }
 
         return {refs, DOM};

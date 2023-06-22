@@ -163,7 +163,7 @@ export default class Enso extends HTMLElement {
 
         if (this.template) {
             const internal = this.template.clone();
-            this.#refs = internal.refs;
+            this.#refs = Object.freeze(internal.refs);
             this.#root.append(internal.DOM);
         }
         // Adopted stylesheets only work in shadowDOM
