@@ -8,29 +8,13 @@ const loadResource = (url, builder) => fetch(url)
     .then(response => response.text())
     .then(builder);
 
-const createFragment = html => 
-    document.createRange().createContextualFragment(html);
-
-
 export const build = {
     /**
      * Creates a HTML template from the provided HTML string
      * @param {String} html     - String of HTML nodes
      * @returns {HTMLElement}   - The created HTML template
      */
-    template: html => {
-        // const template = createFragment(html).firstElementChild;
-
-        // // The root of the HTML is expected to be a template tag
-        // if (template.tagName != 'TEMPLATE') {
-        //     const temp = document.createElement('template');
-        //     temp.content.appendChild(template);
-        //     return temp;
-        // }
-    
-        // return template
-        return new EnsoTemplate(html);
-    },
+    template: html => new EnsoTemplate(html),
 
     /**
      * Creates a stylesheet object from string css styles

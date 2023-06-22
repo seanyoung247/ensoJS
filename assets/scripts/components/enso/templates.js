@@ -9,39 +9,18 @@ const getChildIndex = (parent, node) =>
     Array.prototype.indexOf.call(parent.childNodes, node);
 
 
-const ignoreWhiteSpace = {
-    // Ignore text nodes that are just white space
-    acceptNode: (node) => 
-        node.nodeValue?.trim() !== "" ?
-            NodeFilter.FILTER_ACCEPT : 
-            NodeFilter.FILTER_REJECT
-}
-
-
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
-const getWalker = (rootNode, filter=null) => 
-    document.createTreeWalker(rootNode, NODE_TYPES, filter);
+const getWalker = rootNode => 
+    document.createTreeWalker(rootNode, NODE_TYPES, {
+        acceptNode: node => node.nodeValue?.trim() !== "" ? 
+            NodeFilter.FILTER_ACCEPT :
+            NodeFilter.FILTER_REJECT
+    });
 
-/* Need to store:
- *  o   Referenced nodes
- *  o   Event Listeners
- *  o   Mutated nodes.
- *        Nodes that have simple mutations,
- *        Attributes or text content that changes
- *        { 
- *          parent?,
- *          childIndex?
- *          NodeTag,    - An identifier for the node
- *          attribute,  - List? of attributes that are mutated
- *          operation   - Code run on change
- *        }
- *  o   Conditionals
- *  o   ForEach
- */
 
 export default class EnsoTemplate {
     #template = null;   // The underlying HTML template
-    #nodes = [];        // List of nodes that are watched or mutated
+    #nodes = [];        // List of nodes that are referenced or mutated
 
     constructor(html) {
         let template = createFragment(html).firstElementChild;
@@ -57,7 +36,7 @@ export default class EnsoTemplate {
 
     #parse(template) {
         const rootNode = template.content.firstElementChild;
-        const walker = getWalker(rootNode, ignoreWhiteSpace);
+        const walker = getWalker(rootNode);
 
         for (let node = walker.currentNode; node; node = walker.nextNode()) {
             const attributes = node.attributes;
@@ -98,6 +77,7 @@ export default class EnsoTemplate {
             if (node.ref) {
                 refs[node.ref] = el;
             }
+            el.removeAttribute('data-enso-id');
         }
 
         return {refs, DOM};
