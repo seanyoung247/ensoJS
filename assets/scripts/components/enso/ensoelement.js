@@ -1,4 +1,9 @@
 
+function createHandler(code, context) {
+    const func = new Function(`return ${code}`);
+    return func.call(context);
+}
+
 export const validAtributeTypes = Object.freeze([
     Boolean, 
     Number,
@@ -73,7 +78,7 @@ export default class Enso extends HTMLElement {
      * Instance Properties
      */
 
-    // #events = new AbortController();
+    #events = new AbortController();
     #root = null;   // Component root element
     #refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
@@ -162,9 +167,20 @@ export default class Enso extends HTMLElement {
     connectedCallback() {
 
         if (this.template) {
-            const internal = this.template.clone();
-            this.#refs = Object.freeze(internal.refs);
-            this.#root.append(internal.DOM);
+            const {DOM, nodes} = this.template.clone();
+            for (const node of nodes) {
+                if (node.ref) {
+                    this.#refs[node.ref] = node.element;
+                }
+                if (node.events.length) {
+                    for (const event of node.events) {
+                        const handler = createHandler(event.value, this);
+                        node.element.addEventListener(event.name, handler, 
+                            { signal: this.#events.signal });
+                    }
+                }
+            }
+            this.#root.append(DOM);
         }
         // Adopted stylesheets only work in shadowDOM
         if (this.useShadow && this.styles) {
@@ -176,7 +192,7 @@ export default class Enso extends HTMLElement {
 
     disconnectedCallback() {
         // Remove any registered event listeners
-        // this.#events.abort();
+        this.#events.abort();
         this.onRemoved();
     }
       

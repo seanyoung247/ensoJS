@@ -8,7 +8,6 @@ const createFragment = html =>
 const getChildIndex = (parent, node) => 
     Array.prototype.indexOf.call(parent.childNodes, node);
 
-
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 const getWalker = rootNode => 
     document.createTreeWalker(rootNode, NODE_TYPES, {
@@ -16,12 +15,6 @@ const getWalker = rootNode =>
             NodeFilter.FILTER_ACCEPT :
             NodeFilter.FILTER_REJECT
     });
-
-
-function createFunction(code) {
-    const func = new Function(`return ${code}`);
-    return func();
-}
 
 const ENSO_ATTR = 'data-enso-idx';
 
@@ -82,26 +75,18 @@ export default class EnsoTemplate {
 
     clone() {
         const DOM = this.#template.content.cloneNode(true);
-        const refs = {};
+        // const refs = {};
 
         const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
-        for (const el of elements) {
-            const idx = parseInt(el.getAttribute(ENSO_ATTR));
-            
-            const node = this.#nodes[idx];
+        const nodes = [];
 
-            if (node.ref) {
-                refs[node.ref] = el;
-            }
-            if (node.events.length) {
-                for (const event of node.events) {
-                    const handler = createFunction(event.value);
-                    el.addEventListener(event.name, handler);
-                }
-            }
-            el.removeAttribute(ENSO_ATTR);
+        for (const element of elements) {
+            const idx = parseInt(element.getAttribute(ENSO_ATTR));
+            const {ref, events} = this.#nodes[idx];
+            element.removeAttribute(ENSO_ATTR);
+            nodes.push({ element, ref, events });
         }
 
-        return {refs, DOM};
+        return { nodes, DOM };
     }
 ;}

@@ -14,12 +14,6 @@ Enso.define({
                 'static': {type: Boolean, default: false}   // Does clicking outside the modal close it?
             }
         }
-    
-        onStart() {
-            this._refs.pane.onclick = () => console.log('pane clicked');
-            this._refs.container.onclick = () => this.show = this.static;
-            this._refs['modal-close'].onclick = () => this.show = false;
-        }
     },
     template, styles
     
