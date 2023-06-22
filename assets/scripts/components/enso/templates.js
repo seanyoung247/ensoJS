@@ -45,7 +45,7 @@ export default class EnsoTemplate {
 
     constructor(html) {
         let template = createFragment(html).firstElementChild;
-        
+
         if (template.tagName != 'TEMPLATE') {
             const temp = document.createElement('template');
             temp.content.appendChild(template);
@@ -88,7 +88,18 @@ export default class EnsoTemplate {
         return template;
     }
 
-        // Strip templated directives out and prep them for evaluation
+    clone() {
+        const DOM = this.#template.content.cloneNode(true);
+        const refs = {};
 
+        // Compile watched nodes
+        for (const node of this.#nodes) {
+            const el = DOM.querySelector(`[data-enso-id="${node.index}"]`);
+            if (node.ref) {
+                refs[node.ref] = el;
+            }
+        }
+
+        return {refs, DOM};
     }
-}
+;}

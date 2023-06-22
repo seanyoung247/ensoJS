@@ -162,17 +162,13 @@ export default class Enso extends HTMLElement {
     connectedCallback() {
 
         if (this.template) {
-            this.#root.append(this.template.content.cloneNode(true));
+            const internal = this.template.clone();
+            this.#refs = internal.refs;
+            this.#root.append(internal.DOM);
         }
-
+        // Adopted stylesheets only work in shadowDOM
         if (this.useShadow && this.styles) {
             this.#root.adoptedStyleSheets = [this.styles];
-        }
-
-        const refs = this.#root.querySelectorAll('[ref]');
-        for (const ref of refs) {
-            const key = ref.getAttribute('ref');
-            this.#refs[key] = ref;
         }
 
         this.onStart();
@@ -184,7 +180,7 @@ export default class Enso extends HTMLElement {
         this.onRemoved();
     }
       
-    adoptedCallback() {}
+    // adoptedCallback() {}
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;

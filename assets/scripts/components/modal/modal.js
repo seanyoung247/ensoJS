@@ -20,12 +20,6 @@ Enso.define({
             this._refs.container.onclick = () => this.show = this.static;
             this._refs['modal-close'].onclick = () => this.show = false;
         }
-    
-        onPropertyChange(prop, value) {
-            if (prop === 'show' && value === false) {
-                this.dispatchEvent(new Event('modal-closed', {bubbles: true}));
-            }
-        }
     },
     template, styles
     
