@@ -16,7 +16,6 @@ Enso.define({
         }
     
         onStart() {
-            this._refs.pane.onclick = e => e.stopPropagation();
             this._refs.container.onclick = () => this.show = this.static;
             this._refs['modal-close'].onclick = () => this.show = false;
         }

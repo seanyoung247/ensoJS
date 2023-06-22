@@ -18,6 +18,11 @@ const getWalker = rootNode =>
     });
 
 
+function createFunction(code) {
+    const func = new Function(`return ${code}`);
+    return func();
+}
+
 const ENSO_ATTR = 'data-enso-idx';
 
 export default class EnsoTemplate {
@@ -46,17 +51,21 @@ export default class EnsoTemplate {
                 watched: false,
                 index: this.#nodes.length,
                 ref: null,
-
+                events: []
             };
             if (attributes) {
                 for (const attr of attributes) {
                     const type = attr.name[0];
                     const name = attr.name.slice(1).toLowerCase();
                     const value = attr.value;
+
                     if (type === '#') {
                         nodeDef.watched = true;
                         nodeDef[name] = value;
-                        node.removeAttribute(attr.name);
+                    }
+                    if (type === '@') {
+                        nodeDef.watched = true;
+                        nodeDef.events.push({name,value});
                     }
                 }
             }
@@ -78,10 +87,15 @@ export default class EnsoTemplate {
             const idx = parseInt(el.getAttribute(ENSO_ATTR));
             
             const node = this.#nodes[idx];
-            console.log(idx,node, this.#nodes)
 
             if (node.ref) {
                 refs[node.ref] = el;
+            }
+            if (node.events.length) {
+                for (const event of node.events) {
+                    const handler = createFunction(event.value);
+                    el.addEventListener(event.name, handler);
+                }
             }
             el.removeAttribute(ENSO_ATTR);
         }
