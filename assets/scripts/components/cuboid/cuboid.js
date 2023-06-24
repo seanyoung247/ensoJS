@@ -11,9 +11,15 @@ const faces = [
     {label: 'bottom', width: '--width', height: '--depth', transform: 'rotateX(-90deg) translateZ(calc(var(--height) / 2))'}
 ];
 
+Enso.component({
 
-const styles = (
-    `
+    tagName: 'css3d-cuboid',
+    attributes: {
+        'width': {type: String, default: 0},
+        'height': {type: String, default: 0},
+        'depth': {type: String, default: 0}
+    },
+    styles:`
     :host {
         display: block;
         width: var(--width);
@@ -38,29 +44,15 @@ const styles = (
                 transform: translate(-50%,-50%) ${e.transform};
             }`
         )).join('\n')
-    }
-    `
-);
-
-const template = (
-    `<div id="faces">
+    }`,
+    template:`
+    <div id="faces">
         ${faces.map(e => 
             `<div id=${e.label} part="face" class="face">
                 <slot name=${e.label}></slot>
             </div>`).join('\n')
         }
-    </div>`
-);
-
-Enso.component({
-
-    tagName: 'css3d-cuboid',
-    template, styles,
-    attributes: {
-        'width': {type: String, default: 0},
-        'height': {type: String, default: 0},
-        'depth': {type: String, default: 0}
-    }},
+    </div>`},
 
     class extends Enso {
         onPropertyChange(prop, value) {
