@@ -102,7 +102,7 @@ export default class Enso extends HTMLElement {
         }
 
         // Determine what this component's root node should be
-        this.#root = (this.useShadow) ? this.attachShadow(properties) : this;
+        this.#root = this.useShadow ? this.attachShadow(properties) : this;
     }
 
     #createDefaultAccessor(attr, prop, type) {
@@ -175,16 +175,19 @@ export default class Enso extends HTMLElement {
                 if (node.events.length) {
                     for (const event of node.events) {
                         const handler = createHandler(event.value, this);
-                        node.element.addEventListener(event.name, handler, 
-                            { signal: this.#events.signal });
+                        node.element.addEventListener(
+                            event.name, handler, 
+                            { signal: this.#events.signal }
+                        );
                     }
                 }
             }
             this.#root.append(DOM);
+            this.template.test();
         }
         // Adopted stylesheets only work in shadowDOM
         if (this.useShadow && this.styles) {
-            this.#root.adoptedStyleSheets = [this.styles];
+            this.#root.adoptedStyleSheets = [ this.styles ];
         }
 
         this.onStart();
