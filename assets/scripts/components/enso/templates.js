@@ -40,6 +40,15 @@ export default class EnsoTemplate {
                 events: []
             };
             if (node.attributes) {
+
+                // Strip out top level HTML templates
+                if (node.parentNode === rootNode && node?.tagName === 'TEMPLATE') {
+                    const parent = node.parentNode;
+                    const content = node.content;
+                    parent.replaceChild(content, node);
+                    walker.currentNode = content;
+                }
+
                 const attributes = Array.from(node.attributes);
                 for (const attr of attributes) {
                     const type = attr.name[0];

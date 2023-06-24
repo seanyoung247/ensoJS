@@ -8,6 +8,9 @@ const loadResource = (url, builder) => fetch(url)
     .then(response => response.text())
     .then(builder);
 
+const loadExternal = (url, baseUrl) => fetch(buildURL(url, baseUrl))
+    .then(responce => responce.text());
+
 export const build = {
     /**
      * Creates a HTML template from the provided HTML string
@@ -29,6 +32,7 @@ export const build = {
 }    
 
 export const load = {
+    external: (baseUrl, ...args) => Promise.all(args.map(file => loadExternal(file, baseUrl))),
     /**
      * Imports HTML template from external html file.
      * @param {String} url          - relative path to HTML template file

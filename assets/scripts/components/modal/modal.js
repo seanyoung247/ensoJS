@@ -1,7 +1,8 @@
 
 import Enso, { load } from "../enso/enso.js";
 
-const[template, styles] = await load.htmlAndCss('modal.html', 'modal.css', import.meta.url);
+const [template, styles] = await load.external(import.meta.url, 'modal.html', 'modal.css');
+
 
 Enso.define({
 

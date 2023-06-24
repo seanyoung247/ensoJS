@@ -1,4 +1,7 @@
 
+import EnsoStylesheet from "./stylesheets.js";
+import EnsoTemplate from "./templates.js";
+
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
     return func.call(context);
@@ -39,8 +42,8 @@ export default class Enso extends HTMLElement {
      * Defines a new Enso component and registers it in the browser as a custom element.
      * @param {Object} properties                    - Component properties
      *  @param {String} properties.tagName           - DOM tag name for this component
-     *  @param {HTMLElement} properties.template     - Template defining component HTML
-     *  @param {CSSStyleSheet} [properties.styles]   - (Optional) Adoptable Style sheet
+     *  @param {String} properties.template          - Template defining component HTML
+     *  @param {String} [properties.styles]          - (Optional) Adoptable Style sheet
      *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
      *  @param {typeof Enso} [properties.component]  - (Optional) Enso derived class implementation
      * @static
@@ -54,10 +57,14 @@ export default class Enso extends HTMLElement {
                 throw new Error(`Component attribute '${attr}' has unsupported type`);
             }
         }
-        // Adoptable stylesheets make no sense if not using shadow dom.
-        if (!useShadow && styles) {
-            console.warn(`Ignoring stylesheet for ${tagName} as it doesn't use Shadow DOM.`);
-        }
+
+        template = new EnsoTemplate(template);
+        styles = new EnsoStylesheet(styles);
+
+        // // Adoptable stylesheets make no sense if not using shadow dom.
+        // if (!useShadow && styles) {
+        //     console.warn(`Ignoring stylesheet for ${tagName} as it doesn't use Shadow DOM.`);
+        // }
         // Add type properties
         Object.defineProperties(component, {
             '_useShadow': { value: useShadow, writable: false },
@@ -183,12 +190,16 @@ export default class Enso extends HTMLElement {
                 }
             }
             this.#root.append(DOM);
-            this.template.test();
         }
+
+        if (this.styles) {
+            this.styles.attach(this.#root);
+        }
+
         // Adopted stylesheets only work in shadowDOM
-        if (this.useShadow && this.styles) {
-            this.#root.adoptedStyleSheets = [ this.styles ];
-        }
+        // if (this.useShadow && this.styles) {
+        //     this.#root.adoptedStyleSheets = [ this.styles ];
+        // }
 
         this.onStart();
     }
