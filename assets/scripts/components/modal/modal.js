@@ -3,7 +3,6 @@ import Enso, { load } from "../enso/enso.js";
 
 const [template, styles] = await load.external(import.meta.url, 'modal.html', 'modal.css');
 
-
 Enso.component({
 
     tagName: 'modal-dialog',
