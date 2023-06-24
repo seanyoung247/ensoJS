@@ -1,5 +1,5 @@
 
-import { Enso, build } from "../enso/enso.js";
+import Enso, { build } from "../enso/enso.js";
 
 
 const faces = [

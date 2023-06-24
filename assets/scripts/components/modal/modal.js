@@ -1,5 +1,5 @@
 
-import { Enso, load } from "../enso/enso.js";
+import Enso, { load } from "../enso/enso.js";
 
 const[template, styles] = await load.htmlAndCss('modal.html', 'modal.css', import.meta.url);
 
