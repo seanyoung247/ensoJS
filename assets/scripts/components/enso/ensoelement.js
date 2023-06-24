@@ -44,13 +44,14 @@ export default class Enso extends HTMLElement {
      *  @param {String} properties.tagName           - DOM tag name for this component
      *  @param {String} properties.template          - Template defining component HTML
      *  @param {String} [properties.styles]          - (Optional) Adoptable Style sheet
+     *  @param {Object} [properties.attributes]      - (optional) This component's watched attributes
      *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
-     *  @param {typeof Enso} [properties.component]  - (Optional) Enso derived class implementation
+     * @param {typeof Enso} [component]              - (Optional) Enso derived class implementation
      * @static
      */
-    static define({tagName, template, styles=null, useShadow=true, component=class extends Enso {}}) {
+    static component({tagName, template, styles=null, attributes=null, useShadow=true}, component=class extends Enso {}) {
         // Ensure that the component has valid attributes
-        const attributes = component._attributes;
+        // const attributes = component._attributes;
         for (const attr in attributes) {
             const type = attributes[attr].type;
             if (!validAtributeTypes.includes(type)) {
@@ -67,6 +68,7 @@ export default class Enso extends HTMLElement {
         // }
         // Add type properties
         Object.defineProperties(component, {
+            '_attributes': { value: attributes, writable: false },
             '_useShadow': { value: useShadow, writable: false },
             '_template': { value: template, writable: false },
             '_styles': { value: styles, writable: false }
