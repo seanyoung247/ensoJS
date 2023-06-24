@@ -1,5 +1,5 @@
 
-import Enso, { build } from "../enso/enso.js";
+import Enso from "../enso-old/enso.js";
 
 
 const faces = [
@@ -12,7 +12,7 @@ const faces = [
 ];
 
 
-const styles = build.stylesheet(
+const styles =
     `
     :host {
         display: block;
@@ -40,9 +40,9 @@ const styles = build.stylesheet(
         )).join('\n')
     }
     `
-);
+;
 
-const template = build.template(
+const template = 
     `<div id="faces">
         ${faces.map(e => 
             `<div id=${e.label} part="face" class="face">
@@ -50,7 +50,9 @@ const template = build.template(
             </div>`).join('\n')
         }
     </div>`
-);
+;
+
+console.log("import" in document.createElement("link"));
 
 Enso.define({
 

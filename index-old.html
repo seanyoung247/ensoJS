@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="assets/styles/styles.css">
+    <script src="assets/scripts/main.js" type="module"></script>
+
+    <!-- Component includes -->
+    <script src="assets/scripts/components/modal/modal.js" type="module" async></script>
+    <script src="assets/scripts/components/cuboid/cuboid.js" type="module" async></script>
+
+    <title>Web Component Examples</title>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="show-modal-btn">Show Modal</button>
+        <button id="static-modal-btn">Toggle Modal Static</button>
+    </div>
+
+    <modal-dialog id="test-modal" show>
+        <h3 class="modal-title" slot="modal-header">Test Modal</h3>
+        <div class="modal-content" slot="modal-content">
+            <button id="modal-color-btn">Change Colour</button>
+            <div id="cube-wrapper">
+                <css3d-cuboid>  
+                    <div class="enso" slot="front">Enso</div>
+                    <div slot="right">HTML</div>
+                    <div slot="left">CSS</div>
+                    <div slot="back">JavaScript</div>
+                    <div slot="top">Coffee</div>
+                    <div slot="bottom">No Sleep</div>
+                </css3d-cuboid>
+            </div>
+        </div>
+        <div slot="modal-footer">Modal Footer</div>
+    </modal-dialog>
+</body>
+</html>
