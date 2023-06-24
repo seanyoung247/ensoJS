@@ -23,19 +23,13 @@ export default class EnsoTemplate {
     #nodes = [];        // List of nodes that are referenced or mutated
 
     constructor(html) {
-        let template = createFragment(html).firstElementChild;
-
-        if (template.tagName != 'TEMPLATE') {
-            const temp = document.createElement('template');
-            temp.content.appendChild(template);
-            template = temp;
-        }
-
+        const template = document.createElement('template');
+        template.content.appendChild(createFragment(html));
         this.#template = this.#parse(template);
     }
 
     #parse(template) {
-        const rootNode = template.content.firstElementChild;
+        const rootNode = template.content;
         const walker = getWalker(rootNode);
 
         for (let node = walker.currentNode; node; node = walker.nextNode()) {
@@ -52,15 +46,18 @@ export default class EnsoTemplate {
                     const name = attr.name.slice(1).toLowerCase();
                     const value = attr.value;
 
-                    if (type === '#') {
+                    if (type === '#') { // Reference
                         nodeDef.watched = true;
                         nodeDef[name] = value;
                         node.removeAttribute(attr.name);
                     }
-                    if (type === '@') {
+                    if (type === '@') { // Event
                         nodeDef.watched = true;
                         nodeDef.events.push({name,value});
                         node.removeAttribute(attr.name);
+                    }
+                    if (type === '*') { // Binding
+
                     }
                 }
             }
@@ -75,8 +72,6 @@ export default class EnsoTemplate {
 
     clone() {
         const DOM = this.#template.content.cloneNode(true);
-        // const refs = {};
-
         const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
         const nodes = [];
 
@@ -89,4 +84,4 @@ export default class EnsoTemplate {
 
         return { nodes, DOM };
     }
-;}
+}
