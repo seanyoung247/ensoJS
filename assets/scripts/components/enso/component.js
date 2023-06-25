@@ -19,6 +19,8 @@ export const validAtributeTypes = Object.freeze([
  */
 export default class Enso extends HTMLElement {
 
-    static component({}) {}
+    static component({tag, template, styles=null, attributes={}, useShadow=false}, component = class extends Enso {}) {
+
+    }
 
 }
