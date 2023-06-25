@@ -8,13 +8,13 @@ const createFragment = html =>
 const getChildIndex = (parent, node) => 
     Array.prototype.indexOf.call(parent.childNodes, node);
 
+const acceptNode = node => 
+    node.nodeType != Node.TEXT_NODE || node.nodeValue.includes('{{') ?
+        NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 const getWalker = rootNode => 
-    document.createTreeWalker(rootNode, NODE_TYPES, {
-        acceptNode: node => node.nodeValue?.trim() !== "" ? 
-            NodeFilter.FILTER_ACCEPT :
-            NodeFilter.FILTER_REJECT
-    });
+    document.createTreeWalker(rootNode, NODE_TYPES, {acceptNode});
 
 const ENSO_ATTR = 'data-enso-idx';
 
