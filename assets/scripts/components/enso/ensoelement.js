@@ -27,14 +27,17 @@ export default class Enso extends HTMLElement {
      * Defines a new Enso component and registers it in the browser as a custom element.
      * @param {Object} properties                    - Component properties
      *  @param {String} properties.tagName           - DOM tag name for this component
-     *  @param {String|EnsoTemplate} properties.template - Template defining component HTML
+     *  @param {String|EnsoTemplate} properties.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [properties.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [properties.attributes]      - (optional) This component's watched attributes
      *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
      * @param {typeof Enso} [component]              - (Optional) Enso derived class implementation
      * @static
      */
-    static component({tagName, template, styles=null, attributes=null, useShadow=true}, component=class extends Enso {}) {
+    static component({
+        tagName, template, styles=null, attributes=null, useShadow=true}, 
+        component=class extends Enso {}) {
+
         // Ensure that the component attributes are valid
         for (const attr in attributes) {
             const type = attributes[attr].type;
@@ -97,9 +100,12 @@ export default class Enso extends HTMLElement {
     }
 
     #createDefaultAccessor(attr, prop, type) {
-        const reflect = (type === Boolean) ? 
-            () => this.setAttribute(attr, '') :
-            (val) => this.setAttribute(attr, val);
+        const reflect = (type === Boolean) ?
+            val => { 
+                if (val) this.setAttribute(attr, ''); 
+                else this.removeAttribute(attr);
+            } :
+            val => { this.setAttribute(attr, val) };
 
         Object.defineProperty(this, attr, {
             get() { return this[prop]; },
@@ -107,8 +113,7 @@ export default class Enso extends HTMLElement {
                 // Set new value
                 this[prop] = val;
                 // Reflect property change back to attributes
-                if (this[prop]) reflect(val);
-                else this.removeAttribute(attr);
+                reflect(val);
                 // Alert child of property change
                 this.onPropertyChange(attr, val);
             }
