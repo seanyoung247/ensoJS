@@ -156,13 +156,20 @@ export default class Enso extends HTMLElement {
      * Web component API interface
      */
     static get observedAttributes() {
-        if (!this._attributes) return [];
         return Object.keys(this._attributes);
     }
 
     connectedCallback() {
 
-        // console.log(this.template);
+        // Show any persistent attributes
+        for (const attr in this.attributes) {
+            const properties = this.attributes[attr];
+            if (properties.show && properties.type !== Boolean) {
+                this.setAttribute(attr, properties.default);
+            }
+        }
+
+        // Parse and attach template
         if (this.template) {
             const {DOM, nodes} = this.template.clone();
             for (const node of nodes) {

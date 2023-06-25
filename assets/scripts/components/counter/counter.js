@@ -5,7 +5,7 @@ Enso.component({
 
     tagName: 'enso-counter',
     attributes: {
-        count: { type: Number, default: 0 }
+        count: { type: Number, default: 0, show: true }
     },
     styles:`
         .container { display: flex; }
