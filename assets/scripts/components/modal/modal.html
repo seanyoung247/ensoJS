@@ -5,23 +5,21 @@
     }
 </style>
 
-<template>
-    <div id="modal-container" @click="() => this.show = this.static;">
-        <div id="modal-pane" part="modal-pane" @click="e => e.stopPropagation();">
-            <div part="modal-header modal-section" class="modal-header modal-section">
-                <slot name="modal-header"></slot>
-                <button id="modal-close" part="modal-close" @click="() => this.show = false;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<div id="modal-container" @click="() => this.show = this.static;">
+    <div id="modal-pane" part="modal-pane" @click="e => e.stopPropagation();">
+        <div part="modal-header modal-section" class="modal-header modal-section">
+            <slot name="modal-header"></slot>
+            <button id="modal-close" part="modal-close" @click="() => this.show = false;">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
-            <div part="modal-content modal-section" class="modal-content modal-section">
-                <slot name="modal-content"></slot>
-            </div>
+        <div part="modal-content modal-section" class="modal-content modal-section">
+            <slot name="modal-content"></slot>
+        </div>
 
-            <div part="modal-footer modal-section" class="modal-footer modal-section">
-                <slot name="modal-footer"></slot>
-            </div>
+        <div part="modal-footer modal-section" class="modal-footer modal-section">
+            <slot name="modal-footer"></slot>
         </div>
     </div>
-</template>
+</div>

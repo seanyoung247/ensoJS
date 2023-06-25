@@ -11,6 +11,7 @@
     <!-- Component includes -->
     <script src="assets/scripts/components/modal/modal.js" type="module" async></script>
     <script src="assets/scripts/components/cuboid/cuboid.js" type="module" async></script>
+    <script src="assets/scripts/components/counter/counter.js" type="module" async></script>
 
     <title>Web Component Examples</title>
 </head>
@@ -20,8 +21,9 @@
         <button id="show-modal-btn">Show Modal</button>
         <button id="static-modal-btn">Toggle Modal Static</button>
     </div>
+    <enso-counter id="test-counter"></enso-counter>
 
-    <modal-dialog id="test-modal" show>
+    <modal-dialog id="test-modal">
         <h3 class="modal-title" slot="modal-header">Test Modal</h3>
         <div class="modal-content" slot="modal-content">
             <button id="modal-color-btn">Change Colour</button>
