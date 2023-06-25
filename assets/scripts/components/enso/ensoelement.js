@@ -24,34 +24,18 @@ export default class Enso extends HTMLElement {
      */
 
     /**
-     * Provides the attributes and their types that this component recognises.
-     * If a derived component has HTML attributes it should override this method
-     * and return the attributes in an object litteral, ex:
-     *  return: {
-     *      'attribute1': {type: Number, default: 0},
-     *      'attribute2': {type: String, default: 0}
-     *  }
-     * 
-     * Recognised types are limited to:
-     *  Boolean, String, Number
-     * @static
-     */
-    static get _attributes() { return {}; }
-
-    /**
      * Defines a new Enso component and registers it in the browser as a custom element.
      * @param {Object} properties                    - Component properties
      *  @param {String} properties.tagName           - DOM tag name for this component
-     *  @param {String} properties.template          - Template defining component HTML
-     *  @param {String} [properties.styles]          - (Optional) Adoptable Style sheet
+     *  @param {String|EnsoTemplate} properties.template - Template defining component HTML
+     *  @param {String|EnsoStylesheet} [properties.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [properties.attributes]      - (optional) This component's watched attributes
      *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
      * @param {typeof Enso} [component]              - (Optional) Enso derived class implementation
      * @static
      */
     static component({tagName, template, styles=null, attributes=null, useShadow=true}, component=class extends Enso {}) {
-        // Ensure that the component has valid attributes
-        // const attributes = component._attributes;
+        // Ensure that the component attributes are valid
         for (const attr in attributes) {
             const type = attributes[attr].type;
             if (!validAtributeTypes.includes(type)) {
@@ -59,29 +43,27 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        template = new EnsoTemplate(template);
-        styles = new EnsoStylesheet(styles);
+        if (typeof template === 'string') template = new EnsoTemplate(template);
+        if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
-        // // Adoptable stylesheets make no sense if not using shadow dom.
-        // if (!useShadow && styles) {
-        //     console.warn(`Ignoring stylesheet for ${tagName} as it doesn't use Shadow DOM.`);
-        // }
-        // Add type properties
+        // Type properties
         Object.defineProperties(component, {
             '_attributes': { value: attributes, writable: false },
             '_useShadow': { value: useShadow, writable: false },
             '_template': { value: template, writable: false },
             '_styles': { value: styles, writable: false }
         });
+        // Instance accessors for static properties
+        Object.defineProperties(component.prototype, {
+            'attributes': { get() { return this.constructor._attributes; } },
+            'useShadow': { get() { return this.constructor._useShadow; } },
+            'template': { get() { return this.constructor._template; } },
+            'styles': { get() { return this.constructor._styles; } }
+        });
+
         // Define the custom element
         customElements.define(tagName, component);
     }
-
-    /* Instance accessors for static properties */
-    get styles() { return this.constructor._styles; }
-    get template() { return this.constructor._template; }
-    get useShadow() { return this.constructor._useShadow; }
-    get attributes() { return this.constructor._attributes; }
 
     /*
      * Instance Properties
@@ -175,12 +157,15 @@ export default class Enso extends HTMLElement {
 
     connectedCallback() {
 
+        // console.log(this.template);
         if (this.template) {
             const {DOM, nodes} = this.template.clone();
             for (const node of nodes) {
+                // Collect references
                 if (node.ref) {
                     this.#refs[node.ref] = node.element;
                 }
+                // Attach event listeners
                 if (node.events.length) {
                     for (const event of node.events) {
                         const handler = createHandler(event.value, this);
@@ -190,6 +175,7 @@ export default class Enso extends HTMLElement {
                         );
                     }
                 }
+                // Register bindings
             }
             this.#root.append(DOM);
         }
@@ -197,11 +183,6 @@ export default class Enso extends HTMLElement {
         if (this.styles) {
             this.styles.attach(this.#root);
         }
-
-        // Adopted stylesheets only work in shadowDOM
-        // if (this.useShadow && this.styles) {
-        //     this.#root.adoptedStyleSheets = [ this.styles ];
-        // }
 
         this.onStart();
     }
