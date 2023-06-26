@@ -48,6 +48,10 @@ css3d-cuboid > div {
     padding: 0.25em;
 }
 
+enso-counter {
+    padding: 0.25em;
+}
+
 #test-counter {
     width: 100px;
 }

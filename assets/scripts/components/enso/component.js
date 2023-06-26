@@ -36,7 +36,7 @@ export default class Enso extends HTMLElement {
      *  @param {String|EnsoStylesheet} [properties.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [properties.attributes]      - (optional) This component's watched attributes
      *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
-     * @param {typeof Enso} [component]              - (Optional) Enso derived class implementation
+     * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
      */
     static component({
@@ -128,7 +128,7 @@ export default class Enso extends HTMLElement {
     /*
      * Accessors
      */
-    get _refs() { return this.#refs; }
+    get refs() { return this.#refs; }
 
     /*
      * Lifecycle events
@@ -176,8 +176,8 @@ export default class Enso extends HTMLElement {
 
         // Parse and attach template
         if (this.template) {
-            const {DOM, nodes} = this.template.clone();
-            for (const node of nodes) {
+            const {DOM, watched} = this.template.clone();
+            for (const node of watched) {
                 // Collect references
                 if (node.ref) {
                     this.#refs[node.ref] = node.element;
