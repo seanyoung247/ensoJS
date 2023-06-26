@@ -11,10 +11,12 @@ const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 const getWalker = rootNode => createWalker(rootNode, NODE_TYPES, acceptNode);
 
 
+const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
+
 const ENSO_ATTR = 'data-enso-idx';
+const ENSO_BIND = 'data-enso-bind';
 export default class EnsoTemplate {
     #template = null;       // The underlying HTML template
-    #bindings = new Map();  // List of bound values found in the 
     #nodes = [];            // List of nodes that are referenced or mutated
 
     constructor(html) {
@@ -52,6 +54,13 @@ export default class EnsoTemplate {
                 node = walker.currentNode = span;
 
                 // Collect data bindings
+                bindEx.lastIndex = 0;
+                let bind;
+                const bindings = [];
+                while (bind = bindEx.exec(nodeDef.content)) {
+                    if (!bindings.includes(bind[1])) bindings.push(bind[1]);
+                }
+                node.setAttribute(ENSO_BIND, bindings.join(' '));
             }
 
             if (node.attributes) {
