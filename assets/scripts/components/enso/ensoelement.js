@@ -7,6 +7,11 @@ function createHandler(code, context) {
     return func.call(context);
 }
 
+function createBoundValue(code, context) {
+    const func = new Function(`return ${code}`);
+    return func.bind(context);
+}
+
 export const validAtributeTypes = Object.freeze([
     Boolean, 
     Number,
@@ -188,6 +193,12 @@ export default class Enso extends HTMLElement {
                     }
                 }
                 // Register bindings
+                // Text nodes
+                if (node.content) {
+                    node.content = createBoundValue(node.content, this);
+                    node.element.innerText = node.content();
+                }
+                // Attributes
             }
             this.#root.append(DOM);
         }

@@ -9,7 +9,7 @@ Enso.component({
     },
     styles:`
         .container { display: flex; }
-        .display { flex-grow: 2; }`,
+        .display { flex-grow: 2; text-align: center; }`,
     template:
         `<div class="container">
             <button @click="()=>this.count--">-</button>
