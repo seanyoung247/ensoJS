@@ -1,30 +1,26 @@
 /**
  * Templating
  */
+import { createTemplate, createWalker } from "./dom.js";
 
-const createFragment = html => 
-    document.createRange().createContextualFragment(html);
-
-const getChildIndex = (parent, node) => 
-    Array.prototype.indexOf.call(parent.childNodes, node);
-
+// DOM Traversal
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || node.nodeValue.includes('{{') ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
-const getWalker = rootNode => 
-    document.createTreeWalker(rootNode, NODE_TYPES, { acceptNode });
+const getWalker = rootNode => createWalker(rootNode, NODE_TYPES, acceptNode);
+
 
 const ENSO_ATTR = 'data-enso-idx';
-
 export default class EnsoTemplate {
-    #template = null;   // The underlying HTML template
-    #nodes = [];        // List of nodes that are referenced or mutated
+    #template = null;       // The underlying HTML template
+    #bindings = new Map();  // List of bound values found in the 
+    #nodes = [];            // List of nodes that are referenced or mutated
 
     constructor(html) {
-        const template = document.createElement('template');
-        template.content.appendChild(createFragment(html));
+        const template = (typeof html === 'string') ?
+            createTemplate(html) : html;
+
         this.#template = this.#parse(template);
     }
 
@@ -45,7 +41,6 @@ export default class EnsoTemplate {
             // Parse text nodes
             if (node.nodeType === Node.TEXT_NODE) {
                 const span = document.createElement('span');
-                const text = node;
 
                 nodeDef.watched = true;
                 nodeDef.content = '`' + node.nodeValue
@@ -55,6 +50,8 @@ export default class EnsoTemplate {
 
                 node.parentNode.replaceChild(span, node);
                 node = walker.currentNode = span;
+
+                // Collect data bindings
             }
 
             if (node.attributes) {
@@ -93,15 +90,15 @@ export default class EnsoTemplate {
     clone() {
         const DOM = this.#template.content.cloneNode(true);
         const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
-        const nodes = [];
+        const watched = [];
 
         for (const element of elements) {
             const idx = parseInt(element.getAttribute(ENSO_ATTR));
             const {ref, events, attrs, content} = this.#nodes[idx];
             element.removeAttribute(ENSO_ATTR);
-            nodes.push({ element, ref, events, attrs, content });
+            watched.push({ element, ref, events, attrs, content });
         }
 
-        return { nodes, DOM };
+        return { watched, DOM };
     }
 }
