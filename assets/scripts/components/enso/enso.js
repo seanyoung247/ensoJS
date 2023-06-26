@@ -5,9 +5,9 @@ export { default } from './component.js'
 (()=>{
 
     function loadComponents() {
-        const components = document.querySelectorAll('link[rel="enso-component"]');
+        const components = document.querySelectorAll('link[data-component="enso"]');
         for (const component of components) {
-            
+            console.log(component.href);
         }
     }
 
