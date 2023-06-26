@@ -18,3 +18,8 @@ img, picture, video, canvas, svg {
 input, button, textarea, select {
     font: inherit;
 }
+
+/* By default hide undefined web components */
+*:not(:defined) {
+    display: none;
+}
