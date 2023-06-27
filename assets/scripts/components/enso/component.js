@@ -170,7 +170,7 @@ export default class Enso extends HTMLElement {
         for (const attr in this.attributes) {
             const properties = this.attributes[attr];
             if (properties.show && properties.type !== Boolean ) {
-                this.setAttribute(attr, this[`_${attr}`]);
+                this.setAttribute(attr, this[attr]);
             }
         }
 
