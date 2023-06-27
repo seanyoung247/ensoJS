@@ -81,6 +81,8 @@ export default class Enso extends HTMLElement {
     #root = null;   // Component root element
     #refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
+    #bindings = new Map();
+
     /*
      * Component Setup
      */
@@ -113,6 +115,7 @@ export default class Enso extends HTMLElement {
             val => { this.setAttribute(attr, val) };
 
         Object.defineProperty(this, attr, {
+            configurable: true,
             get() { return this[prop]; },
             set(val) {
                 // Set new value
@@ -199,6 +202,29 @@ export default class Enso extends HTMLElement {
                 // Evaluate data bindings
                 if (node.content) {
                     const content = createBoundValue(node.content, this);
+                    // Pull bound variables out of the tag
+                    const bindings = element.getAttribute(ENSO_BIND).split(' ');
+                    for (const bind of bindings) {
+                        if (!this.#bindings.has(bind)) {
+                            this.#bindings.set(bind, [ element ]);
+                        } else {
+                            const list = this.#bindings.get(bind);
+                            if (!list.includes(element)) list.push(element);
+                        }
+                        const prop = Object.getOwnPropertyDescriptor(this, bind);
+                        if (prop.set) {
+                            const setter = prop.set;
+                            Object.defineProperty(this, bind, {
+                                configurable: true,
+                                get: prop.get,
+                                set: val => {
+                                    setter.call(this, val);
+                                    element.innerText = content();
+                                }
+                            });
+                        }
+                    }
+                    // Initial render
                     element.innerText = content();
                 }
 
