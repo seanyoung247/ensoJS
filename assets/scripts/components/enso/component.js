@@ -1,6 +1,6 @@
 
 import EnsoStylesheet from "./stylesheets.js";
-import EnsoTemplate from "./templates.js";
+import EnsoTemplate, {ENSO_ATTR, ENSO_BIND} from "./templates.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -169,37 +169,40 @@ export default class Enso extends HTMLElement {
         // Show any persistent attributes
         for (const attr in this.attributes) {
             const properties = this.attributes[attr];
-            if (properties.show && properties.type !== Boolean) {
-                this.setAttribute(attr, properties.default);
+            if (properties.show && properties.type !== Boolean ) {
+                this.setAttribute(attr, this[`_${attr}`]);
             }
         }
 
         // Parse and attach template
         if (this.template) {
-            const {DOM, watched} = this.template.clone();
-            for (const node of watched) {
+            const DOM = this.template.clone();
+            const watched = this.template.watched;
+            const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
+            // Iterate over watched nodes
+            for (const element of elements) {
+                const idx = parseInt(element.getAttribute(ENSO_ATTR));
+                const node = watched[idx];
+
+                // TODO: MAKE THESE DIRECTIVES GENERAL!
+
                 // Collect references
-                if (node.ref) {
-                    this.#refs[node.ref] = node.element;
-                }
-                // Attach event listeners
+                if (node.ref) this.#refs[node.ref] = element;
+                // Attach events
                 if (node.events.length) {
                     for (const event of node.events) {
                         const handler = createHandler(event.value, this);
-                        node.element.addEventListener(
-                            event.name, handler, 
-                            { signal: this.#events.signal }
-                        );
+                        element.addEventListener( event.name, handler,
+                            { signal: this.#events.signal });
                     }
                 }
-                // Register bindings
-                // Text nodes
+                // Evaluate data bindings
                 if (node.content) {
-                    node.content = createBoundValue(node.content, this);
-                    node.element.innerText = node.content();
+                    const content = createBoundValue(node.content, this);
+                    element.innerText = content();
                 }
-                // Attributes
             }
+
             this.#root.append(DOM);
         }
 
