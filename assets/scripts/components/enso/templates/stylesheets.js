@@ -8,9 +8,11 @@ export default class EnsoStylesheet {
         this.#sheet.replaceSync(css);
     }
 
-    attach(root) {
-        const dom = (root instanceof ShadowRoot) ? root : document;
-
-        dom.adoptedStyleSheets = [ ...dom.adoptedStyleSheets, this.#sheet ];
+    adopt(root) {
+        const dom = (root instanceof ShadowRoot) ? 
+            root : document;
+            
+        dom.adoptedStyleSheets = 
+            [ ...dom.adoptedStyleSheets, this.#sheet ];
     }
 }

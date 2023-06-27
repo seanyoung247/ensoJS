@@ -1,7 +1,7 @@
 /**
  * Templating
  */
-import { createTemplate } from "../dom.js";
+import { createTemplate } from "../utils/dom.js";
 
 // DOM Traversal
 const acceptNode = node => 
@@ -20,7 +20,7 @@ export const ENSO_BIND = 'data-enso-bind';
 
 export default class EnsoTemplate {
     #template = null;       // The underlying HTML template
-    #watched = [];            // List of nodes that are referenced or mutated
+    #watched = [];          // List of nodes that are referenced or mutated
 
     constructor(html) {
         const template = (typeof html === 'string') ?

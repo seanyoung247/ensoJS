@@ -238,7 +238,7 @@ export default class Enso extends HTMLElement {
         }
 
         if (this.styles) {
-            this.styles.attach(this.#root);
+            this.styles.adopt(this.#root);
         }
 
         this.onStart();
