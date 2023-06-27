@@ -201,6 +201,8 @@ export default class Enso extends HTMLElement {
                     const content = createBoundValue(node.content, this);
                     element.innerText = content();
                 }
+
+                element.removeAttribute(ENSO_ATTR);
             }
 
             this.#root.append(DOM);
