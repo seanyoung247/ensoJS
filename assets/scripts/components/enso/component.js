@@ -1,6 +1,6 @@
 
-import EnsoStylesheet from "./stylesheets.js";
-import EnsoTemplate, {ENSO_ATTR, ENSO_BIND} from "./templates.js";
+import EnsoStylesheet from "./templates/stylesheets.js";
+import EnsoTemplate, {ENSO_ATTR, ENSO_BIND} from "./templates/templates.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -116,6 +116,7 @@ export default class Enso extends HTMLElement {
 
         Object.defineProperty(this, attr, {
             configurable: true,
+            enumerable: true,
             get() { return this[prop]; },
             set(val) {
                 // Set new value
@@ -216,6 +217,7 @@ export default class Enso extends HTMLElement {
                             const setter = prop.set;
                             Object.defineProperty(this, bind, {
                                 configurable: true,
+                                enumerable: true,
                                 get: prop.get,
                                 set: val => {
                                     setter.call(this, val);
@@ -224,6 +226,7 @@ export default class Enso extends HTMLElement {
                             });
                         }
                     }
+                    element.removeAttribute(ENSO_BIND);
                     // Initial render
                     element.innerText = content();
                 }

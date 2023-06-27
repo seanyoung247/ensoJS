@@ -1,12 +1,13 @@
 /**
  * Templating
  */
-import { createTemplate } from "./dom.js";
+import { createTemplate } from "../dom.js";
 
 // DOM Traversal
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || node.nodeValue.includes('{{') ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 const getWalker = rootNode => 
     document.createTreeWalker(rootNode, NODE_TYPES, { acceptNode });
