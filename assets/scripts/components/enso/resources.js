@@ -32,6 +32,8 @@ export const build = {
 }    
 
 export const load = {
+    component: url => loadResource(url, build.template),
+    
     external: (baseUrl, ...args) => Promise.all(args.map(file => loadExternal(file, baseUrl))),
     /**
      * Imports HTML template from external html file.
