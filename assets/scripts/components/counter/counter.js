@@ -3,7 +3,7 @@ import Enso from "../enso/enso.js";
 
 Enso.component({
 
-    tagName: 'enso-counter',
+    tag: 'enso-counter',
 
     attributes: {
         count: { type: Number, default: 0, show: true }

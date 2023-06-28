@@ -13,7 +13,7 @@ const faces = [
 
 Enso.component({
 
-    tagName: 'css3d-cuboid',
+    tag: 'css3d-cuboid',
     attributes: {
         'width': {type: String, default: 0},
         'height': {type: String, default: 0},

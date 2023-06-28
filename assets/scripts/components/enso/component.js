@@ -1,6 +1,6 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate, {ENSO_ATTR, ENSO_BIND} from "./templates/templates.js";
+import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -31,7 +31,7 @@ export default class Enso extends HTMLElement {
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
      * @param {Object} properties                    - Component properties
-     *  @param {String} properties.tagName           - DOM tag name for this component
+     *  @param {String} properties.tag               - DOM tag name for this component
      *  @param {String|EnsoTemplate} properties.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [properties.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [properties.attributes]      - (optional) This component's watched attributes
@@ -39,8 +39,8 @@ export default class Enso extends HTMLElement {
      * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
      */
-    static component({
-        tagName, template, styles=null, attributes=null, useShadow=true}, 
+    static component({tag, template, 
+        styles=null, attributes=null, watched=null, useShadow=true}, 
         component=class extends Enso {}) {
 
         // Ensure that the component attributes are valid
@@ -61,21 +61,11 @@ export default class Enso extends HTMLElement {
             '_template': { value: template, writable: false },
             '_styles': { value: styles, writable: false }
         });
-        // Instance accessors for static properties
-        Object.defineProperties(component.prototype, {
-            'attributes': { get() { return this.constructor._attributes; } },
-            'useShadow': { get() { return this.constructor._useShadow; } },
-            'template': { get() { return this.constructor._template; } },
-            'styles': { get() { return this.constructor._styles; } }
-        });
+
 
         // Define the custom element
-        customElements.define(tagName, component);
+        customElements.define(tag, component);
     }
-
-    /*
-     * Instance Properties
-     */
 
     #events = new AbortController();
     #root = null;   // Component root element
