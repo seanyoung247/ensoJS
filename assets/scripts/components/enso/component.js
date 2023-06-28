@@ -24,17 +24,14 @@ export const validAtributeTypes = Object.freeze([
  */
 export default class Enso extends HTMLElement {
 
-    /*
-     * Type properties
-     */
-
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
      * @param {Object} properties                    - Component properties
      *  @param {String} properties.tag               - DOM tag name for this component
      *  @param {String|EnsoTemplate} properties.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [properties.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [properties.attributes]      - (optional) This component's watched attributes
+     *  @param {Object} [properties.attributes]      - (optional) This component's attributes
+     *  @param {Object} [properties.watched]         - (optional) This component's watched properties
      *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
      * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
@@ -63,6 +60,7 @@ export default class Enso extends HTMLElement {
         });
 
 
+
         // Define the custom element
         customElements.define(tag, component);
     }
@@ -72,10 +70,6 @@ export default class Enso extends HTMLElement {
     #refs = {};     // Holds the defined references for elements in the component's internal DOM.
 
     #bindings = new Map();
-
-    /*
-     * Component Setup
-     */
 
     constructor(properties={mode:'open'}) {
         super();
@@ -119,14 +113,7 @@ export default class Enso extends HTMLElement {
         });
     }
 
-    /*
-     * Accessors
-     */
     get refs() { return this.#refs; }
-
-    /*
-     * Lifecycle events
-     */
 
     /**
      * Called when the component has been mounted and started on the page.
@@ -151,9 +138,8 @@ export default class Enso extends HTMLElement {
      */
     onRemoved() {}
 
-    /*
-     * Web component API interface
-     */
+
+    
     static get observedAttributes() {
         return Object.keys(this._attributes);
     }

@@ -1,5 +1,5 @@
 
-export const domHandler = {
+const watcher = {
 
     get: function(target, prop) {
         // Indicate object is already wrapped by a proxy
@@ -12,7 +12,6 @@ export const domHandler = {
     },
 
     set: function (target, prop, value) {
-
         if (target[prop] === value) return true;
         target[prop] = value;
 
@@ -23,4 +22,8 @@ export const domHandler = {
         return Reflect.apply(target, self, args);
     }
 
+};
+
+export function watch(target) {
+    return new Proxy(target, watcher);
 }
