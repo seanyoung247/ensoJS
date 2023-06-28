@@ -1,3 +1,5 @@
+import { watch } from "./components/enso/watcher.js";
+
 (() => {
     const showModalBtn = document.getElementById('show-modal-btn');
     const testModal = document.getElementById('test-modal');
@@ -17,3 +19,13 @@
     });
 
 })();
+
+(()=>{
+    const counterTestBtn = document.getElementById('counter-test-btn');
+    const testCounter = document.getElementById('test-counter');
+
+    counterTestBtn.addEventListener('click', () => {
+        testCounter.count++;
+    });
+})();
+
