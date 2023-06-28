@@ -1,6 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
+import { defineTypeConstants } from "./utils/objects.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -51,12 +52,12 @@ export default class Enso extends HTMLElement {
         if (typeof template === 'string') template = new EnsoTemplate(template);
         if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
-        // Type properties
-        Object.defineProperties(component, {
-            '_attributes': { value: attributes, writable: false },
-            '_useShadow': { value: useShadow, writable: false },
-            '_template': { value: template, writable: false },
-            '_styles': { value: styles, writable: false }
+        // // Type properties
+        defineTypeConstants(component, {
+            'attributes': attributes,
+            'useShadow': useShadow,
+            'template': template,
+            'styles': styles,
         });
 
 
