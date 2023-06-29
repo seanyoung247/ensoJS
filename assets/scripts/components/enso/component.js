@@ -41,18 +41,19 @@ export default class Enso extends HTMLElement {
         styles=null, attributes=null, watched=null, useShadow=true}, 
         component=class extends Enso {}) {
 
-        // Ensure that the component attributes are valid
         for (const attr in attributes) {
-            const type = attributes[attr].type;
+            const {value, type} = attributes[attr];
+            // Ensure that the attribute is valid
             if (!validAtributeTypes.includes(type)) {
                 throw new Error(`Component attribute '${attr}' has unsupported type`);
             }
+            defineAttribute(component, attr, value, type);
         }
 
         if (typeof template === 'string') template = new EnsoTemplate(template);
         if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
-        // // Type properties
+        // Type properties
         defineTypeConstants(component, {
             'attributes': attributes,
             'useShadow': useShadow,
@@ -72,45 +73,8 @@ export default class Enso extends HTMLElement {
 
     constructor(properties={mode:'open'}) {
         super();
-
-        // If this component has custom attributes
-        const attributes = Object.entries(this.attributes);
-        for (const [attr, value] of attributes) {
-            // const propName = `_${attr}`;
-            // this[propName] = value.default;
-            // // If the child class hasn't already defined getters and 
-            // // setters for this property, create them now:
-            // if (!(attr in this)) {
-            //     this.#createDefaultAccessor(attr, propName, value.type);
-            // }
-            defineAttribute(this.constructor, attr, value.default, value.type);
-        }
-
         // Determine what this component's root node should be
         this.#root = this.useShadow ? this.attachShadow(properties) : this;
-    }
-
-    #createDefaultAccessor(attr, prop, type) {
-        const reflect = (type === Boolean) ?
-            val => { 
-                if (val) this.setAttribute(attr, ''); 
-                else this.removeAttribute(attr);
-            } :
-            val => { this.setAttribute(attr, val) };
-
-        Object.defineProperty(this, attr, {
-            configurable: true,
-            enumerable: true,
-            get() { return this[prop]; },
-            set(val) {
-                // Set new value
-                this[prop] = val;
-                // Reflect property change back to attributes
-                reflect(val);
-                // Alert child of property change
-                this.onPropertyChange(attr, val);
-            }
-        });
     }
 
     get refs() { return this.#refs; }
@@ -139,14 +103,16 @@ export default class Enso extends HTMLElement {
     onRemoved() {}
 
 
-    
+    /*
+     * Web Component API
+     */
     static get observedAttributes() {
         return Object.keys(this._attributes);
     }
 
     connectedCallback() {
 
-        // Show any persistent attributes
+        // Ensure any persistent attributes are shown
         for (const attr in this.attributes) {
             const properties = this.attributes[attr];
             if (properties.show && properties.type !== Boolean ) {

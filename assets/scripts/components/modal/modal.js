@@ -7,8 +7,8 @@ Enso.component({
 
     tag: 'modal-dialog',
     attributes: {
-        'show': {type: Boolean, default: false},    // Is the modal shown?
-        'static': {type: Boolean, default: false}   // Does clicking outside the modal close it?
+        'show': {type: Boolean, value: false},      // Is the modal shown?
+        'static': {type: Boolean, value: false}     // Does clicking outside the modal close it?
     },
     template, styles
     

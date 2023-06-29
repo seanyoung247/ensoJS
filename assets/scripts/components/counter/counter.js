@@ -6,7 +6,7 @@ Enso.component({
     tag: 'enso-counter',
 
     attributes: {
-        count: { type: Number, default: 0, show: true }
+        count: { type: Number, value: 0, show: true }
     },
 
     watched: ['count'],

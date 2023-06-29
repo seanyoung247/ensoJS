@@ -33,11 +33,11 @@ export function defineAttribute(cls, attribute, value, type) {
 
     // Data property
     Object.defineProperty(cls.prototype, prop, { enumerable: false, writable: true, value });
-    // If there's already an accessor defined, wrap it in reflector
+    // If there's already an accessor defined, wrap it in a reflector
     const existing = Object.getOwnPropertyDescriptor(cls.prototype, attribute);
     const setter = (existing && existing.set) ? 
-        (o,v) => existing.set.call(o,v): 
-        (o,v) => o[prop] = v;
+        (o,v) => { o[prop] = v; existing.set.call(o,v) } : 
+        (o,v) => { o[prop] = v; }
 
     Object.defineProperty(cls.prototype, attribute, {
         configurable: true,

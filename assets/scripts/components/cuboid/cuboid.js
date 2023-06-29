@@ -15,9 +15,9 @@ Enso.component({
 
     tag: 'css3d-cuboid',
     attributes: {
-        'width': {type: String, default: 0},
-        'height': {type: String, default: 0},
-        'depth': {type: String, default: 0}
+        'width': {type: String, value: 0},
+        'height': {type: String, value: 0},
+        'depth': {type: String, value: 0}
     },
     styles:`
     :host {
