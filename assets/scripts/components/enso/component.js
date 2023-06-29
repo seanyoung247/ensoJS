@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
-import { defineTypeConstants } from "./utils/objects.js";
+import { defineTypeConstants, defineAttribute } from "./utils/objects.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -60,8 +60,6 @@ export default class Enso extends HTMLElement {
             'styles': styles,
         });
 
-
-
         // Define the custom element
         customElements.define(tag, component);
     }
@@ -78,13 +76,14 @@ export default class Enso extends HTMLElement {
         // If this component has custom attributes
         const attributes = Object.entries(this.attributes);
         for (const [attr, value] of attributes) {
-            const propName = `_${attr}`;
-            this[propName] = value.default;
-            // If the child class hasn't already defined getters and 
-            // setters for this property, create them now:
-            if (!(attr in this)) {
-                this.#createDefaultAccessor(attr, propName, value.type);
-            }
+            // const propName = `_${attr}`;
+            // this[propName] = value.default;
+            // // If the child class hasn't already defined getters and 
+            // // setters for this property, create them now:
+            // if (!(attr in this)) {
+            //     this.#createDefaultAccessor(attr, propName, value.type);
+            // }
+            defineAttribute(this.constructor, attr, value.default, value.type);
         }
 
         // Determine what this component's root node should be
@@ -189,7 +188,8 @@ export default class Enso extends HTMLElement {
                             const list = this.#bindings.get(bind);
                             if (!list.includes(element)) list.push(element);
                         }
-                        const prop = Object.getOwnPropertyDescriptor(this, bind);
+                        const prop = Object.getOwnPropertyDescriptor(this.constructor.prototype, bind);
+
                         if (prop.set) {
                             const setter = prop.set;
                             Object.defineProperty(this, bind, {
