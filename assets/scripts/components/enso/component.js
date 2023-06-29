@@ -43,14 +43,14 @@ export default class Enso extends HTMLElement {
 
         // Create observed attributes
         for (const attr in attributes) {
-            const {value, type} = attributes[attr];
-            // Ensure that the attribute is valid
+            const {value, type=String} = attributes[attr];
+            // Ensure that the attribute has a valid type
             if (!validAtributeTypes.includes(type)) {
                 throw new Error(`Component attribute '${attr}' has unsupported type`);
             }
             defineAttribute(component, attr, value, type);
         }
-
+        
         if (typeof template === 'string') template = new EnsoTemplate(template);
         if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
@@ -198,9 +198,9 @@ export default class Enso extends HTMLElement {
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
         // Attributes are always strings, so decode it to the correct datatype
-        const val = this.attributes[property].type != Boolean ? 
-            this.attributes[property].type(newValue) :
-            this.hasAttribute(property);
+        const type = this.attributes[property].type || String;
+        const val = type != Boolean ? 
+            type(newValue) : this.hasAttribute(property);
         // Reflect change to component properties
         if (this[property] != val) this[property] = val;
     }
