@@ -5,7 +5,7 @@ import { defineTypeConstants, defineAttribute } from "./utils/objects.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
-    return func.call(context);
+    return func.call(context).bind(context);
 }
 
 function createBoundValue(code, context) {
@@ -27,20 +27,21 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {Object} properties                    - Component properties
-     *  @param {String} properties.tag               - DOM tag name for this component
-     *  @param {String|EnsoTemplate} properties.template   - Template defining component HTML
-     *  @param {String|EnsoStylesheet} [properties.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [properties.attributes]      - (optional) This component's attributes
-     *  @param {Object} [properties.watched]         - (optional) This component's watched properties
-     *  @param {Boolean} [properties.useShadow=true] - (Optional) Should the component use shadow dom 
+     * @param {Object} props                         - Component properties
+     *  @param {String} props.tag                    - DOM tag name for this component
+     *  @param {String|EnsoTemplate} props.template  - Template defining component HTML
+     *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
+     *  @param {Object} [props.attributes]           - (optional) This component's attributes
+     *  @param {Array} [props.watched]               - (optional) This component's watched (reactive) fields
+     *  @param {Boolean} [props.useShadow=true]      - (Optional) Should the component use shadow dom 
      * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
      */
     static component({tag, template, 
-        styles=null, attributes=null, watched=null, useShadow=true}, 
+        styles=null, attributes={}, watch=[], useShadow=true}, 
         component=class extends Enso {}) {
 
+        // Create observed attributes
         for (const attr in attributes) {
             const {value, type} = attributes[attr];
             // Ensure that the attribute is valid
@@ -80,15 +81,13 @@ export default class Enso extends HTMLElement {
     get refs() { return this.#refs; }
 
     /**
-     * Called when the component has been mounted and started on the page.
+     * Called after the component has been mounted and started on the page.
      * @abstract
      */
     onStart() {}
 
     /**
-     * Called after a property value changes. This allows components
-     * to react to property changes without needing to reimplement
-     * reflection boilerplate.
+     * Called after a property value changes.
      * @param {String} prop - String name of the property
      * @param {*} value - The new property value
      * @abstract
@@ -96,16 +95,16 @@ export default class Enso extends HTMLElement {
     onPropertyChange(prop, value) {}
 
     /**
-     * Called when the component is removed from the page. Component cleanup
+     * Called before the component is removed from the page. Component cleanup
      * should be done here.
      * @abstract
      */
     onRemoved() {}
 
 
-    /*
-     * Web Component API
-     */
+    //
+    // Web Component API
+    //
     static get observedAttributes() {
         return Object.keys(this._attributes);
     }
@@ -154,7 +153,8 @@ export default class Enso extends HTMLElement {
                             const list = this.#bindings.get(bind);
                             if (!list.includes(element)) list.push(element);
                         }
-                        const prop = Object.getOwnPropertyDescriptor(this.constructor.prototype, bind);
+                        const prop = Object.getOwnPropertyDescriptor(
+                            this.constructor.prototype, bind);
 
                         if (prop.set) {
                             const setter = prop.set;

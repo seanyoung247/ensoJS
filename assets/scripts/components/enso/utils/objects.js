@@ -20,7 +20,7 @@ export function defineTypeConstants(cls, props) {
 
 /**
  * Adds property getter and setter and reflection for a given attribute to
- * an Enso component class
+ * an Enso component
  */
 export function defineAttribute(cls, attribute, value, type) {
     const prop = `_${attribute}`;
@@ -31,18 +31,17 @@ export function defineAttribute(cls, attribute, value, type) {
         } :
         (el, val)  => { el.setAttribute(attribute, val) };
 
-    // Data property
-    Object.defineProperty(cls.prototype, prop, { enumerable: false, writable: true, value });
     // If there's already an accessor defined, wrap it in a reflector
     const existing = Object.getOwnPropertyDescriptor(cls.prototype, attribute);
     const setter = (existing && existing.set) ? 
         (o,v) => { o[prop] = v; existing.set.call(o,v) } : 
         (o,v) => { o[prop] = v; }
 
+    // Accessor property
     Object.defineProperty(cls.prototype, attribute, {
         configurable: true,
         enumerable: true,
-        get() { return this[prop]; },
+        get() { return this[prop] ?? value; },
         set(val) { 
             setter(this, val);
             reflect(this, val);
@@ -50,3 +49,4 @@ export function defineAttribute(cls, attribute, value, type) {
         }
     });
 }
+

@@ -1,10 +1,4 @@
 
-<style>
-    .modal-header > #modal-close {
-        background-color: coral;
-    }
-</style>
-
 <div id="modal-container" @click="() => this.show = this.static;">
     <div id="modal-pane" part="modal-pane" @click="e => e.stopPropagation();">
         <div part="modal-header modal-section" class="modal-header modal-section">

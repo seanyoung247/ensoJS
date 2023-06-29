@@ -22,10 +22,14 @@ import { watch } from "./components/enso/watcher.js";
 
 (()=>{
     const counterTestBtn = document.getElementById('counter-test-btn');
-    const testCounter = document.getElementById('test-counter');
+    const testCounter1 = document.getElementById('test-counter1');
+    const testCounter2 = document.getElementById('test-counter2');
 
     counterTestBtn.addEventListener('click', () => {
-        testCounter.count++;
+        testCounter1.count++;
+
+        const newVal = parseInt(testCounter2.getAttribute('count')) + 1;
+        testCounter2.setAttribute('count', newVal);
     });
 })();
 
