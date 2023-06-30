@@ -1,5 +1,5 @@
 /**
- * @module Objects Utillity functions for object handling
+ * @module Comp Utillity functions for component handling
  */
 
 
@@ -49,4 +49,3 @@ export function defineAttribute(cls, attribute, value, type) {
         }
     });
 }
-

@@ -9,8 +9,6 @@ Enso.component({
         count: { type: Number, value: 0, show: true }
     },
 
-    watched: ['count'],
-
     styles:`
         .container { display: flex; }
         .display { flex-grow: 2; text-align: center; }`,

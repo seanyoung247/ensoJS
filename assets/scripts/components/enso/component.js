@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
-import { defineTypeConstants, defineAttribute } from "./utils/objects.js";
+import { defineTypeConstants, defineAttribute } from "./utils/comp.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -19,6 +19,7 @@ export const validAtributeTypes = Object.freeze([
     String
 ]);
 
+
 /**
  * Enso Web Component base class
  * @abstract
@@ -32,13 +33,12 @@ export default class Enso extends HTMLElement {
      *  @param {String|EnsoTemplate} props.template  - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [props.attributes]           - (optional) This component's attributes
-     *  @param {Array} [props.watched]               - (optional) This component's watched (reactive) fields
      *  @param {Boolean} [props.useShadow=true]      - (Optional) Should the component use shadow dom 
      * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
      */
     static component({tag, template, 
-        styles=null, attributes={}, watch=[], useShadow=true}, 
+        styles=null, attributes={}, useShadow=true}, 
         component=class extends Enso {}) {
 
         // Create observed attributes
@@ -111,6 +111,7 @@ export default class Enso extends HTMLElement {
 
     connectedCallback() {
 
+        requestAnimationFrame(this.update.bind(this));
         // Ensure any persistent attributes are shown
         for (const attr in this.attributes) {
             const properties = this.attributes[attr];
@@ -164,14 +165,14 @@ export default class Enso extends HTMLElement {
                                 get: prop.get,
                                 set: val => {
                                     setter.call(this, val);
-                                    element.innerText = content();
+                                    element.textContent = content();
                                 }
                             });
                         }
                     }
                     element.removeAttribute(ENSO_BIND);
                     // Initial render
-                    element.innerText = content();
+                    element.textContent = content();
                 }
 
                 element.removeAttribute(ENSO_ATTR);
@@ -205,4 +206,21 @@ export default class Enso extends HTMLElement {
         if (this[property] != val) this[property] = val;
     }
 
+    getAttribute(attribute) {
+        return String(this[attribute]);
+    }
+
+    setAttribute(attribute, value) {
+        if (this[attribute] != value) this[attribute] = value;
+    }
+    
+    /* PROOF OF CONCEPT - Defer attribute setting until reflow */
+    update() {
+        for (const attr in this.attributes) {
+            if (super.getAttribute(attr) !== String(this[attr]))
+                super.setAttribute(attr, this[attr]);
+        }
+
+        requestAnimationFrame(this.update.bind(this));
+    }
 }
