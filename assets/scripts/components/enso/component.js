@@ -200,7 +200,7 @@ export default class Enso extends HTMLElement {
         if (oldValue === newValue) return;
         // Attributes are always strings, so decode it to the correct datatype
         const type = this.attributes[property].type || String;
-        const val = type != Boolean ? 
+        const val = type !== Boolean ? 
             type(newValue) : this.hasAttribute(property);
         // Reflect change to component properties
         if (this[property] != val) this[property] = val;
@@ -211,14 +211,20 @@ export default class Enso extends HTMLElement {
     }
 
     setAttribute(attribute, value) {
-        if (this[attribute] != value) this[attribute] = value;
+        if (String(this[attribute]) !== value) this[attribute] = value;
     }
     
     /* PROOF OF CONCEPT - Defer attribute setting until reflow */
     update() {
         for (const attr in this.attributes) {
-            if (super.getAttribute(attr) !== String(this[attr]))
-                super.setAttribute(attr, this[attr]);
+            const type = this.attributes[attr].type;
+            if (type === Boolean) {
+                if (!this[attr]) super.removeAttribute(attr);
+                else super.setAttribute(attr, '');
+            } else {
+                const val = String(this[attr]);
+                if (super.getAttribute(attr) !== val) super.setAttribute(attr, val);
+            }
         }
 
         requestAnimationFrame(this.update.bind(this));

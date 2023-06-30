@@ -3,6 +3,11 @@
  */
 
 
+export function buildAttributeDefs(attributes) {
+
+}
+
+
 /**
  * Adds read only properties with instance accessors to a class
  */
@@ -24,13 +29,6 @@ export function defineTypeConstants(cls, props) {
  */
 export function defineAttribute(cls, attribute, value, type) {
     const prop = `_${attribute}`;
-    const reflect = (type === Boolean) ?
-        (el, val) => { 
-            if (val) el.setAttribute(attribute, ''); 
-            else el.removeAttribute(attribute);
-        } :
-        (el, val)  => { el.setAttribute(attribute, val) };
-
     // If there's already an accessor defined, wrap it in a reflector
     const existing = Object.getOwnPropertyDescriptor(cls.prototype, attribute);
     const setter = (existing && existing.set) ? 
@@ -44,7 +42,7 @@ export function defineAttribute(cls, attribute, value, type) {
         get() { return this[prop] ?? value; },
         set(val) { 
             setter(this, val);
-            reflect(this, val);
+            // reflect(this, val);
             this.onPropertyChange(attribute, val);
         }
     });
