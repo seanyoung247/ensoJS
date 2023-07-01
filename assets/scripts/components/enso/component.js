@@ -56,9 +56,9 @@ export default class Enso extends HTMLElement {
 
     #events = new AbortController();
     #root = null;   // Component root element
-    #refs = {};     // Holds the defined references for elements in the component's internal DOM.
+    #refs = {};     // Holds references for elements in the component's internal DOM.
 
-    #bindings = new Map();
+    #bindings = new Map(); // Details for bound types
 
     constructor(properties={mode:'open'}) {
         super();
@@ -99,11 +99,11 @@ export default class Enso extends HTMLElement {
 
     connectedCallback() {
 
-        requestAnimationFrame(this.update.bind(this));
+        requestAnimationFrame(this.render.bind(this));
         // Ensure any persistent attributes are shown
         for (const attr in this.attributes) {
             const properties = this.attributes[attr];
-            if (properties.show && properties.type !== Boolean ) {
+            if (properties.force) {
                 this.setAttribute(attr, this[attr]);
             }
         }
@@ -186,40 +186,46 @@ export default class Enso extends HTMLElement {
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-        // Attributes are always strings, so decode it to the correct datatype
-        const type = this.attributes[property].type || String;
-        const val = type !== Boolean ? 
-            type(newValue) : this.hasAttribute(property);
-        // Reflect change to component properties
-        if (this[property] != val) this[property] = val;
+        // // Attributes are always strings, so decode it to the correct datatype
+        // const val = this.attributes[property].convert.toProp(newValue);
+        // // Reflect change to component properties
+        // if (this[property] != val) this[property] = val;
+        this.setAttribute(property, newValue);
     }
 
     /* PROOF OF CONCEPT - Defer attribute setting until repaint */
+    reflectAttribute(attribute) {
+        const attr = this.attributes[attribute];
+        const value = attr.convert.toAttr(this[attribute]);
+        if (value === null) super.removeAttribute(attribute);
+        else {
+            super.setAttribute(attribute, value);
+        }
+    }
+
     getAttribute(attribute) {
-        return String(this[attribute]);
+        return this.attributes[attribute].convert.toAttr(this[attribute]);
     }
 
     setAttribute(attribute, value) {
-        if (String(this[attribute]) !== value) this[attribute] = value;
+        const val = this.attributes[attribute].convert.toProp(value);
+        if (this[attribute] !== val) this[attribute] = val;
     }
 
-    // Needs removeAttribute -> defer removal
-    // Needs hasAttribute? Should return whether the attribute is going to exist after next update?
+    removeAttribute(attribute) {
+        this[attribute] = null;
+    }
+
+    hasAttribute(attribute) {
+        return this[attribute] !== null;
+    }
     
-    update() {
+    render() {
         for (const attr in this.attributes) {
-            const type = this.attributes[attr].type;
-            if (type === Boolean) {
-                if (!this[attr]) super.removeAttribute(attr);
-                else super.setAttribute(attr, '');
-            } else {
-                const val = String(this[attr]);
-                if (this.attributes[attr].dirty) {
-                    this.attributes[attr].dirty = false;
-                    super.setAttribute(attr, val);
-                }
+            if (true) { // ToDo: Dirty check here
+                this.reflectAttribute(attr);
             }
         }
-        requestAnimationFrame(this.update.bind(this));
+        requestAnimationFrame(this.render.bind(this));
     }
 }

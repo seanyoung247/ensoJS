@@ -27,9 +27,18 @@ export const attributeTypes = Object.freeze([
 const converters = (()=>{
     const converters = new Map();
 
-    converters.set(Boolean, {});
-    converters.set(Number, {});
-    converters.set(String, {});
+    converters.set(Boolean, {
+        toProp(val) { return (val !== 'false' && val !== null); },
+        toAttr(val) { return val ? '' : null; }
+    });
+    converters.set(Number, {
+        toProp(val) { return Number(val); },
+        toAttr(val) { return val !== null ? String(val) : null; }
+    });
+    converters.set(String, {
+        toProp(val) { return String(val); },
+        toAttr(val) { return val !== null ? String(val) : null; }
+    });
 
     return converters;
 })();
@@ -37,18 +46,20 @@ const converters = (()=>{
 function createAttrDesc(attr, {
     type = String,        // Attribute data type
     prop = `_${attr}`,    // Name of the data property
-    show = false,         // Should the attribute always be added?
+    force = false,        // Should the attribute always be added?
     value = null          // Default value
 }) {
-    const dirty = false;  // Has the attribute changed since last update?
-    const remove = false; // Should this attribute be removed on the next update?
     const convert = converters.get(type);
 
     if (!attributeTypes.includes(type)) {
         throw new Error(`Component attribute '${attr}' has unsupported type`);
     }
 
-    return { name:attr, prop, type, show, value, dirty, convert };
+    // Force makes the attribute always appear whether set or not.
+    // This makes no sense if there's no default value or for boolean flags.
+    force = (force && (value === null || type === Boolean));
+
+    return { prop, type, force, value, convert };
 }
 
 /**
@@ -58,20 +69,19 @@ function createAttrDesc(attr, {
 export function defineAttribute(cls, attr, desc) {
     const attribute = createAttrDesc(attr, desc);
     // If there's already an accessor defined, wrap it
-    const existing = Object.getOwnPropertyDescriptor(cls.prototype, attribute.name);
+    const existing = Object.getOwnPropertyDescriptor(cls.prototype, attr);
     const setter = (existing && existing.set) ? 
         (o,v) => { o[attribute.prop] = v; existing.set.call(o,v) } : 
         (o,v) => { o[attribute.prop] = v; }
 
     // Accessor property
-    Object.defineProperty(cls.prototype, attribute.name, {
+    Object.defineProperty(cls.prototype, attr, {
         configurable: true,
         enumerable: true,
-        get() { return this[attribute.prop] ?? attribute.value; },
-        set(val) { 
+        get() { return this[attribute.prop] ?? null; },
+        set(val) {
             setter(this, val);
-            attribute.dirty = true;
-            this.onPropertyChange(attribute.name, val);
+            this.onPropertyChange(attr, val);
         }
     });
 
