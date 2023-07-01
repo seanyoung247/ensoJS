@@ -53,17 +53,19 @@ export default class Enso extends HTMLElement {
         // Define the custom element
         customElements.define(tag, component);
     }
+    
+    // Root element, either this, or shadowroot
+    #root = null;
+    #rootProps = null;
 
+    // Reactivity properties
+    #refs = {};
+    #bindings = new Map();
     #events = new AbortController();
-    #root = null;   // Component root element
-    #refs = {};     // Holds references for elements in the component's internal DOM.
-
-    #bindings = new Map(); // Details for bound types
 
     constructor(properties={mode:'open'}) {
         super();
-        // Determine what this component's root node should be
-        this.#root = this.useShadow ? this.attachShadow(properties) : this;
+        this.#rootProps = properties;
     }
 
     get refs() { return this.#refs; }
@@ -98,6 +100,7 @@ export default class Enso extends HTMLElement {
     }
 
     connectedCallback() {
+        this.#root = this.useShadow ? this.attachShadow(this.#rootProps) : this;
 
         requestAnimationFrame(this.render.bind(this));
         // Ensure any persistent attributes are shown
@@ -185,12 +188,7 @@ export default class Enso extends HTMLElement {
     // adoptedCallback() {}
 
     attributeChangedCallback(property, oldValue, newValue) {
-        if (oldValue === newValue) return;
-        // // Attributes are always strings, so decode it to the correct datatype
-        // const val = this.attributes[property].convert.toProp(newValue);
-        // // Reflect change to component properties
-        // if (this[property] != val) this[property] = val;
-        this.setAttribute(property, newValue);
+        if (oldValue !== newValue) this.setAttribute(property, newValue);
     }
 
     /* PROOF OF CONCEPT - Defer attribute setting until repaint */

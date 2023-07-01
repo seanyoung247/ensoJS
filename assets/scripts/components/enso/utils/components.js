@@ -36,8 +36,8 @@ const converters = (()=>{
         toAttr(val) { return val !== null ? String(val) : null; }
     });
     converters.set(String, {
-        toProp(val) { return String(val); },
-        toAttr(val) { return val !== null ? String(val) : null; }
+        toProp(val) { return val; },
+        toAttr(val) { return val; }
     });
 
     return converters;
@@ -46,7 +46,7 @@ const converters = (()=>{
 function createAttrDesc(attr, {
     type = String,        // Attribute data type
     prop = `_${attr}`,    // Name of the data property
-    force = false,        // Should the attribute always be added?
+    force = false,        // Should the attribute be added by default?
     value = null          // Default value
 }) {
     const convert = converters.get(type);
@@ -57,7 +57,8 @@ function createAttrDesc(attr, {
 
     // Force makes the attribute always appear whether set or not.
     // This makes no sense if there's no default value or for boolean flags.
-    force = (force && (value === null || type === Boolean));
+    force = (force && (value !== null || type === Boolean));
+    if (!force) value = null;
 
     return { prop, type, force, value, convert };
 }
@@ -78,7 +79,7 @@ export function defineAttribute(cls, attr, desc) {
     Object.defineProperty(cls.prototype, attr, {
         configurable: true,
         enumerable: true,
-        get() { return this[attribute.prop] ?? null; },
+        get() { return this[attribute.prop] ?? attribute.value; },
         set(val) {
             setter(this, val);
             this.onPropertyChange(attr, val);
