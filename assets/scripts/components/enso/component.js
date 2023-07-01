@@ -13,13 +13,6 @@ function createBoundValue(code, context) {
     return func.bind(context);
 }
 
-export const validAtributeTypes = Object.freeze([
-    Boolean, 
-    Number,
-    String
-]);
-
-
 /**
  * Enso Web Component base class
  * @abstract
@@ -43,12 +36,7 @@ export default class Enso extends HTMLElement {
 
         // Create observed attributes
         for (const attr in attributes) {
-            const {value, type=String} = attributes[attr];
-            // Ensure that the attribute has a valid type
-            if (!validAtributeTypes.includes(type)) {
-                throw new Error(`Component attribute '${attr}' has unsupported type`);
-            }
-            defineAttribute(component, attr, value, type);
+            attributes[attr] = defineAttribute(component, attr, attributes[attr]);
         }
         
         if (typeof template === 'string') template = new EnsoTemplate(template);
@@ -206,6 +194,7 @@ export default class Enso extends HTMLElement {
         if (this[property] != val) this[property] = val;
     }
 
+    /* PROOF OF CONCEPT - Defer attribute setting until repaint */
     getAttribute(attribute) {
         return String(this[attribute]);
     }
@@ -213,8 +202,10 @@ export default class Enso extends HTMLElement {
     setAttribute(attribute, value) {
         if (String(this[attribute]) !== value) this[attribute] = value;
     }
+
+    // Needs removeAttribute -> defer removal
+    // Needs hasAttribute? Should return whether the attribute is going to exist after next update?
     
-    /* PROOF OF CONCEPT - Defer attribute setting until reflow */
     update() {
         for (const attr in this.attributes) {
             const type = this.attributes[attr].type;
@@ -223,10 +214,12 @@ export default class Enso extends HTMLElement {
                 else super.setAttribute(attr, '');
             } else {
                 const val = String(this[attr]);
-                if (super.getAttribute(attr) !== val) super.setAttribute(attr, val);
+                const attrVal = super.getAttribute(attr);
+                if (attrVal && attrVal !== val) {
+                    super.setAttribute(attr, val);
+                }
             }
         }
-
         requestAnimationFrame(this.update.bind(this));
     }
 }
