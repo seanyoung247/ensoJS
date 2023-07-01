@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
-import { defineTypeConstants, defineAttribute } from "./utils/comp.js";
+import { defineTypeConstants, defineAttribute } from "./utils/components.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);

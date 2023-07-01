@@ -1,6 +1,22 @@
 /**
- * @module Comp Utillity functions for component handling
+ * @module Components Utillity functions for component handling
  */
+
+
+/**
+ * Adds read only properties with instance accessors to a class
+ */
+export function defineTypeConstants(cls, props) {
+    const keys = Object.keys(props);
+
+    for (const key of keys) {
+        const prop = `_${key}`;
+        Object.defineProperty(cls, prop, { value: props[key], writable: false });
+        Object.defineProperty(cls.prototype, key, {
+            get() { return this.constructor[prop]; }
+        });
+    }
+}
 
 export const attributeTypes = Object.freeze([
     Boolean, 
@@ -19,12 +35,13 @@ const converters = (()=>{
 })();
 
 function createAttrDesc(attr, {
-    type = String,       // Attribute data type
-    prop = `_${attr}`,   // Name of the data property
-    show = false,        // Should the attribute always be added?
-    value = null         // Default value
+    type = String,        // Attribute data type
+    prop = `_${attr}`,    // Name of the data property
+    show = false,         // Should the attribute always be added?
+    value = null          // Default value
 }) {
-    const dirty = false; // Has the attribute changed since last update?
+    const dirty = false;  // Has the attribute changed since last update?
+    const remove = false; // Should this attribute be removed on the next update?
     const convert = converters.get(type);
 
     if (!attributeTypes.includes(type)) {
@@ -32,21 +49,6 @@ function createAttrDesc(attr, {
     }
 
     return { name:attr, prop, type, show, value, dirty, convert };
-}
-
-/**
- * Adds read only properties with instance accessors to a class
- */
-export function defineTypeConstants(cls, props) {
-    const keys = Object.keys(props);
-
-    for (const key of keys) {
-        const prop = `_${key}`;
-        Object.defineProperty(cls, prop, { value: props[key], writable: false });
-        Object.defineProperty(cls.prototype, key, {
-            get() { return this.constructor[prop]; }
-        });
-    }
 }
 
 /**
@@ -68,6 +70,7 @@ export function defineAttribute(cls, attr, desc) {
         get() { return this[attribute.prop] ?? attribute.value; },
         set(val) { 
             setter(this, val);
+            attribute.dirty = true;
             this.onPropertyChange(attribute.name, val);
         }
     });
