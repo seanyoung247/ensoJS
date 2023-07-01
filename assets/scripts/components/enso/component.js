@@ -214,8 +214,8 @@ export default class Enso extends HTMLElement {
                 else super.setAttribute(attr, '');
             } else {
                 const val = String(this[attr]);
-                const attrVal = super.getAttribute(attr);
-                if (attrVal && attrVal !== val) {
+                if (this.attributes[attr].dirty) {
+                    this.attributes[attr].dirty = false;
                     super.setAttribute(attr, val);
                 }
             }
