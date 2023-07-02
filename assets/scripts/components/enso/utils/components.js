@@ -82,6 +82,7 @@ export function defineAttribute(cls, attr, desc) {
         get() { return this[attribute.prop] ?? attribute.value; },
         set(val) {
             setter(this, val);
+            // Mark as dirty here
             this.onPropertyChange(attr, val);
         }
     });

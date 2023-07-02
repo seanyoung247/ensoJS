@@ -1,6 +1,6 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
+import EnsoTemplate, { ENSO_ATTR } from "./templates/templates.js";
 import { defineTypeConstants, defineAttribute } from "./utils/components.js";
 
 function createHandler(code, context) {
@@ -114,7 +114,7 @@ export default class Enso extends HTMLElement {
         // Parse and attach template
         if (this.template) {
             const DOM = this.template.clone();
-            const watched = this.template.watched;
+            const watched = this.template.watchedNodes;
             const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
             // Iterate over watched nodes
             for (const element of elements) {
@@ -136,9 +136,8 @@ export default class Enso extends HTMLElement {
                 // Evaluate data bindings
                 if (node.content) {
                     const content = createBoundValue(node.content, this);
-                    // Pull bound variables out of the tag
-                    const bindings = element.getAttribute(ENSO_BIND).split(' ');
-                    for (const bind of bindings) {
+
+                    for (const bind of node.binds) {
                         if (!this.#bindings.has(bind)) {
                             this.#bindings.set(bind, [ element ]);
                         } else {
@@ -161,7 +160,6 @@ export default class Enso extends HTMLElement {
                             });
                         }
                     }
-                    element.removeAttribute(ENSO_BIND);
                     // Initial render
                     element.textContent = content();
                 }
