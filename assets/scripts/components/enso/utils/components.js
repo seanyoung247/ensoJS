@@ -89,3 +89,7 @@ export function defineAttribute(cls, attr, desc) {
 
     return attribute;
 }
+
+export function bindProperty() {
+    
+}

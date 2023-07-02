@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_ATTR } from "./templates/templates.js";
-import { defineTypeConstants, defineAttribute } from "./utils/components.js";
+import { defineTypeConstants, defineAttribute, bindProperty } from "./utils/components.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -115,7 +115,15 @@ export default class Enso extends HTMLElement {
         if (this.template) {
             const DOM = this.template.clone();
             const watched = this.template.watchedNodes;
+            const bindings = this.template.boundValues;
             const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
+
+            // Wrap bound values in accessors to register changes
+            for (const bind of bindings) {
+                
+            }
+
+
             // Iterate over watched nodes
             for (const element of elements) {
                 const idx = parseInt(element.getAttribute(ENSO_ATTR));
@@ -140,24 +148,25 @@ export default class Enso extends HTMLElement {
                     for (const bind of node.binds) {
                         if (!this.#bindings.has(bind)) {
                             this.#bindings.set(bind, [ element ]);
+
+                            const prop = Object.getOwnPropertyDescriptor(
+                                this.constructor.prototype, bind);
+    
+                            if (prop.set) {
+                                const setter = prop.set;
+                                Object.defineProperty(this, bind, {
+                                    configurable: true,
+                                    enumerable: true,
+                                    get: prop.get,
+                                    set: val => {
+                                        setter.call(this, val);
+                                        element.textContent = content();
+                                    }
+                                });
+                            }
                         } else {
                             const list = this.#bindings.get(bind);
                             if (!list.includes(element)) list.push(element);
-                        }
-                        const prop = Object.getOwnPropertyDescriptor(
-                            this.constructor.prototype, bind);
-
-                        if (prop.set) {
-                            const setter = prop.set;
-                            Object.defineProperty(this, bind, {
-                                configurable: true,
-                                enumerable: true,
-                                get: prop.get,
-                                set: val => {
-                                    setter.call(this, val);
-                                    element.textContent = content();
-                                }
-                            });
                         }
                     }
                     // Initial render
@@ -218,7 +227,12 @@ export default class Enso extends HTMLElement {
     
     render() {
         for (const attr in this.attributes) {
-            if (true) { // ToDo: Dirty check here
+            
+            const val = this.attributes[attr].type === Boolean ? 
+                super.hasAttribute(attr) :
+                this.attributes[attr].convert.toProp(super.getAttribute(attr));
+
+            if (val !== this[attr]) {
                 this.reflectAttribute(attr);
             }
         }
