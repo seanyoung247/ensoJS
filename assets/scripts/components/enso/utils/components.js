@@ -45,22 +45,31 @@ const converters = (()=>{
 
 function createAttrDesc(attr, {
     type = String,        // Attribute data type
-    prop = `_${attr}`,    // Name of the data property
     force = false,        // Should the attribute be added by default?
-    value = null          // Default value
 }) {
-    const convert = converters.get(type);
+    const {toProp, toAttr} = converters.get(type);
 
     if (!attributeTypes.includes(type)) {
         throw new Error(`Component attribute '${attr}' has unsupported type`);
     }
 
-    // Force makes the attribute always appear whether set or not.
-    // This makes no sense if there's no default value or for boolean flags.
-    force = (force && (value !== null || type === Boolean));
-    if (!force) value = null;
+    // // Force makes the attribute always appear whether set or not.
+    // // This makes no sense if there's no default value or for boolean flags.
+    // force = (force && (value !== null || type === Boolean));
+    // if (!force) value = null;
 
-    return { prop, type, force, value, convert };
+    return { type, force, toProp, toAttr };
+}
+
+function createPropDesc(name, {
+    prop = `_${name}`,      // Name of the data property
+    deep = false,           // Should the property have shallow or deep reactivity
+    value = null,           // Default property value
+    attribute = false       // False or attribute properties
+}) {
+    if (attribute) attribute = createAttrDesc(name, attribute);
+
+    return {prop, deep, value, attribute};
 }
 
 /**
@@ -88,6 +97,12 @@ export function defineAttribute(cls, attr, desc) {
     });
 
     return attribute;
+}
+
+
+
+export function defineProperty(obj, prop, desc) {
+
 }
 
 export function bindProperty() {

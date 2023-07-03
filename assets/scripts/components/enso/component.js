@@ -25,18 +25,18 @@ export default class Enso extends HTMLElement {
      *  @param {String} props.tag                    - DOM tag name for this component
      *  @param {String|EnsoTemplate} props.template  - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.attributes]           - (optional) This component's attributes
+     *  @param {Object} [props.properties]           - (optional) This component's attributes
      *  @param {Boolean} [props.useShadow=true]      - (Optional) Should the component use shadow dom 
      * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
      */
     static component({tag, template, 
-        styles=null, attributes={}, useShadow=true}, 
+        styles=null, properties={}, useShadow=true}, 
         component=class extends Enso {}) {
 
-        // Create observed attributes
-        for (const attr in attributes) {
-            attributes[attr] = defineAttribute(component, attr, attributes[attr]);
+        // Create observed properties
+        for (const prop in properties) {
+            properties[prop] = defineAttribute(component, prop, properties[prop]);
         }
         
         if (typeof template === 'string') template = new EnsoTemplate(template);
@@ -44,7 +44,7 @@ export default class Enso extends HTMLElement {
 
         // Type properties
         defineTypeConstants(component, {
-            'attributes': attributes,
+            'attributes': properties,
             'useShadow': useShadow,
             'template': template,
             'styles': styles,
@@ -56,16 +56,15 @@ export default class Enso extends HTMLElement {
     
     // Root element, either this, or shadowroot
     #root = null;
-    #rootProps = null;
 
     // Reactivity properties
     #refs = {};
     #bindings = new Map();
     #events = new AbortController();
 
-    constructor(properties={mode:'open'}) {
+    constructor(rootProps={mode:'open'}) {
         super();
-        this.#rootProps = properties;
+        this.#root = rootProps;
     }
 
     get refs() { return this.#refs; }
@@ -100,7 +99,7 @@ export default class Enso extends HTMLElement {
     }
 
     connectedCallback() {
-        this.#root = this.useShadow ? this.attachShadow(this.#rootProps) : this;
+        this.#root = this.useShadow ? this.attachShadow(this.#root) : this;
 
         requestAnimationFrame(this.render.bind(this));
         // Ensure any persistent attributes are shown

@@ -15,10 +15,10 @@ Enso.component({
 
     tag: 'enso-cuboid',
     
-    attributes: {
-        'width': {value: 0},
-        'height': {value: 0},
-        'depth': {value: 0}
+    properties: {
+        width: {attribute: true, value: '0px'},
+        height: {attribute: true, value: '0px'},
+        depth: {attribute: true, value: '0px'}
     },
 
     styles:`

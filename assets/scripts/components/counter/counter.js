@@ -5,8 +5,8 @@ Enso.component({
 
     tag: 'enso-counter',
 
-    attributes: {
-        count: { type: Number, value: 0, force: true }
+    properties: {
+        count: { deep: false, value: 0, attribute: { type: Number, force: true } }
     },
 
     styles:`
