@@ -15,9 +15,9 @@ Enso.component({
 
     template:
         `<div class="container">
-            <button @click="()=>this.count--;">-</button>
+            <button @click="()=>this.count--">-</button>
             <span class="display">{{ this.count }}</span>
-            <button @click="()=>this.count++;">+</button>
+            <button @click="()=>this.count++">+</button>
         </div>`
 
 });

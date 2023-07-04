@@ -45,7 +45,7 @@ const converters = (()=>{
     return converters;
 })();
 
-function createAttrDesc(attr, {
+function createAttrDesc(attr, value, {
     type = String,        // Attribute data type
     force = false,        // Should the attribute be added by default?
 }) {
@@ -55,10 +55,10 @@ function createAttrDesc(attr, {
         throw new Error(`Component attribute '${attr}' has unsupported type`);
     }
 
-    // // Force makes the attribute always appear whether set or not.
-    // // This makes no sense if there's no default value or for boolean flags.
-    // force = (force && (value !== null || type === Boolean));
-    // if (!force) value = null;
+    // Force makes the attribute always appear whether set or not.
+    // This makes no sense if there's no default value or for boolean flags.
+    force = (force && (value !== null || type === Boolean));
+    if (!force) value = null;
 
     return { type, force, toProp, toAttr };
 }
@@ -69,13 +69,12 @@ function createPropDesc(name, {
     value = null,           // Default property value
     attribute = false       // False or attribute properties
 }) {
-    if (attribute) attribute = createAttrDesc(name, attribute);
-
+    if (attribute) attribute = createAttrDesc(name, value, attribute);
     return { prop, deep, value, attribute };
 }
 
 /**
- * Adds accessors for a 
+ * Adds accessor for a bound property
  */
 export function defineWatchedProperty(cls, prop, desc) {
     const property = createPropDesc(prop, desc);
@@ -95,7 +94,7 @@ export function defineWatchedProperty(cls, prop, desc) {
         },
         set(val) {
             setter(this, val);
-            // Mark as dirty here
+            this.markChanged(prop);
             this.onPropertyChange(prop, val);
         }
     });

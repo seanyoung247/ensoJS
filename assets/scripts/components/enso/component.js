@@ -13,6 +13,11 @@ function createBoundValue(code, context) {
     return func.bind(context);
 }
 
+function createTextBinding(code, context) {
+    const func = new Function('el', `el.textContent = ${code};`);
+    return func.bind(context);
+}
+
 /**
  * Enso Web Component base class
  * @abstract
@@ -35,8 +40,10 @@ export default class Enso extends HTMLElement {
         component=class extends Enso {}) {
 
         // Create observed properties
+        const attributes = [];
         for (const prop in properties) {
             properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
+            if (properties[prop].attribute) attributes.push(prop);
         }
         
         if (typeof template === 'string') template = new EnsoTemplate(template);
@@ -44,6 +51,7 @@ export default class Enso extends HTMLElement {
 
         // Type properties
         defineTypeConstants(component, {
+            'attributes': attributes,
             'properties': properties,
             'useShadow': useShadow,
             'template': template,
@@ -54,7 +62,7 @@ export default class Enso extends HTMLElement {
         customElements.define(tag, component);
     }
     
-    // Root element, either this, or shadowroot
+    // Root element -> either this, or shadowroot
     #root = null;
 
     // Reactivity properties
@@ -62,12 +70,19 @@ export default class Enso extends HTMLElement {
     #bindings = new Map();
     #events = new AbortController();
 
-    constructor(rootProps={mode:'open'}) {
+    constructor() {
         super();
-        this.#root = rootProps;
+
+        for (const prop in this.properties) {
+            this.#bindings.set(prop, { changed: false, nodes: new Set() });
+        }
     }
 
     get refs() { return this.#refs; }
+
+    markChanged(prop) {
+        this.#bindings.get(prop).changed = true;
+    }
 
     /**
      * Called after the component has been mounted and started on the page.
@@ -95,17 +110,17 @@ export default class Enso extends HTMLElement {
     // Web Component API
     //
     static get observedAttributes() {
-        return Object.keys(this._properties);
+        return this._attributes;
     }
 
     connectedCallback() {
-        this.#root = this.useShadow ? this.attachShadow(this.#root) : this;
+        this.#root = this.useShadow && !this.#root ? this.attachShadow({mode:'open'}) : this;
 
         requestAnimationFrame(this.render.bind(this));
         // Ensure any forced attributes are shown
-        for (const attr in this.properties) {
-            const properties = this.properties[attr];
-            if (properties.force) {
+        for (const attr in this.attributes) {
+            const attribute = this.attributes[attr];
+            if (attribute.force) {
                 this.setAttribute(attr, this[attr]);
             }
         }
@@ -135,34 +150,40 @@ export default class Enso extends HTMLElement {
                 }
                 // Evaluate data bindings
                 if (node.content) {
-                    const content = createBoundValue(node.content, this);
+                    const content = createTextBinding(node.content, this);
 
                     for (const bind of node.binds) {
-                        if (!this.#bindings.has(bind)) {
-                            this.#bindings.set(bind, [ element ]);
-
-                            const prop = Object.getOwnPropertyDescriptor(
-                                this.constructor.prototype, bind);
-    
-                            if (prop.set) {
-                                const setter = prop.set;
-                                Object.defineProperty(this, bind, {
-                                    configurable: true,
-                                    enumerable: true,
-                                    get: prop.get,
-                                    set: val => {
-                                        setter.call(this, val);
-                                        element.textContent = content();
-                                    }
-                                });
-                            }
-                        } else {
-                            const list = this.#bindings.get(bind);
-                            if (!list.includes(element)) list.push(element);
+                        if (this.#bindings.has(bind)) {
+                            const binding = this.#bindings.get(bind);
+                            binding.nodes.add(element);
+                            binding.effect = content;
                         }
+                        // if (!this.#bindings.has(bind)) {
+                        //     this.#bindings.set(bind, [ element ]);
+
+                        //     const prop = Object.getOwnPropertyDescriptor(
+                        //         this.constructor.prototype, bind);
+    
+                        //     if (prop.set) {
+                        //         const setter = prop.set;
+                        //         Object.defineProperty(this, bind, {
+                        //             configurable: true,
+                        //             enumerable: true,
+                        //             get: prop.get,
+                        //             set: val => {
+                        //                 setter.call(this, val);
+                        //                 element.textContent = content();
+                        //             }
+                        //         });
+                        //     }
+                        // } else {
+                        //     const binding = this.#bindings.get(bind);
+                            
+                        // }
                     }
                     // Initial render
-                    element.textContent = content();
+                    // element.textContent = content();
+                    content(element);
                 }
 
                 element.removeAttribute(ENSO_NODE);
@@ -190,7 +211,7 @@ export default class Enso extends HTMLElement {
         if (oldValue !== newValue) this.setAttribute(property, newValue);
     }
 
-    /* PROOF OF CONCEPT - Defer attribute setting until repaint */
+    // Attributes
     reflectAttribute(attribute) {
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
@@ -227,6 +248,7 @@ export default class Enso extends HTMLElement {
                 this.reflectAttribute(attr);
             }
         }
+
         requestAnimationFrame(this.render.bind(this));
     }
 }
