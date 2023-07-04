@@ -16,9 +16,9 @@ Enso.component({
     tag: 'enso-cuboid',
     
     properties: {
-        width: {attribute: true, value: '0px'},
-        height: {attribute: true, value: '0px'},
-        depth: {attribute: true, value: '0px'}
+        width: {attribute: true},
+        height: {attribute: true},
+        depth: {attribute: true}
     },
 
     styles:`

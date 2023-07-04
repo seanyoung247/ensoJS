@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate, { ENSO_ATTR } from "./templates/templates.js";
-import { defineTypeConstants, defineAttribute, bindProperty } from "./utils/components.js";
+import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
+import { defineTypeConstants, defineWatchedProperty } from "./utils/components.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -25,7 +25,7 @@ export default class Enso extends HTMLElement {
      *  @param {String} props.tag                    - DOM tag name for this component
      *  @param {String|EnsoTemplate} props.template  - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.properties]           - (optional) This component's attributes
+     *  @param {Object} [props.properties]           - (optional) This component's properties
      *  @param {Boolean} [props.useShadow=true]      - (Optional) Should the component use shadow dom 
      * @param {Enso} [component]                     - (Optional) Enso derived class implementation
      * @static
@@ -36,7 +36,7 @@ export default class Enso extends HTMLElement {
 
         // Create observed properties
         for (const prop in properties) {
-            properties[prop] = defineAttribute(component, prop, properties[prop]);
+            properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
         }
         
         if (typeof template === 'string') template = new EnsoTemplate(template);
@@ -44,7 +44,7 @@ export default class Enso extends HTMLElement {
 
         // Type properties
         defineTypeConstants(component, {
-            'attributes': properties,
+            'properties': properties,
             'useShadow': useShadow,
             'template': template,
             'styles': styles,
@@ -95,16 +95,16 @@ export default class Enso extends HTMLElement {
     // Web Component API
     //
     static get observedAttributes() {
-        return Object.keys(this._attributes);
+        return Object.keys(this._properties);
     }
 
     connectedCallback() {
         this.#root = this.useShadow ? this.attachShadow(this.#root) : this;
 
         requestAnimationFrame(this.render.bind(this));
-        // Ensure any persistent attributes are shown
-        for (const attr in this.attributes) {
-            const properties = this.attributes[attr];
+        // Ensure any forced attributes are shown
+        for (const attr in this.properties) {
+            const properties = this.properties[attr];
             if (properties.force) {
                 this.setAttribute(attr, this[attr]);
             }
@@ -114,18 +114,11 @@ export default class Enso extends HTMLElement {
         if (this.template) {
             const DOM = this.template.clone();
             const watched = this.template.watchedNodes;
-            const bindings = this.template.boundValues;
-            const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
-
-            // Wrap bound values in accessors to register changes
-            for (const bind of bindings) {
-                
-            }
-
+            const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
 
             // Iterate over watched nodes
             for (const element of elements) {
-                const idx = parseInt(element.getAttribute(ENSO_ATTR));
+                const idx = parseInt(element.getAttribute(ENSO_NODE));
                 const node = watched[idx];
 
                 // TODO: MAKE THESE DIRECTIVES GENERAL!
@@ -172,7 +165,7 @@ export default class Enso extends HTMLElement {
                     element.textContent = content();
                 }
 
-                element.removeAttribute(ENSO_ATTR);
+                element.removeAttribute(ENSO_NODE);
             }
 
             this.#root.append(DOM);
@@ -199,20 +192,19 @@ export default class Enso extends HTMLElement {
 
     /* PROOF OF CONCEPT - Defer attribute setting until repaint */
     reflectAttribute(attribute) {
-        const attr = this.attributes[attribute];
-        const value = attr.convert.toAttr(this[attribute]);
+        const attr = this.properties[attribute];
+        const value = attr.attribute.toAttr(this[attribute]);
+        
         if (value === null) super.removeAttribute(attribute);
-        else {
-            super.setAttribute(attribute, value);
-        }
+        else super.setAttribute(attribute, value);
     }
 
     getAttribute(attribute) {
-        return this.attributes[attribute].convert.toAttr(this[attribute]);
+        return this.properties[attribute].attribute.toAttr(this[attribute]);
     }
 
     setAttribute(attribute, value) {
-        const val = this.attributes[attribute].convert.toProp(value);
+        const val = this.properties[attribute].attribute.toProp(value);
         if (this[attribute] !== val) this[attribute] = val;
     }
 
@@ -225,11 +217,11 @@ export default class Enso extends HTMLElement {
     }
     
     render() {
-        for (const attr in this.attributes) {
+        for (const attr in this.properties) {
             
-            const val = this.attributes[attr].type === Boolean ? 
+            const val = this.properties[attr].type === Boolean ? 
                 super.hasAttribute(attr) :
-                this.attributes[attr].convert.toProp(super.getAttribute(attr));
+                this.properties[attr].attribute.toProp(super.getAttribute(attr));
 
             if (val !== this[attr]) {
                 this.reflectAttribute(attr);

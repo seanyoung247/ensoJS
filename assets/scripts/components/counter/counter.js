@@ -6,7 +6,7 @@ Enso.component({
     tag: 'enso-counter',
 
     properties: {
-        count: { deep: false, value: 0, attribute: { type: Number, force: true } }
+        count: { value: 0, attribute: { type: Number, force: true } }
     },
 
     styles:`

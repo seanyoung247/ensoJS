@@ -14,12 +14,11 @@ const getWalker = rootNode =>
 
 const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
 
-export const ENSO_ATTR = 'data-enso-node';  // Index of the node in the node definitions
+export const ENSO_NODE = 'data-enso-node';  // Index of the node in the node definitions
 
 export default class EnsoTemplate {
     #template = null;       // The underlying HTML template
     #watched = [];          // List of nodes that are referenced or mutated
-    #bindings = new Set();  // Set of bound component properties
 
     constructor(html) {
         const template = (typeof html === 'string') ?
@@ -60,7 +59,6 @@ export default class EnsoTemplate {
                 let bind;
                 while (bind = bindEx.exec(nodeDef.content)) {
                     nodeDef.binds.add(bind[1]);
-                    this.#bindings.add(bind[1]);
                 }
             }
 
@@ -84,18 +82,16 @@ export default class EnsoTemplate {
                 }
             }
             if (watched) {
-                node.setAttribute(ENSO_ATTR, nodeDef.index);
+                node.setAttribute(ENSO_NODE, nodeDef.index);
                 this.#watched.push(nodeDef);
             }
         }
 
         Object.freeze(this.#watched);
-        Object.freeze(this.#bindings);
         return template;
     }
 
     get watchedNodes() { return this.#watched; }
-    get boundValues() { return this.#bindings; }
 
     clone() {
         return this.#template.content.cloneNode(true);

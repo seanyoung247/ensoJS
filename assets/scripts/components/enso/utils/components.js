@@ -18,6 +18,8 @@ export function defineTypeConstants(cls, props) {
     }
 }
 
+//// Watched Properties
+
 export const attributeTypes = Object.freeze([
     Boolean, 
     Number,
@@ -69,42 +71,34 @@ function createPropDesc(name, {
 }) {
     if (attribute) attribute = createAttrDesc(name, attribute);
 
-    return {prop, deep, value, attribute};
+    return { prop, deep, value, attribute };
 }
 
 /**
- * Adds or wraps a property getter and setter for a given attribute to
- * an Enso component
+ * Adds accessors for a 
  */
-export function defineAttribute(cls, attr, desc) {
-    const attribute = createAttrDesc(attr, desc);
-    // If there's already an accessor defined, wrap it
-    const existing = Object.getOwnPropertyDescriptor(cls.prototype, attr);
-    const setter = (existing && existing.set) ? 
-        (o,v) => { o[attribute.prop] = v; existing.set.call(o,v) } : 
-        (o,v) => { o[attribute.prop] = v; }
+export function defineWatchedProperty(cls, prop, desc) {
+    const property = createPropDesc(prop, desc);
 
-    // Accessor property
-    Object.defineProperty(cls.prototype, attr, {
+    // Has the component defined a callback function?
+    const existing = Object.getOwnPropertyDescriptor(cls.prototype, prop);
+    const setter = (existing && typeof existing.value === 'function') ?
+        (o,v) => { o[property.prop] = v; existing.value.call(o,v) } : 
+        (o,v) => { o[property.prop] = v; }
+
+    Object.defineProperty(cls.prototype, prop, {
         configurable: true,
         enumerable: true,
-        get() { return this[attribute.prop] ?? attribute.value; },
+        get() { 
+            // If deep need to return proxy -
+            return this[property.prop] ?? property.value; 
+        },
         set(val) {
             setter(this, val);
             // Mark as dirty here
-            this.onPropertyChange(attr, val);
+            this.onPropertyChange(prop, val);
         }
     });
 
-    return attribute;
-}
-
-
-
-export function defineProperty(obj, prop, desc) {
-
-}
-
-export function bindProperty() {
-    
+    return property;
 }
