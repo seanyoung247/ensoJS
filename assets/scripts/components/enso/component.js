@@ -116,15 +116,14 @@ export default class Enso extends HTMLElement {
     //
     connectedCallback() {
 
-        requestAnimationFrame(this.render.bind(this));
-        // Ensure any forced attributes are shown
-        for (const attr in this.attributes) {
-            const attribute = this.attributes[attr];
-            if (attribute.force) {
-                this.setAttribute(attr, this[attr]);
+        const attributes = this.constructor.observedAttributes;
+        for (const attr of attributes) {
+            if (this.properties[attr].attribute.force) {
+                this.reflectAttribute(attr);
             }
         }
 
+        requestAnimationFrame(this.render.bind(this));
         // Parse and attach template
         if (this.template) {
             const DOM = this.template.clone();
@@ -185,46 +184,21 @@ export default class Enso extends HTMLElement {
     // adoptedCallback() {}
 
     attributeChangedCallback(property, oldValue, newValue) {
-        if (oldValue !== newValue) this.setAttribute(property, newValue);
+        if (oldValue === newValue) return; //this.setAttribute(property, newValue);
+
+        const val = this.properties[property].attribute.toProp(newValue);
+        if (this[property] !== val) this[property] = val;
     }
 
-    // Attributes
     reflectAttribute(attribute) {
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
         
-        if (value === null) super.removeAttribute(attribute);
-        else super.setAttribute(attribute, value);
+        if (value === null) this.removeAttribute(attribute);
+        else this.setAttribute(attribute, value);
     }
 
-    getAttribute(attribute) {
-        return this.properties[attribute].attribute.toAttr(this[attribute]);
-    }
-
-    setAttribute(attribute, value) {
-        const val = this.properties[attribute].attribute.toProp(value);
-        if (this[attribute] !== val) this[attribute] = val;
-    }
-
-    removeAttribute(attribute) {
-        this[attribute] = null;
-    }
-
-    hasAttribute(attribute) {
-        return this[attribute] !== null;
-    }
-    
     render() {
-        for (const attr in this.properties) {
-            
-            const val = this.properties[attr].type === Boolean ? 
-                super.hasAttribute(attr) :
-                this.properties[attr].attribute.toProp(super.getAttribute(attr));
-
-            if (val !== this[attr]) {
-                this.reflectAttribute(attr);
-            }
-        }
 
         requestAnimationFrame(this.render.bind(this));
     }

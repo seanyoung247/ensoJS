@@ -81,6 +81,7 @@ export function defineWatchedProperty(cls, prop, desc) {
         set(val) {
             setter(this, val);
             this.markChanged(prop);
+            this.reflectAttribute(prop);
             this.onPropertyChange(prop, val);
         }
     });
