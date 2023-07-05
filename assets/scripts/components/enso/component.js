@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
-import { defineTypeConstants, defineAttribute } from "./utils/comp.js";
+import { defineTypeConstants, defineAttribute } from "./utils/components.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -75,8 +75,8 @@ export default class Enso extends HTMLElement {
     constructor(properties={mode:'open'}) {
         super();
         // Determine what this component's root node should be
-        this.#root = this.shadowRoot ? this.shadowRoot : this.attachShadow(properties);
-        // if (!this.shadowRoot) this.#root = this.useShadow ? this.attachShadow(properties) : this;
+        this.#root = this.useShadow ? 
+            this.shadowRoot ?? this.attachShadow(properties) : this;
     }
 
     get refs() { return this.#refs; }
