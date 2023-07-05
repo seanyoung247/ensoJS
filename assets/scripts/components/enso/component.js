@@ -75,7 +75,8 @@ export default class Enso extends HTMLElement {
     constructor(properties={mode:'open'}) {
         super();
         // Determine what this component's root node should be
-        this.#root = this.useShadow ? this.attachShadow(properties) : this;
+        this.#root = this.shadowRoot ? this.shadowRoot : this.attachShadow(properties);
+        // if (!this.shadowRoot) this.#root = this.useShadow ? this.attachShadow(properties) : this;
     }
 
     get refs() { return this.#refs; }
@@ -111,7 +112,7 @@ export default class Enso extends HTMLElement {
 
     connectedCallback() {
 
-        requestAnimationFrame(this.update.bind(this));
+        // requestAnimationFrame(this.update.bind(this));
         // Ensure any persistent attributes are shown
         for (const attr in this.attributes) {
             const properties = this.attributes[attr];
@@ -206,21 +207,21 @@ export default class Enso extends HTMLElement {
         if (this[property] != val) this[property] = val;
     }
 
-    getAttribute(attribute) {
-        return String(this[attribute]);
-    }
+    // getAttribute(attribute) {
+    //     return String(this[attribute]);
+    // }
 
-    setAttribute(attribute, value) {
-        if (this[attribute] != value) this[attribute] = value;
-    }
+    // setAttribute(attribute, value) {
+    //     if (this[attribute] != value) this[attribute] = value;
+    // }
     
     /* PROOF OF CONCEPT - Defer attribute setting until reflow */
-    update() {
-        for (const attr in this.attributes) {
-            if (super.getAttribute(attr) !== String(this[attr]))
-                super.setAttribute(attr, this[attr]);
-        }
+    // update() {
+    //     for (const attr in this.attributes) {
+    //         if (super.getAttribute(attr) !== String(this[attr]))
+    //             super.setAttribute(attr, this[attr]);
+    //     }
 
-        requestAnimationFrame(this.update.bind(this));
-    }
+    //     requestAnimationFrame(this.update.bind(this));
+    // }
 }

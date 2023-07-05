@@ -25,22 +25,24 @@
     <enso-counter id="test-counter1"></enso-counter>
     <enso-counter id="test-counter2" count="2"></enso-counter>
 
-    <modal-dialog id="test-modal">
+    <enso-modal id="test-modal">
         <h3 class="modal-title" slot="modal-header">Test Modal</h3>
         <div class="modal-content" slot="modal-content">
             <button id="modal-color-btn">Change Colour</button>
             <div id="cube-wrapper">
-                <css3d-cuboid>  
+                <enso-cuboid>  
                     <div class="enso" slot="front">Enso</div>
                     <div slot="right">HTML</div>
                     <div slot="left">CSS</div>
                     <div slot="back">JavaScript</div>
                     <div slot="top">Coffee</div>
                     <div slot="bottom">No Sleep</div>
-                </css3d-cuboid>
+                </enso-cuboid>
             </div>
         </div>
         <div slot="modal-footer">Modal Footer</div>
-    </modal-dialog>
+    </enso-modal>
+    <enso-modal id="modal-2">
+    </enso-modal>
 </body>
 </html>
