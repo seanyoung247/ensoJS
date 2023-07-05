@@ -1,7 +1,7 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
-import { defineTypeConstants, defineWatchedProperty } from "./utils/components.js";
+import { defineWatchedProperty } from "./utils/components.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
@@ -26,13 +26,13 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {Object} props                         - Component properties
-     *  @param {String} props.tag                    - DOM tag name for this component
-     *  @param {String|EnsoTemplate} props.template  - Template defining component HTML
+     * @param {Object} props                          - Component properties
+     *  @param {String} props.tag                     - DOM tag name for this component
+     *  @param {String|EnsoTemplate} props.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.properties]           - (optional) This component's properties
-     *  @param {Boolean} [props.useShadow=true]      - (Optional) Should the component use shadow dom 
-     * @param {Enso} [component]                     - (Optional) Enso derived class implementation
+     *  @param {Object} [props.properties]            - (optional) This component's properties
+     *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
+     * @param {Enso} [component]                      - (Optional) Enso derived class implementation
      * @static
      */
     static component({tag, template, 
@@ -49,16 +49,15 @@ export default class Enso extends HTMLElement {
         if (typeof template === 'string') template = new EnsoTemplate(template);
         if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
+        // Type properties
         Object.defineProperty(component, 'observedAttributes', {
             get() { return attributes; }
-        })
-
-        // Type properties
-        defineTypeConstants(component, {
-            'properties': properties,
-            'useShadow': useShadow,
-            'template': template,
-            'styles': styles,
+        });
+        Object.defineProperties(component.prototype, {
+            'properties': { get() { return properties; } },
+            'useShadow': { get() { return useShadow; } },
+            'template': { get() { return template; } },
+            'styles': { get() { return styles; } },
         });
 
         // Define the custom element
@@ -73,7 +72,7 @@ export default class Enso extends HTMLElement {
     #bindings = new Map();
     #events = new AbortController();
 
-    constructor(rootProps={mode:'open'}) {
+    constructor() {
         super();
 
         for (const prop in this.properties) {
@@ -81,7 +80,7 @@ export default class Enso extends HTMLElement {
         }
 
         this.#root = this.useShadow ? 
-            this.shadowRoot ?? this.attachShadow(rootProps) : this;
+            this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
     }
 
     get refs() { return this.#refs; }

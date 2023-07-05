@@ -2,24 +2,7 @@
  * @module Components Utillity functions for component handling
  */
 
-
-/**
- * Adds read only properties with instance accessors to a class
- */
-export function defineTypeConstants(cls, props) {
-    const keys = Object.keys(props);
-
-    for (const key of keys) {
-        const prop = `_${key}`;
-        Object.defineProperty(cls, prop, { value: props[key], writable: false });
-        Object.defineProperty(cls.prototype, key, {
-            get() { return this.constructor[prop]; }
-        });
-    }
-}
-
 //// Watched Properties
-
 export const attributeTypes = Object.freeze([
     Boolean, 
     Number,
@@ -91,7 +74,7 @@ export function defineWatchedProperty(cls, prop, desc) {
     Object.defineProperty(cls.prototype, prop, {
         configurable: true,
         enumerable: true,
-        get() { 
+        get() {
             // If deep need to return proxy -
             return this[property.prop] ?? property.value; 
         },
