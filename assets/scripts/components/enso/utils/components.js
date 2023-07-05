@@ -58,7 +58,6 @@ function createAttrDesc(attr, value, {
     // Force makes the attribute always appear whether set or not.
     // This makes no sense if there's no default value or for boolean flags.
     force = (force && (value !== null || type === Boolean));
-    if (!force) value = null;
 
     return { type, force, toProp, toAttr };
 }
@@ -69,7 +68,11 @@ function createPropDesc(name, {
     value = null,           // Default property value
     attribute = false       // False or attribute properties
 }) {
-    if (attribute) attribute = createAttrDesc(name, value, attribute);
+    if (attribute) {
+        attribute = createAttrDesc(name, value, attribute);
+        if (!attribute.force) value = null;
+    }
+
     return { prop, deep, value, attribute };
 }
 

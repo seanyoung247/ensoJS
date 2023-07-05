@@ -49,9 +49,12 @@ export default class Enso extends HTMLElement {
         if (typeof template === 'string') template = new EnsoTemplate(template);
         if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
+        Object.defineProperty(component, 'observedAttributes', {
+            get() { return attributes; }
+        })
+
         // Type properties
         defineTypeConstants(component, {
-            'attributes': attributes,
             'properties': properties,
             'useShadow': useShadow,
             'template': template,
@@ -70,12 +73,15 @@ export default class Enso extends HTMLElement {
     #bindings = new Map();
     #events = new AbortController();
 
-    constructor() {
+    constructor(rootProps={mode:'open'}) {
         super();
 
         for (const prop in this.properties) {
             this.#bindings.set(prop, { changed: false, nodes: new Set() });
         }
+
+        this.#root = this.useShadow ? 
+            this.shadowRoot ?? this.attachShadow(rootProps) : this;
     }
 
     get refs() { return this.#refs; }
@@ -109,12 +115,7 @@ export default class Enso extends HTMLElement {
     //
     // Web Component API
     //
-    static get observedAttributes() {
-        return this._attributes;
-    }
-
     connectedCallback() {
-        this.#root = this.useShadow && !this.#root ? this.attachShadow({mode:'open'}) : this;
 
         requestAnimationFrame(this.render.bind(this));
         // Ensure any forced attributes are shown
@@ -158,31 +159,8 @@ export default class Enso extends HTMLElement {
                             binding.nodes.add(element);
                             binding.effect = content;
                         }
-                        // if (!this.#bindings.has(bind)) {
-                        //     this.#bindings.set(bind, [ element ]);
-
-                        //     const prop = Object.getOwnPropertyDescriptor(
-                        //         this.constructor.prototype, bind);
-    
-                        //     if (prop.set) {
-                        //         const setter = prop.set;
-                        //         Object.defineProperty(this, bind, {
-                        //             configurable: true,
-                        //             enumerable: true,
-                        //             get: prop.get,
-                        //             set: val => {
-                        //                 setter.call(this, val);
-                        //                 element.textContent = content();
-                        //             }
-                        //         });
-                        //     }
-                        // } else {
-                        //     const binding = this.#bindings.get(bind);
-                            
-                        // }
                     }
                     // Initial render
-                    // element.textContent = content();
                     content(element);
                 }
 
