@@ -1,5 +1,5 @@
 /**
- * @module Components Utillity functions for component handling
+ * @module properties Utillity functions for component property handling
  */
 
 //// Watched Properties
@@ -33,10 +33,9 @@ function createAttrDesc(attr, value, {
     if (!attributeTypes.includes(type)) {
         throw new Error(`Component attribute '${attr}' has unsupported type`);
     }
-
     // Force makes the attribute always appear whether set or not.
     // This makes no sense if there's no default value or for boolean flags.
-    force = (force && (value !== null || type === Boolean));
+    force = (force && (value !== null || type !== Boolean));
 
     return { type, force, toProp, toAttr };
 }

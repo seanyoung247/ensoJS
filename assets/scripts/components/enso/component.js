@@ -1,14 +1,14 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
-import { defineWatchedProperty } from "./utils/components.js";
+import { defineWatchedProperty } from "./utils/properties.js";
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
     return func.call(context).bind(context);
 }
 
-function createBinding(field, code) {
+function createEffect(field, code) {
     const func = new Function('el', `el.${field} = ${code};`);
     return func;
 }
@@ -72,8 +72,10 @@ export default class Enso extends HTMLElement {
         super();
 
         for (const prop in this.properties) {
-            this.#bindings.set(prop, { changed: false, nodes: new Set() });
+            this.#bindings.set(prop, { changed: false, effects: [] });
         }
+
+        this.update = this.update.bind(this);
 
         this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
@@ -124,7 +126,7 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        requestAnimationFrame(this.render.bind(this));
+        requestAnimationFrame(this.update);
         // Parse and attach template
         if (this.template) {
             const DOM = this.template.clone();
@@ -150,17 +152,16 @@ export default class Enso extends HTMLElement {
                 }
                 // Evaluate data bindings
                 if (node.content) {
-                    const content = createBinding('textContent', node.content, this);
+                    const action = createEffect('textContent', node.content);
 
                     for (const bind of node.binds) {
                         if (this.#bindings.has(bind)) {
                             const binding = this.#bindings.get(bind);
-                            binding.nodes.add(element);
-                            binding.effect = content;
+                            binding.effects.push({ element, action });
                         }
                     }
                     // Initial render
-                    content.call(this, element);
+                    action.call(this, element);
                 }
 
                 element.removeAttribute(ENSO_NODE);
@@ -204,8 +205,17 @@ export default class Enso extends HTMLElement {
         }
     }
 
-    render() {
+    update() {
 
-        requestAnimationFrame(this.render.bind(this));
+        for (const bind of this.#bindings.values()) {
+            if (bind.changed) {
+                for (const effect of bind.effects) {
+                    effect.action && effect.action.call(this, effect.element);
+                }
+                bind.changed = false;
+            }
+        }
+
+        requestAnimationFrame(this.update);
     }
 }
