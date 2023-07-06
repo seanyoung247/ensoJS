@@ -14,7 +14,7 @@ const faces = [
 Enso.component({
 
     tag: 'enso-cuboid',
-    
+  
     properties: {
         width: {attribute: true},
         height: {attribute: true},

@@ -3,6 +3,7 @@ import { watch } from "./components/enso/watcher.js";
 (() => {
     const showModalBtn = document.getElementById('show-modal-btn');
     const testModal = document.getElementById('test-modal');
+    const modal2 = document.getElementById('modal-2');
     const modalColorBtn = document.getElementById('modal-color-btn');
     const modalStaticBtn = document.getElementById('static-modal-btn');
 
@@ -11,7 +12,8 @@ import { watch } from "./components/enso/watcher.js";
     });
 
     modalStaticBtn.addEventListener('click', () => {
-        testModal.static = !testModal.static;
+        // testModal.static = !testModal.static;
+        modal2.show = true;
     });
 
     modalColorBtn.addEventListener('click', () => {
