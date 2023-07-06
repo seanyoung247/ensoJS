@@ -14,11 +14,13 @@ const faces = [
 Enso.component({
 
     tag: 'enso-cuboid',
-    attributes: {
-        'width': {value: 0},
-        'height': {value: 0},
-        'depth': {value: 0}
+  
+    properties: {
+        width: {attribute: true},
+        height: {attribute: true},
+        depth: {attribute: true}
     },
+
     styles:`
     :host {
         display: block;
@@ -45,6 +47,7 @@ Enso.component({
             }`
         )).join('\n')
     }`,
+
     template:`
     <div id="faces">
         ${faces.map(e => 

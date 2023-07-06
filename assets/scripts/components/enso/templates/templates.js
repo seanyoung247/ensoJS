@@ -3,11 +3,10 @@
  */
 import { createTemplate } from "../utils/dom.js";
 
-// DOM Traversal
+
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || node.nodeValue.includes('{{') ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 const getWalker = rootNode => 
     document.createTreeWalker(rootNode, NODE_TYPES, { acceptNode });
@@ -15,8 +14,7 @@ const getWalker = rootNode =>
 
 const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
 
-export const ENSO_ATTR = 'data-enso-idx';
-export const ENSO_BIND = 'data-enso-bind';
+export const ENSO_NODE = 'data-enso-node';  // Index of the node in the node definitions
 
 export default class EnsoTemplate {
     #template = null;       // The underlying HTML template
@@ -36,11 +34,12 @@ export default class EnsoTemplate {
         for (let node = walker.currentNode; node; node = walker.nextNode()) {
             let watched = false;
             const nodeDef = {
-                index: this.#watched.length,
-                ref: null,      // Name to use for element reference or null (no reference)
-                events: [],     // List of event handlers
-                attrs: [],      // List of bound attributes
-                content: null   // Content mutation
+                index: this.#watched.length, // Index in the node list
+                ref: null,          // Name to use for element reference or null (no reference)
+                binds: new Set(),   // List of bound component properties
+                events: [],         // List of event handlers
+                attrs: [],          // List of mutated attributes
+                content: null       // Content mutation
             };
 
             // Parse text nodes
@@ -56,19 +55,15 @@ export default class EnsoTemplate {
                 node.parentNode.replaceChild(span, node);
                 node = walker.currentNode = span;
 
-                // Collect data bindings
-                bindEx.lastIndex = 0;
+                // Collect content data bindings
                 let bind;
-                const bindings = [];
                 while (bind = bindEx.exec(nodeDef.content)) {
-                    if (!bindings.includes(bind[1])) bindings.push(bind[1]);
+                    nodeDef.binds.add(bind[1]);
                 }
-                node.setAttribute(ENSO_BIND, bindings.join(' '));
             }
 
             if (node.attributes) {
-                // Parse Attributes
-                const attributes = Array.from(node.attributes);
+                const attributes = [...node.attributes];
                 for (const attr of attributes) {
                     const id = attr.name[0];
                     const name = attr.name.slice(1).toLowerCase();
@@ -87,7 +82,7 @@ export default class EnsoTemplate {
                 }
             }
             if (watched) {
-                node.setAttribute(ENSO_ATTR, nodeDef.index);
+                node.setAttribute(ENSO_NODE, nodeDef.index);
                 this.#watched.push(nodeDef);
             }
         }
@@ -96,7 +91,7 @@ export default class EnsoTemplate {
         return template;
     }
 
-    get watched() { return this.#watched; }
+    get watchedNodes() { return this.#watched; }
 
     clone() {
         return this.#template.content.cloneNode(true);

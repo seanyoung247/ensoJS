@@ -5,8 +5,8 @@ Enso.component({
 
     tag: 'enso-counter',
 
-    attributes: {
-        count: { type: Number, value: 0, show: true }
+    properties: {
+        count: { value: 0, attribute: { type: Number, force: true } }
     },
 
     styles:`
@@ -15,9 +15,9 @@ Enso.component({
 
     template:
         `<div class="container">
-            <button @click="()=>this.count--;">-</button>
-            <div class="display">{{ this.count }}</div>
-            <button @click="()=>this.count++;">+</button>
+            <button @click="()=>this.count--">-</button>
+            <span class="display">{{ this.count }}</span>
+            <button @click="()=>this.count++">+</button>
         </div>`
 
 });

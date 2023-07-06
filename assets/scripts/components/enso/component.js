@@ -1,24 +1,18 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate, { ENSO_ATTR, ENSO_BIND } from "./templates/templates.js";
-import { defineTypeConstants, defineAttribute } from "./utils/components.js";
+import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
+import { defineWatchedProperty } from "./utils/properties.js";
+
 
 function createHandler(code, context) {
     const func = new Function(`return ${code}`);
     return func.call(context).bind(context);
 }
 
-function createBoundValue(code, context) {
-    const func = new Function(`return ${code}`);
-    return func.bind(context);
+function createEffect(field, code) {
+    const func = new Function('el', `el.${field} = ${code};`);
+    return func;
 }
-
-export const validAtributeTypes = Object.freeze([
-    Boolean, 
-    Number,
-    String
-]);
-
 
 /**
  * Enso Web Component base class
@@ -28,58 +22,74 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {Object} props                         - Component properties
-     *  @param {String} props.tag                    - DOM tag name for this component
-     *  @param {String|EnsoTemplate} props.template  - Template defining component HTML
+     * @param {Object} props                          - Component properties
+     *  @param {String} props.tag                     - DOM tag name for this component
+     *  @param {String|EnsoTemplate} props.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.attributes]           - (optional) This component's attributes
-     *  @param {Boolean} [props.useShadow=true]      - (Optional) Should the component use shadow dom 
-     * @param {Enso} [component]                     - (Optional) Enso derived class implementation
+     *  @param {Object} [props.properties]            - (optional) This component's properties
+     *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
+     * @param {Enso} [component]                      - (Optional) Enso derived class implementation
      * @static
      */
     static component({tag, template, 
-        styles=null, attributes={}, useShadow=true}, 
+        styles=null, properties={}, useShadow=true}, 
         component=class extends Enso {}) {
 
-        // Create observed attributes
-        for (const attr in attributes) {
-            const {value, type=String} = attributes[attr];
-            // Ensure that the attribute has a valid type
-            if (!validAtributeTypes.includes(type)) {
-                throw new Error(`Component attribute '${attr}' has unsupported type`);
-            }
-            defineAttribute(component, attr, value, type);
+        // Create observed properties
+        const attributes = [];
+        for (const prop in properties) {
+            properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
+            if (properties[prop].attribute) attributes.push(prop);
         }
         
         if (typeof template === 'string') template = new EnsoTemplate(template);
         if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
         // Type properties
-        defineTypeConstants(component, {
-            'attributes': attributes,
-            'useShadow': useShadow,
-            'template': template,
-            'styles': styles,
+        Object.defineProperty(component, 'observedAttributes', {
+            get() { return attributes; }
+        });
+        Object.defineProperties(component.prototype, {
+            'observedAttributes': { get() { return attributes; } },
+            'properties': { get() { return properties; } },
+            'useShadow': { get() { return useShadow; } },
+            'template': { get() { return template; } },
+            'styles': { get() { return styles; } },
         });
 
         // Define the custom element
         customElements.define(tag, component);
     }
+    
+    // Root element -> either this, or shadowroot
+    #root = null;
 
-    #events = new AbortController();
-    #root = null;   // Component root element
-    #refs = {};     // Holds the defined references for elements in the component's internal DOM.
-
+    // Reactivity properties
+    #refs = {};
     #bindings = new Map();
+    #events = new AbortController();
 
-    constructor(properties={mode:'open'}) {
+    constructor() {
         super();
-        // Determine what this component's root node should be
+
+        for (const prop in this.properties) {
+            this.#bindings.set(prop, { changed: false, effects: [] });
+        }
+
+        this.update = this.update.bind(this);
+
         this.#root = this.useShadow ? 
-            this.shadowRoot ?? this.attachShadow(properties) : this;
+            this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
     }
 
     get refs() { return this.#refs; }
+
+    markChanged(prop) {
+        const bind = this.#bindings.get(prop);
+        if (bind) {
+            bind.changed = true;
+        }
+    }
 
     /**
      * Called after the component has been mounted and started on the page.
@@ -106,29 +116,27 @@ export default class Enso extends HTMLElement {
     //
     // Web Component API
     //
-    static get observedAttributes() {
-        return Object.keys(this._attributes);
-    }
-
     connectedCallback() {
 
-        // requestAnimationFrame(this.update.bind(this));
-        // Ensure any persistent attributes are shown
-        for (const attr in this.attributes) {
-            const properties = this.attributes[attr];
-            if (properties.show && properties.type !== Boolean ) {
-                this.setAttribute(attr, this[attr]);
+        // Loops through all properties defined as attributes and sets 
+        // their initial value if they're forced.
+        const attributes = this.observedAttributes;
+        for (const attr of attributes) {
+            if (this.properties[attr].attribute.force) {
+                this.reflectAttribute(attr);
             }
         }
 
+        requestAnimationFrame(this.update);
         // Parse and attach template
         if (this.template) {
             const DOM = this.template.clone();
-            const watched = this.template.watched;
-            const elements = DOM.querySelectorAll(`[${ENSO_ATTR}]`);
+            const watched = this.template.watchedNodes;
+            const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
+
             // Iterate over watched nodes
             for (const element of elements) {
-                const idx = parseInt(element.getAttribute(ENSO_ATTR));
+                const idx = parseInt(element.getAttribute(ENSO_NODE));
                 const node = watched[idx];
 
                 // TODO: MAKE THESE DIRECTIVES GENERAL!
@@ -145,44 +153,25 @@ export default class Enso extends HTMLElement {
                 }
                 // Evaluate data bindings
                 if (node.content) {
-                    const content = createBoundValue(node.content, this);
-                    // Pull bound variables out of the tag
-                    const bindings = element.getAttribute(ENSO_BIND).split(' ');
-                    for (const bind of bindings) {
-                        if (!this.#bindings.has(bind)) {
-                            this.#bindings.set(bind, [ element ]);
-                        } else {
-                            const list = this.#bindings.get(bind);
-                            if (!list.includes(element)) list.push(element);
-                        }
-                        const prop = Object.getOwnPropertyDescriptor(
-                            this.constructor.prototype, bind);
+                    const action = createEffect('textContent', node.content);
 
-                        if (prop.set) {
-                            const setter = prop.set;
-                            Object.defineProperty(this, bind, {
-                                configurable: true,
-                                enumerable: true,
-                                get: prop.get,
-                                set: val => {
-                                    setter.call(this, val);
-                                    element.textContent = content();
-                                }
-                            });
+                    for (const bind of node.binds) {
+                        if (this.#bindings.has(bind)) {
+                            const binding = this.#bindings.get(bind);
+                            binding.effects.push({ element, action });
                         }
                     }
-                    element.removeAttribute(ENSO_BIND);
                     // Initial render
-                    element.textContent = content();
+                    action.call(this, element);
                 }
 
-                element.removeAttribute(ENSO_ATTR);
+                element.removeAttribute(ENSO_NODE);
             }
 
             this.#root.append(DOM);
         }
 
-        if (this.styles) {
+        if (this.useShadow && this.styles) {
             this.styles.adopt(this.#root);
         }
 
@@ -199,29 +188,35 @@ export default class Enso extends HTMLElement {
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-        // Attributes are always strings, so decode it to the correct datatype
-        const type = this.attributes[property].type || String;
-        const val = type != Boolean ? 
-            type(newValue) : this.hasAttribute(property);
-        // Reflect change to component properties
-        if (this[property] != val) this[property] = val;
+
+        const val = this.properties[property].attribute.toProp(newValue);
+        if (this[property] !== val) this[property] = val;
     }
 
-    // getAttribute(attribute) {
-    //     return String(this[attribute]);
-    // }
+    reflectAttribute(attribute) {
+        // We don't care about unobserved attributes
+        if (!attribute in this.observedAttributes) return;
 
-    // setAttribute(attribute, value) {
-    //     if (this[attribute] != value) this[attribute] = value;
-    // }
-    
-    /* PROOF OF CONCEPT - Defer attribute setting until reflow */
-    // update() {
-    //     for (const attr in this.attributes) {
-    //         if (super.getAttribute(attr) !== String(this[attr]))
-    //             super.setAttribute(attr, this[attr]);
-    //     }
+        const attr = this.properties[attribute];
+        const value = attr.attribute.toAttr(this[attribute]);
+        
+        if (value !== this.getAttribute(attribute)) {
+            if (value === null) this.removeAttribute(attribute);
+            else this.setAttribute(attribute, value);
+        }
+    }
 
-    //     requestAnimationFrame(this.update.bind(this));
-    // }
+    update() {
+
+        for (const bind of this.#bindings.values()) {
+            if (bind.changed) {
+                for (const effect of bind.effects) {
+                    effect.action && effect.action.call(this, effect.element);
+                }
+                bind.changed = false;
+            }
+        }
+
+        requestAnimationFrame(this.update);
+    }
 }
