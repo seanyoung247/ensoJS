@@ -9,24 +9,20 @@ export const attributeTypes = Object.freeze([
     String
 ]);
 
-const converters = (()=>{
-    const converters = new Map();
-
-    converters.set(Boolean, {
+const converters = new Map([
+    [Boolean, {
         toProp(val) { return (val !== 'false' && val !== null); },
         toAttr(val) { return val ? '' : null; }
-    });
-    converters.set(Number, {
+    }],
+    [Number, {
         toProp(val) { return Number(val); },
         toAttr(val) { return val !== null ? String(val) : null; }
-    });
-    converters.set(String, {
+    }],
+    [String, {
         toProp(val) { return val; },
         toAttr(val) { return val; }
-    });
-
-    return converters;
-})();
+    }]
+]);
 
 function createAttrDesc(attr, value, {
     type = String,        // Attribute data type
