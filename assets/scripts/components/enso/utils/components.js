@@ -53,7 +53,12 @@ function createPropDesc(name, {
 }) {
     if (attribute) {
         attribute = createAttrDesc(name, value, attribute);
+        // To remove an attribute its value is null, so a non-forced attribute
+        // must have a default value of null
         if (!attribute.force) value = null;
+        // No point having deep reactivity on an attribute that can only be a
+        // simple data type
+        deep = false;
     }
 
     return { prop, deep, value, attribute };
@@ -75,7 +80,7 @@ export function defineWatchedProperty(cls, prop, desc) {
         configurable: true,
         enumerable: true,
         get() {
-            // If deep need to return proxy -
+            // ToDo: If deep need to return proxy -
             return this[property.prop] ?? property.value; 
         },
         set(val) {
