@@ -8,14 +8,9 @@ function createHandler(code, context) {
     return func.call(context).bind(context);
 }
 
-function createBoundValue(code, context) {
-    const func = new Function(`return ${code}`);
-    return func.bind(context);
-}
-
-function createTextBinding(code, context) {
-    const func = new Function('el', `el.textContent = ${code};`);
-    return func.bind(context);
+function createBinding(field, code) {
+    const func = new Function('el', `el.${field} = ${code};`);
+    return func;
 }
 
 /**
@@ -119,6 +114,8 @@ export default class Enso extends HTMLElement {
     //
     connectedCallback() {
 
+        // Loops through all properties defined as attributes and sets 
+        // their initial value if they're forced.
         const attributes = this.constructor.observedAttributes;
         for (const attr of attributes) {
             if (this.properties[attr].attribute.force) {
@@ -152,7 +149,7 @@ export default class Enso extends HTMLElement {
                 }
                 // Evaluate data bindings
                 if (node.content) {
-                    const content = createTextBinding(node.content, this);
+                    const content = createBinding('textContent', node.content, this);
 
                     for (const bind of node.binds) {
                         if (this.#bindings.has(bind)) {
@@ -162,7 +159,7 @@ export default class Enso extends HTMLElement {
                         }
                     }
                     // Initial render
-                    content(element);
+                    content.call(this, element);
                 }
 
                 element.removeAttribute(ENSO_NODE);
