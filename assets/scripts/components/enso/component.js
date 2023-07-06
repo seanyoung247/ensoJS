@@ -49,6 +49,7 @@ export default class Enso extends HTMLElement {
             get() { return attributes; }
         });
         Object.defineProperties(component.prototype, {
+            'observedAttributes': { get() { return attributes; } },
             'properties': { get() { return properties; } },
             'useShadow': { get() { return useShadow; } },
             'template': { get() { return template; } },
@@ -116,7 +117,7 @@ export default class Enso extends HTMLElement {
 
         // Loops through all properties defined as attributes and sets 
         // their initial value if they're forced.
-        const attributes = this.constructor.observedAttributes;
+        const attributes = this.observedAttributes;
         for (const attr of attributes) {
             if (this.properties[attr].attribute.force) {
                 this.reflectAttribute(attr);
@@ -191,7 +192,8 @@ export default class Enso extends HTMLElement {
     }
 
     reflectAttribute(attribute) {
-        if (!attribute in this.constructor.observedAttributes) return;
+        // We don't care about unobserved attributes
+        if (!attribute in this.observedAttributes) return;
 
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
