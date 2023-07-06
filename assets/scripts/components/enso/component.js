@@ -86,7 +86,10 @@ export default class Enso extends HTMLElement {
     get refs() { return this.#refs; }
 
     markChanged(prop) {
-        this.#bindings.get(prop).changed = true;
+        const bind = this.#bindings.get(prop);
+        if (bind) {
+            bind.changed = true;
+        }
     }
 
     /**
@@ -168,7 +171,7 @@ export default class Enso extends HTMLElement {
             this.#root.append(DOM);
         }
 
-        if (this.styles) {
+        if (this.useShadow && this.styles) {
             this.styles.adopt(this.#root);
         }
 
@@ -184,18 +187,22 @@ export default class Enso extends HTMLElement {
     // adoptedCallback() {}
 
     attributeChangedCallback(property, oldValue, newValue) {
-        if (oldValue === newValue) return; //this.setAttribute(property, newValue);
+        if (oldValue === newValue) return;
 
         const val = this.properties[property].attribute.toProp(newValue);
         if (this[property] !== val) this[property] = val;
     }
 
     reflectAttribute(attribute) {
+        if (!attribute in this.constructor.observedAttributes) return;
+
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
         
-        if (value === null) this.removeAttribute(attribute);
-        else this.setAttribute(attribute, value);
+        if (value !== this.getAttribute(attribute)) {
+            if (value === null) this.removeAttribute(attribute);
+            else this.setAttribute(attribute, value);
+        }
     }
 
     render() {
