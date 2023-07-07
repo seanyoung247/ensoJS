@@ -9,8 +9,8 @@ import { load } from './resources.js';
         for (const component of components) {
             fetch(component.href, {
                 method: 'GET',
-                credentials: 'include',
-                mode: 'same-origin'
+                credentials: 'same-origin',
+                mode: 'cors'
             })
                 .then(responce => responce.text())
                 .then(data => console.log(data));
