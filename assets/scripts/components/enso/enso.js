@@ -10,7 +10,7 @@ import { load } from './resources.js';
             fetch(component.href, {
                 method: 'GET',
                 credentials: 'include',
-                mode: 'no-cors'
+                mode: 'same-origin'
             })
                 .then(responce => responce.text())
                 .then(data => console.log(data));
