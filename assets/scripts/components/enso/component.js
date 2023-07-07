@@ -173,7 +173,7 @@ export default class Enso extends HTMLElement {
             this.#root.append(DOM);
         }
 
-        if (this.useShadow && this.styles) {
+        if (this.styles) {
             this.styles.adopt(this.#root);
         }
 
