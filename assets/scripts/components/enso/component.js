@@ -15,7 +15,6 @@ function createEffect(field, code) {
 }
 
 
-
 /**
  * Enso Web Component base class
  * @abstract
@@ -65,11 +64,10 @@ export default class Enso extends HTMLElement {
     
     // Root element -> either this, or shadowroot
     #root = null;
-
     // Reactivity properties
-    #refs = {};
     #bindings = new Map();
-    #events = new AbortController();
+
+    refs = {};
 
     constructor() {
         super();
@@ -83,8 +81,6 @@ export default class Enso extends HTMLElement {
         this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
     }
-
-    get refs() { return this.#refs; }
 
     markChanged(prop) {
         const bind = this.#bindings.get(prop);
@@ -144,13 +140,12 @@ export default class Enso extends HTMLElement {
                 // TODO: MAKE THESE DIRECTIVES GENERAL!
 
                 // Collect references
-                if (node.ref) this.#refs[node.ref] = element;
+                if (node.ref) this.refs[node.ref] = element;
                 // Attach events
-                if (node.events.length) {
+                if (node.events?.length) {
                     for (const event of node.events) {
                         const handler = createHandler(event.value, this);
-                        element.addEventListener( event.name, handler,
-                            { signal: this.#events.signal });
+                        element.addEventListener( event.name, handler );
                     }
                 }
                 // Evaluate data bindings
@@ -169,8 +164,8 @@ export default class Enso extends HTMLElement {
 
                 element.removeAttribute(ENSO_NODE);
             }
-
-            this.#root.append(DOM);
+            // Attach to the dom on the next update
+            requestAnimationFrame( () => this.#root.append(DOM) );
         }
 
         if (this.styles) {
@@ -181,8 +176,6 @@ export default class Enso extends HTMLElement {
     }
 
     disconnectedCallback() {
-        // Remove any registered event listeners
-        this.#events.abort();
         this.onRemoved();
     }
       
