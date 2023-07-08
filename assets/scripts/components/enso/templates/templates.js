@@ -2,7 +2,7 @@
  * Templating
  */
 import { createTemplate } from "../utils/dom.js";
-import { parsers, createNodeDef } from "./parsers.js";
+import { parser, createNodeDef } from "./parsers.js";
 
 
 const nodeEx = RegExp(/({{.+}})/);
@@ -33,25 +33,29 @@ export default class EnsoTemplate {
 
         for (let node = walker.currentNode; node; node = walker.nextNode()) {
             let watched = false;
-            const nodeDef = createNodeDef(this.#watched.length);
+            const def = createNodeDef(this.#watched.length);
 
             // Parse text nodes
             if (node.nodeType === Node.TEXT_NODE) {
+
                 watched = true;
-                node = walker.currentNode = parsers.parse('TEXT')
-                    .preprocess(nodeDef, node);
+                node = walker.currentNode = parser.preprocess(def, node);
+        
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+
+                if (node.attributes) {
+                    const attributes = [...node.attributes];
+                    for (const attr of attributes) {
+                        watched = 
+                            parser.preprocess(def, node, attr) || watched;
+                    }
+                }
+
             }
 
-            if (node.attributes) {
-                const attributes = [...node.attributes];
-                for (const attr of attributes) {
-                    watched = parsers.parse(attr.name[0])
-                        .preprocess(nodeDef, node, attr) || watched;
-                }
-            }
             if (watched) {
-                node.setAttribute(ENSO_NODE, nodeDef.index);
-                this.#watched.push(nodeDef);
+                node.setAttribute(ENSO_NODE, def.index);
+                this.#watched.push(def);
             }
         }
 
