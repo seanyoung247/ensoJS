@@ -81,8 +81,7 @@ const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
 parser.register('TEXT', {
 
     createEffect(code) {
-        const func = createFunction('el', `el.textContent = ${code};`);
-        return func;
+        return createFunction('el', `el.textContent = ${code};`);
     },
 
     preprocess(def, node) {
@@ -148,8 +147,7 @@ parser.register('#', {
 parser.register('@', {
 
     createEventHandler(code) {
-        const func = createFunction(`return (${code})`);
-        return func;
+        return createFunction(`return (${code})`);
     },
 
     preprocess(def, node, attribute) {

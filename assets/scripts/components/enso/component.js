@@ -2,6 +2,7 @@
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
 import { parser } from "./templates/parsers.js";
+
 import { defineWatchedProperty } from "./utils/properties.js";
 
 /**
@@ -51,11 +52,11 @@ export default class Enso extends HTMLElement {
         customElements.define(tag, component);
     }
     
+    #intialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
     // Reactivity properties
     #bindings = new Map();
-
     #refs = {};
 
     constructor() {
@@ -74,6 +75,7 @@ export default class Enso extends HTMLElement {
     get refs() { return this.#refs; }
 
     getBinding(bind) { return this.#bindings.get(bind); }
+    
     markChanged(prop) {
         const bind = this.#bindings.get(prop);
         if (bind) {
@@ -107,6 +109,7 @@ export default class Enso extends HTMLElement {
     // Web Component API
     //
     connectedCallback() {
+        if (this.#intialised) return;
 
         // Loops through all properties defined as attributes and sets 
         // their initial value if they're forced.
@@ -117,19 +120,16 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        requestAnimationFrame(this.update);
         // Parse and attach template
         if (this.template) {
             const DOM = this.template.clone();
             const watched = this.template.watchedNodes;
             const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
 
-            // Iterate over watched nodes
             for (const element of elements) {
                 const idx = parseInt(element.getAttribute(ENSO_NODE));
-                const def = watched[idx];
 
-                parser.process(def, this, element);
+                parser.process(watched[idx], this, element);
 
                 element.removeAttribute(ENSO_NODE);
             }
@@ -141,7 +141,10 @@ export default class Enso extends HTMLElement {
             this.styles.adopt(this.#root);
         }
 
+        this.#intialised = true;
         this.onStart();
+
+        requestAnimationFrame(this.update);
     }
 
     disconnectedCallback() {
