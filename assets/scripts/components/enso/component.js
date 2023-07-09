@@ -1,19 +1,8 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
+import { parser } from "./templates/parsers.js";
 import { defineWatchedProperty } from "./utils/properties.js";
-
-
-function createHandler(code, context) {
-    const func = new Function(`return ${code}`);
-    return func.call(context).bind(context);
-}
-
-function createEffect(field, code) {
-    const func = new Function('el', `el.${field} = ${code};`);
-    return func;
-}
-
 
 /**
  * Enso Web Component base class
@@ -67,7 +56,7 @@ export default class Enso extends HTMLElement {
     // Reactivity properties
     #bindings = new Map();
 
-    refs = {};
+    #refs = {};
 
     constructor() {
         super();
@@ -82,6 +71,9 @@ export default class Enso extends HTMLElement {
             this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
     }
 
+    get refs() { return this.#refs; }
+
+    getBinding(bind) { return this.#bindings.get(bind); }
     markChanged(prop) {
         const bind = this.#bindings.get(prop);
         if (bind) {
@@ -135,32 +127,9 @@ export default class Enso extends HTMLElement {
             // Iterate over watched nodes
             for (const element of elements) {
                 const idx = parseInt(element.getAttribute(ENSO_NODE));
-                const node = watched[idx];
+                const def = watched[idx];
 
-                // TODO: MAKE THESE DIRECTIVES GENERAL!
-
-                // Collect references
-                if (node.ref) this.refs[node.ref] = element;
-                // Attach events
-                if (node.events?.length) {
-                    for (const event of node.events) {
-                        const handler = createHandler(event.value, this);
-                        element.addEventListener( event.name, handler );
-                    }
-                }
-                // Evaluate data bindings
-                if (node.content) {
-                    const action = createEffect('textContent', node.content);
-
-                    for (const bind of node.binds) {
-                        if (this.#bindings.has(bind)) {
-                            const binding = this.#bindings.get(bind);
-                            binding.effects.push({ element, action });
-                        }
-                    }
-                    // Initial render
-                    action.call(this, element);
-                }
+                parser.process(def, this, element);
 
                 element.removeAttribute(ENSO_NODE);
             }

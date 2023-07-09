@@ -17,7 +17,13 @@ Enso.component({
         `<div class="container">
             <button @click="()=>this.count--">-</button>
             <span class="display">{{ this.count }}</span>
-            <button @click="()=>this.count++">+</button>
+            <button @click="this.inc">+</button>
         </div>`
 
-});
+    },
+    class extends Enso {
+        inc() {
+            this.count++;
+        }
+    }
+);
