@@ -177,7 +177,13 @@ parser.register('@', {
 parser.register(':', {
 
     createEffect(attr, code) {
-        return createFunction('el', `el.setAttribute('${attr}', ${code});`);
+        //return createFunction('el', `el.setAttribute('${attr}', ${code});`);
+        const fn = createFunction(`return ${code}`);
+        return function(el) {
+            const content = fn.call(this);
+            if (content) el.setAttribute(attr, content);
+            else el.removeAttribute(attr);
+        }
     },
 
     preprocess(def, node, attribute) {
