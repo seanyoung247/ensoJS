@@ -1,5 +1,5 @@
 
-import { createFunction } from "../utils/functions.js";
+import { createFunction, createStringTemplate } from "../utils/functions.js";
 
 const noParser = {
     preprocess() { return false; },
@@ -14,9 +14,9 @@ const noParser = {
 export const createNodeDef = index => ({
     index,          // Index in the node list
     ref: null,      // Name to use for element reference or null (no reference)
-    binds: null,    // List of bound component properties
     events: null,   // List of event handlers
-    content: null,  // Content mutation
+    attrs: null,    // Attribute mutations
+    content: null,  // Content mutations
     parsers: [],    // List of required parsers
 })
 
@@ -77,6 +77,7 @@ const getName = attr => attr.name.slice(1).toLowerCase();
 // Matches object property dependencies, i.e. this.<property>:
 const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
 
+
 // Textnode parser
 parser.register('TEXT', {
 
@@ -88,33 +89,30 @@ parser.register('TEXT', {
         const span = document.createElement('span');
         // Indicates that this parser is needed to processes this node
         def.parsers.push(this);
-        def.content = this.createEffect(
-            `\`${node.nodeValue
-                .replaceAll('{{', '${')
-                .replaceAll('}}', '}')
-                .trim()}\``
-        );
-
+        def.content = {
+            effect: this.createEffect(
+                createStringTemplate(node.nodeValue)
+            ),
+            binds: new Set()
+        };
         node.parentNode.replaceChild(span, node);
-        if (!def.binds) def.binds = new Set();
 
         let bind;
-        while (bind = bindEx.exec(def.content)) {
-            def.binds.add(bind[1]);
+        while (bind = bindEx.exec(node.nodeValue)) {
+            def.content.binds.add(bind[1]);
         }
 
         return span;
     },
 
     process(def, component, element) {
-        if (def.content && def.binds) {
-            for (const bind of def.binds) {
+        if (def.content) {
+            for (const bind of def.content.binds) {
                 const binding = component.getBinding(bind);
-                if (binding)
-                    binding.effects.push({ element, action: def.content });
+                if (binding) binding.effects.push({ element, action: def.content.effect });
             }
             // Initial render
-            def.content.call(component, element);
+            def.content.effect.call(component, element);
         }
     }
 
@@ -176,5 +174,48 @@ parser.register('@', {
 });
 
 // Attribute binding (:<attribute name>) parser
+parser.register(':', {
+
+    createEffect(attr, code) {
+        return createFunction('el', `el.setAttribute('${attr}', ${code});`);
+    },
+
+    preprocess(def, node, attribute) {
+        const name = getName(attribute);
+        const effect = this.createEffect(name, 
+            createStringTemplate(attribute.value)
+        );
+        const attr = {
+            name, effect, binds: new Set()
+        }
+        def.parsers.push(this);
+
+        let bind;
+        while (bind = bindEx.exec(attribute.value)) {
+            attr.binds.add(bind[1]);
+        }
+
+        if (!def.attrs) def.attrs = [attr];
+        else def.attrs.push(attr);
+
+        node.removeAttribute(attribute.name);
+        
+        return true;
+    },
+
+    process(def, component, element) {
+        if (def.attrs) {
+            for (const attr of def.attrs) {
+                for (const bind of attr.binds) {
+                    const binding = component.getBinding(bind);
+                    if (binding) binding.effects.push({element, action: attr.effect});
+                }
+                attr.effect.call(component, element);
+            }
+        }
+    }
+
+});
+
 // Property binding (.<property name>) parser
 // Command directive (*<command>) parser

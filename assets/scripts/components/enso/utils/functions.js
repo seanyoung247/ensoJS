@@ -7,3 +7,11 @@ export const createFunction = (() => {
         return cache[key] ?? (cache[key] = new Function(...args));
     }
 })();
+
+
+export const createStringTemplate = (value) => (
+    `\`${value
+        .replaceAll('{{', '${')
+        .replaceAll('}}', '}')
+        .trim()}\``
+);
