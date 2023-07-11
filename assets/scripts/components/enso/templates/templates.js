@@ -2,19 +2,19 @@
  * Templating
  */
 import { createTemplate } from "../utils/dom.js";
+import { parser, createNodeDef } from "./parsers.js";
 
 
+const nodeEx = RegExp(/({{.+}})/);
+//node.nodeValue.includes('{{')
 const acceptNode = node => 
-    node.nodeType != Node.TEXT_NODE || node.nodeValue.includes('{{') ?
+    node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 const getWalker = rootNode => 
     document.createTreeWalker(rootNode, NODE_TYPES, { acceptNode });
 
-
-const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
-
-export const ENSO_NODE = 'data-enso-node';  // Index of the node in the node definitions
+export const ENSO_NODE = 'data-enso-node';  // Watched node identifier and definition index
 
 export default class EnsoTemplate {
     #template = null;       // The underlying HTML template
@@ -33,57 +33,29 @@ export default class EnsoTemplate {
 
         for (let node = walker.currentNode; node; node = walker.nextNode()) {
             let watched = false;
-            const nodeDef = {
-                index: this.#watched.length, // Index in the node list
-                ref: null,          // Name to use for element reference or null (no reference)
-                binds: new Set(),   // List of bound component properties
-                events: [],         // List of event handlers
-                attrs: [],          // List of mutated attributes
-                content: null       // Content mutation
-            };
+            const def = createNodeDef(this.#watched.length);
 
             // Parse text nodes
             if (node.nodeType === Node.TEXT_NODE) {
-                const span = document.createElement('span');
 
                 watched = true;
-                nodeDef.content = '`' + node.nodeValue
-                    .replaceAll('{{', '${')
-                    .replaceAll('}}', '}')
-                    .trim() + '`';
+                node = walker.currentNode = parser.preprocess(def, node);
+        
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
 
-                node.parentNode.replaceChild(span, node);
-                node = walker.currentNode = span;
-
-                // Collect content data bindings
-                let bind;
-                while (bind = bindEx.exec(nodeDef.content)) {
-                    nodeDef.binds.add(bind[1]);
-                }
-            }
-
-            if (node.attributes) {
-                const attributes = [...node.attributes];
-                for (const attr of attributes) {
-                    const id = attr.name[0];
-                    const name = attr.name.slice(1).toLowerCase();
-                    const value = attr.value;
-
-                    if (id === '#') { // Reference
-                        watched = true;
-                        nodeDef[name] = value;
-                        node.removeAttribute(attr.name);
-                    }
-                    if (id === '@') { // Event
-                        watched = true;
-                        nodeDef.events.push({name,value});
-                        node.removeAttribute(attr.name);
+                if (node.attributes) {
+                    const attributes = [...node.attributes];
+                    for (const attr of attributes) {
+                        watched = 
+                            parser.preprocess(def, node, attr) || watched;
                     }
                 }
+
             }
+
             if (watched) {
-                node.setAttribute(ENSO_NODE, nodeDef.index);
-                this.#watched.push(nodeDef);
+                node.setAttribute(ENSO_NODE, def.index);
+                this.#watched.push(def);
             }
         }
 

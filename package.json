@@ -1,0 +1,29 @@
+{
+  "name": "enso",
+  "version": "0.5.0",
+  "description": "A Web component framework that simplifies development by handling boilerplate code, providing an intuitive interface for component derivation, and enabling code separation.",
+  "main": "enso.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seanyoung247/enso.git"
+  },
+  "keywords": [
+    "Web",
+    "Component"
+  ],
+  "author": "Sean Young",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/seanyoung247/enso/issues"
+  },
+  "homepage": "https://github.com/seanyoung247/enso#readme",
+  "devDependencies": {
+    "eslint": "^8.44.0"
+  }
+}

@@ -1,18 +1,10 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
+import { parser } from "./templates/parsers.js";
+import { call } from "./utils/functions.js";
+
 import { defineWatchedProperty } from "./utils/properties.js";
-
-
-function createHandler(code, context) {
-    const func = new Function(`return ${code}`);
-    return func.call(context).bind(context);
-}
-
-function createEffect(field, code) {
-    const func = new Function('el', `el.${field} = ${code};`);
-    return func;
-}
 
 /**
  * Enso Web Component base class
@@ -61,13 +53,12 @@ export default class Enso extends HTMLElement {
         customElements.define(tag, component);
     }
     
+    #intialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
-
     // Reactivity properties
-    #refs = {};
     #bindings = new Map();
-    #events = new AbortController();
+    #refs = {};
 
     constructor() {
         super();
@@ -83,6 +74,8 @@ export default class Enso extends HTMLElement {
     }
 
     get refs() { return this.#refs; }
+
+    getBinding(bind) { return this.#bindings.get(bind); }
 
     markChanged(prop) {
         const bind = this.#bindings.get(prop);
@@ -103,7 +96,7 @@ export default class Enso extends HTMLElement {
      * @param {*} value - The new property value
      * @abstract
      */
-    onPropertyChange(prop, value) {}
+    onPropertyChange() {}
 
     /**
      * Called before the component is removed from the page. Component cleanup
@@ -117,6 +110,7 @@ export default class Enso extends HTMLElement {
     // Web Component API
     //
     connectedCallback() {
+        if (this.#intialised) return;
 
         // Loops through all properties defined as attributes and sets 
         // their initial value if they're forced.
@@ -127,60 +121,34 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        requestAnimationFrame(this.update);
         // Parse and attach template
         if (this.template) {
             const DOM = this.template.clone();
             const watched = this.template.watchedNodes;
             const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
 
-            // Iterate over watched nodes
             for (const element of elements) {
                 const idx = parseInt(element.getAttribute(ENSO_NODE));
-                const node = watched[idx];
 
-                // TODO: MAKE THESE DIRECTIVES GENERAL!
-
-                // Collect references
-                if (node.ref) this.#refs[node.ref] = element;
-                // Attach events
-                if (node.events.length) {
-                    for (const event of node.events) {
-                        const handler = createHandler(event.value, this);
-                        element.addEventListener( event.name, handler,
-                            { signal: this.#events.signal });
-                    }
-                }
-                // Evaluate data bindings
-                if (node.content) {
-                    const action = createEffect('textContent', node.content);
-
-                    for (const bind of node.binds) {
-                        if (this.#bindings.has(bind)) {
-                            const binding = this.#bindings.get(bind);
-                            binding.effects.push({ element, action });
-                        }
-                    }
-                    // Initial render
-                    action.call(this, element);
-                }
+                parser.process(watched[idx], this, element);
 
                 element.removeAttribute(ENSO_NODE);
             }
-
-            this.#root.append(DOM);
+            // Attach to the dom on the next update
+            requestAnimationFrame( () => this.#root.append(DOM) );
         }
 
-        if (this.useShadow && this.styles) {
+        if (this.styles) {
             this.styles.adopt(this.#root);
         }
 
+        this.#intialised = true;
         this.onStart();
+
+        requestAnimationFrame(this.update);
     }
 
     disconnectedCallback() {
-        // Remove any registered event listeners
-        this.#events.abort();
         this.onRemoved();
     }
       
@@ -195,7 +163,7 @@ export default class Enso extends HTMLElement {
 
     reflectAttribute(attribute) {
         // We don't care about unobserved attributes
-        if (!attribute in this.observedAttributes) return;
+        if (attribute in this.observedAttributes) return;
 
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
@@ -211,7 +179,8 @@ export default class Enso extends HTMLElement {
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
-                    effect.action && effect.action.call(this, effect.element);
+                    // effect.action && effect.action.call(this, effect.element);
+                    call(effect.action, this, effect.element);
                 }
                 bind.changed = false;
             }

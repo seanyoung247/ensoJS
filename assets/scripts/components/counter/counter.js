@@ -10,14 +10,27 @@ Enso.component({
     },
 
     styles:`
-        .container { display: flex; }
+        :host { display: flex; }
+        .red { color: red; }
         .display { flex-grow: 2; text-align: center; }`,
 
     template:
-        `<div class="container">
-            <button @click="()=>this.count--">-</button>
-            <span class="display">{{ this.count }}</span>
-            <button @click="()=>this.count++">+</button>
-        </div>`
+        `<button @click="()=>this.count--">-</button>
+        <span 
+            :style="{{ this.count < 0 && 'text-decoration:line-through red' }}" 
+            :class="display{{ (this.count > 9) && ' red' }}">
 
-});
+            {{ this.count }}
+        </span>
+        <button @click="this.inc">+</button>`
+
+    },
+    class extends Enso {
+        inc() {
+            this.count++;
+        }
+        classList(...classes) {
+            return classes.reduce((p, c) => p + (p && c ? ' ' : '') + (c ? c : ''), '');
+        }
+    }
+);
