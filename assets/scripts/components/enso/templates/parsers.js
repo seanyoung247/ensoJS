@@ -73,6 +73,12 @@ export const parser = (() => {
 
 
 const getName = attr => attr.name.slice(1).toLowerCase();
+const getBindings = (source, set) => {
+    let bind;
+    while ((bind = bindEx.exec(source)) !== null) {
+        set.add(bind[1]);
+    }
+};
 
 // Matches object property dependencies, i.e. this.<property>:
 const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
@@ -97,10 +103,7 @@ parser.register('TEXT', {
         };
         node.parentNode.replaceChild(span, node);
 
-        let bind;
-        while ((bind = bindEx.exec(node.nodeValue)) !== null) {
-            def.content.binds.add(bind[1]);
-        }
+        getBindings(node.nodeValue, def.content.binds);
 
         return span;
     },
@@ -112,7 +115,6 @@ parser.register('TEXT', {
                 if (binding) binding.effects.push({ element, action: def.content.effect });
             }
             // Initial render
-            // def.content.effect.call(component, element);
             call(def.content.effect, component, element);
         }
     }
@@ -178,12 +180,15 @@ parser.register('@', {
 parser.register(':', {
 
     createEffect(attr, code) {
-        //return createFunction('el', `el.setAttribute('${attr}', ${code});`);
         const fn = createFunction(`return ${code}`);
         return function (parse, el) {
             const content = fn.call(this, parse);
-            if (content) el.setAttribute(attr, content);
-            else el.removeAttribute(attr);
+            if (content) {
+                el.setAttribute(attr, (content !== 'true') ? content : '');
+            }
+            else {
+                el.removeAttribute(attr);
+            }
         };
     },
 
@@ -197,10 +202,7 @@ parser.register(':', {
         };
         def.parsers.push(this);
 
-        let bind;
-        while ((bind = bindEx.exec(attribute.value)) !== null) {
-            attr.binds.add(bind[1]);
-        }
+        getBindings(attribute.value, attr.binds);
 
         if (!def.attrs) def.attrs = [attr];
         else def.attrs.push(attr);
@@ -217,7 +219,6 @@ parser.register(':', {
                     const binding = component.getBinding(bind);
                     if (binding) binding.effects.push({element, action: attr.effect});
                 }
-                // attr.effect.call(component, tags, element);
                 call(attr.effect, component, element);
             }
         }

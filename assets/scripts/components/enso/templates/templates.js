@@ -35,7 +35,6 @@ export default class EnsoTemplate {
             let watched = false;
             const def = createNodeDef(this.#watched.length);
 
-            // Parse text nodes
             if (node.nodeType === Node.TEXT_NODE) {
 
                 watched = true;
@@ -46,8 +45,7 @@ export default class EnsoTemplate {
                 if (node.attributes) {
                     const attributes = [...node.attributes];
                     for (const attr of attributes) {
-                        watched = 
-                            parser.preprocess(def, node, attr) || watched;
+                        watched = parser.preprocess(def, node, attr) || watched;
                     }
                 }
 
