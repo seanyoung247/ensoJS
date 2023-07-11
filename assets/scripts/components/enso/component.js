@@ -2,6 +2,7 @@
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
 import { parser } from "./templates/parsers.js";
+import { call } from "./utils/functions.js";
 
 import { defineWatchedProperty } from "./utils/properties.js";
 
@@ -75,7 +76,7 @@ export default class Enso extends HTMLElement {
     get refs() { return this.#refs; }
 
     getBinding(bind) { return this.#bindings.get(bind); }
-    
+
     markChanged(prop) {
         const bind = this.#bindings.get(prop);
         if (bind) {
@@ -95,7 +96,7 @@ export default class Enso extends HTMLElement {
      * @param {*} value - The new property value
      * @abstract
      */
-    onPropertyChange(prop, value) {}
+    onPropertyChange() {}
 
     /**
      * Called before the component is removed from the page. Component cleanup
@@ -162,7 +163,7 @@ export default class Enso extends HTMLElement {
 
     reflectAttribute(attribute) {
         // We don't care about unobserved attributes
-        if (!attribute in this.observedAttributes) return;
+        if (attribute in this.observedAttributes) return;
 
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
@@ -178,7 +179,8 @@ export default class Enso extends HTMLElement {
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
-                    effect.action && effect.action.call(this, effect.element);
+                    // effect.action && effect.action.call(this, effect.element);
+                    call(effect.action, this, effect.element);
                 }
                 bind.changed = false;
             }

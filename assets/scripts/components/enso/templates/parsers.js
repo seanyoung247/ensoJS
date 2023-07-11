@@ -1,5 +1,5 @@
 
-import { createFunction, createStringTemplate } from "../utils/functions.js";
+import { call, createFunction, createStringTemplate } from "../utils/functions.js";
 
 const noParser = {
     preprocess() { return false; },
@@ -18,7 +18,7 @@ export const createNodeDef = index => ({
     attrs: null,    // Attribute mutations
     content: null,  // Content mutations
     parsers: [],    // List of required parsers
-})
+});
 
 export const parser = (() => {
     const parsers = new Map();
@@ -98,7 +98,7 @@ parser.register('TEXT', {
         node.parentNode.replaceChild(span, node);
 
         let bind;
-        while (bind = bindEx.exec(node.nodeValue)) {
+        while ((bind = bindEx.exec(node.nodeValue)) !== null) {
             def.content.binds.add(bind[1]);
         }
 
@@ -112,7 +112,8 @@ parser.register('TEXT', {
                 if (binding) binding.effects.push({ element, action: def.content.effect });
             }
             // Initial render
-            def.content.effect.call(component, element);
+            // def.content.effect.call(component, element);
+            call(def.content.effect, component, element);
         }
     }
 
@@ -179,11 +180,11 @@ parser.register(':', {
     createEffect(attr, code) {
         //return createFunction('el', `el.setAttribute('${attr}', ${code});`);
         const fn = createFunction(`return ${code}`);
-        return function(el) {
-            const content = fn.call(this);
+        return function (parse, el) {
+            const content = fn.call(this, parse);
             if (content) el.setAttribute(attr, content);
             else el.removeAttribute(attr);
-        }
+        };
     },
 
     preprocess(def, node, attribute) {
@@ -193,11 +194,11 @@ parser.register(':', {
         );
         const attr = {
             name, effect, binds: new Set()
-        }
+        };
         def.parsers.push(this);
 
         let bind;
-        while (bind = bindEx.exec(attribute.value)) {
+        while ((bind = bindEx.exec(attribute.value)) !== null) {
             attr.binds.add(bind[1]);
         }
 
@@ -216,7 +217,8 @@ parser.register(':', {
                     const binding = component.getBinding(bind);
                     if (binding) binding.effects.push({element, action: attr.effect});
                 }
-                attr.effect.call(component, element);
+                // attr.effect.call(component, tags, element);
+                call(attr.effect, component, element);
             }
         }
     }
