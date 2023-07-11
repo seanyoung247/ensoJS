@@ -17,8 +17,8 @@ Enso.component({
     template:
         `<button @click="()=>this.count--">-</button>
         <span 
-            :style="{{ this.count < 0 && 'text-decoration:line-through red' || '' }}" 
-            :class="display{{ (this.count > 9) ? ' red' : '' }}">
+            :style="{{ this.count < 0 && 'text-decoration:line-through red' }}" 
+            :class="display{{ (this.count > 9) && ' red' }}">
 
             {{ this.count }}
         </span>
