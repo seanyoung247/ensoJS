@@ -1,5 +1,5 @@
 
-import { call, createFunction, createStringTemplate } from "../utils/functions.js";
+import { runEffect, createFunction, createStringTemplate } from "../utils/effects.js";
 
 const noParser = {
     preprocess() { return false; },
@@ -115,7 +115,7 @@ parser.register('TEXT', {
                 if (binding) binding.effects.push({ element, action: def.content.effect });
             }
             // Initial render
-            call(def.content.effect, component, element);
+            runEffect(def.content.effect, component, element);
         }
     }
 
@@ -219,7 +219,7 @@ parser.register(':', {
                     const binding = component.getBinding(bind);
                     if (binding) binding.effects.push({element, action: attr.effect});
                 }
-                call(attr.effect, component, element);
+                runEffect(attr.effect, component, element);
             }
         }
     }

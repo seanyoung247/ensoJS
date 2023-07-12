@@ -2,8 +2,7 @@
 import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
 import { parser } from "./templates/parsers.js";
-import { call } from "./utils/functions.js";
-
+import { runEffect } from "./utils/effects.js";
 import { defineWatchedProperty } from "./utils/properties.js";
 
 /**
@@ -179,8 +178,7 @@ export default class Enso extends HTMLElement {
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
-                    // effect.action && effect.action.call(this, effect.element);
-                    call(effect.action, this, effect.element);
+                    runEffect(effect.action, this, effect.element);
                 }
                 bind.changed = false;
             }

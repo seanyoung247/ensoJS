@@ -26,8 +26,6 @@ Enso.component({
 
     },
     class extends Enso {
-        inc() {
-            this.count++;
-        }
+        inc() { this.count++; }
     }
 );

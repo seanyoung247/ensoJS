@@ -25,6 +25,6 @@ export const createFunction = (() => {
     };
 })();
 
-export const call = (fn, context, ...args) => {
+export const runEffect = (fn, context, ...args) => {
     if (fn) fn.call(context, parse, ...args);
 };
