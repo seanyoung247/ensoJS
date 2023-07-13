@@ -11,9 +11,9 @@ const faces = [
     {label: 'bottom', width: '--width', height: '--depth', transform: 'rotateX(-90deg) translateZ(calc(var(--height) / 2))'}
 ];
 
-Enso.component({
+Enso.component(
 
-    tag: 'enso-cuboid',
+    'enso-cuboid', {
   
     properties: {
         width: {attribute: true},
@@ -57,7 +57,7 @@ Enso.component({
         }
     </div>`},
 
-    class extends Enso {
+    {
         onPropertyChange(prop, value) {
             this.style.setProperty(`--${prop}`, value);
         }
