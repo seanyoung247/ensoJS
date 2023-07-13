@@ -1,9 +1,9 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
+import EnsoTemplate from "./templates/templates.js";
 import { parser } from "./templates/parsers.js";
 import { runEffect } from "./utils/effects.js";
-import { defineWatchedProperty, createComponent} from "./utils/properties.js";
+import { defineWatchedProperty, createComponent } from "./utils/properties.js";
 
 /**
  * Enso Web Component base class
@@ -124,12 +124,11 @@ export default class Enso extends HTMLElement {
         // Parse and attach template
         const DOM = this.template.clone();
         const watched = this.template.watchedNodes;
-        const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
+        const elements = parser.getElements(DOM);
 
         for (const element of elements) {
-            const idx = parseInt(element.getAttribute(ENSO_NODE));
+            const idx = parser.getNodeIndex(element);
             parser.process(watched[idx], this, element);
-            element.removeAttribute(ENSO_NODE);
         }
         // Attach to the dom on the next update
         requestAnimationFrame( () => this.#root.append(DOM) );

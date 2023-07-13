@@ -17,21 +17,8 @@ Enso.component(
 
     template: html`
         <button @click="()=>this.count--">-</button>
-        <span 
-            :style="{{ this.count < 0 && 'text-decoration:line-through red' }}" 
-            :class="display{{ (this.count > 9) && ' red' }}{{ this.underline(5) }}">
-
+        <span class="display">
             {{ this.count }}
         </span>
-        <button @click="this.inc">+</button>`,
-
-    component: {
-        count: 0,
-
-        inc() { this.count++; },
-        underline(amount) { return this.count > amount ? ' underline' : ''; },
-
-        set thing(val) {this.count = val;},
-        get thing() { return this.count;}
-    }
+        <button @click="()=>this.count++">+</button>`,
 });

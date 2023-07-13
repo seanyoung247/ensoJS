@@ -6,6 +6,8 @@ const noParser = {
     process() { return false; }
 };
 
+const ENSO_NODE = 'data-enso-node';  // Watched node identifier and definition index
+
 /**
  * Creates a new mutation definition for a node
  * @param {Number} index - The next available index in the mutation list
@@ -43,6 +45,34 @@ export const parser = (() => {
         },
 
         /**
+         * Returns the node definition index for the given
+         * mutated element.
+         * @param {HTMLElement} element - Watched element
+         * @returns {Number}            - The index of the elements node definition
+         */
+        getNodeIndex(element) {
+            return parseInt(element.getAttribute(ENSO_NODE));
+        },
+
+        /**
+         * Tags the element as watched and stores it's node 
+         * definition index.
+         * @param {HTMLElement} element - Watched element
+         * @param {Number} index        - Node definition index
+         */
+        setNodeIndex(node, index) {
+            node.setAttribute(ENSO_NODE, index);
+        },
+
+        /**
+         * Returns all children elements tagged as watched from given root
+         * @param {HTMLElement} root - Root element
+         */
+        getElements(root) {
+            return root.querySelectorAll(`[${ENSO_NODE}]`);
+        },
+
+        /**
          * Preprocesses the given node and/or attribute
          * @param {Object} def      - Node mutation definition
          * @param {Node} node       - The current template node
@@ -58,15 +88,16 @@ export const parser = (() => {
         /**
          * Processes a HTML element attached to a component instance based
          * on a mutation definition.
-         * @param {Object} def      - Node mutation definition
-         * @param {*} component     - Host component instance
-         * @param {*} element       - Current mutated element
+         * @param {Object} def          - Node mutation definition
+         * @param {Enso} component      - Host component instance
+         * @param {HTMLElement} element - Current mutated element
          */
         process(def, component, element) {
             // Loop through all the processors attached to this node
             for (const parser of def.parsers) {
                 parser.process(def, component, element);
             }
+            element.removeAttribute(ENSO_NODE);
         }
     };
 })();
