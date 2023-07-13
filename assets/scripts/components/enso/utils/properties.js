@@ -3,7 +3,9 @@
  */
 
 
-//// Mixin properties
+//// Mixins
+
+// Creates a derived class from a base class and Object Literal mixin
 export const createComponent = (base, proto) => {
     const component = class extends base {};
 

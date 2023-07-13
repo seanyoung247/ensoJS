@@ -19,12 +19,11 @@ export default class Enso extends HTMLElement {
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [props.properties]            - (optional) This component's properties
      *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
-     * @param {Object} [component]                    - (Optional) Custom component code implementation
+     *  @param {Object} [props.component]             - (Optional) Custom component code implementation
      * @static
      */
-    static component(tag, {template, 
-        styles=null, properties={}, useShadow=true}, 
-        component=null) {
+    static component(tag, 
+        {template, styles=null, properties={}, useShadow=true, component=null}) {
 
         component = createComponent(this, component);
 
@@ -123,21 +122,17 @@ export default class Enso extends HTMLElement {
         }
 
         // Parse and attach template
-        // if (this.template) {
-            const DOM = this.template.clone();
-            const watched = this.template.watchedNodes;
-            const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
+        const DOM = this.template.clone();
+        const watched = this.template.watchedNodes;
+        const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
 
-            for (const element of elements) {
-                const idx = parseInt(element.getAttribute(ENSO_NODE));
-
-                parser.process(watched[idx], this, element);
-
-                element.removeAttribute(ENSO_NODE);
-            }
-            // Attach to the dom on the next update
-            requestAnimationFrame( () => this.#root.append(DOM) );
-        // }
+        for (const element of elements) {
+            const idx = parseInt(element.getAttribute(ENSO_NODE));
+            parser.process(watched[idx], this, element);
+            element.removeAttribute(ENSO_NODE);
+        }
+        // Attach to the dom on the next update
+        requestAnimationFrame( () => this.#root.append(DOM) );
 
         if (this.styles) {
             this.styles.adopt(this.#root);
