@@ -20,3 +20,5 @@ export const createFunction = (() => {
 export const runEffect = (fn, context, ...args) => {
     if (fn) fn.call(context, parse, ...args);
 };
+
+parse`${ this.count }`;

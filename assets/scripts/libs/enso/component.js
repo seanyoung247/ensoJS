@@ -18,6 +18,7 @@ export default class Enso extends HTMLElement {
      * @param {Object} props                          - Component properties
      *  @param {String|EnsoTemplate} props.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
+     *  @param {Object} [props.attributes]
      *  @param {Object} [props.properties]            - (optional) This component's properties
      *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
      *  @param {Object} [props.component]             - (Optional) Custom component code implementation
