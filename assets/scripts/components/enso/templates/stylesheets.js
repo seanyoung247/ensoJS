@@ -1,10 +1,9 @@
 
 export default class EnsoStylesheet {
     
-    #sheet = null;
+    #sheet = new CSSStyleSheet();
 
     constructor(css) {
-        this.#sheet = new CSSStyleSheet();
         this.#sheet.replaceSync(css);
     }
 

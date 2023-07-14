@@ -1,6 +1,33 @@
+
 /**
  * @module properties Utillity functions for component property handling
  */
+
+
+//// Mixins
+
+/** Creates a derived class from a base class and Object Literal mixin */
+export const createComponent = (base, proto) => {
+    const component = class extends base {};
+
+    // If no custom code implementation:
+    if (!proto) return component;
+
+    // Check that we've been given an Object litteral
+    const cType = typeof proto;
+    if (cType !== 'object') {
+        throw new Error(`Component expected object litteral but got ${ cType }`);
+    }
+
+    // Pull the custom fields out of the object mixin and add them to the component prototype
+    const descriptors = Object.getOwnPropertyDescriptors(proto);
+    for (const prop in descriptors) {
+        Object.defineProperty(component.prototype, prop, descriptors[prop]);
+    }
+
+    return component;
+};
+
 
 //// Watched Properties
 export const attributeTypes = Object.freeze([
@@ -68,8 +95,8 @@ export function defineWatchedProperty(cls, prop, desc) {
     // Has the component defined a callback function?
     const existing = Object.getOwnPropertyDescriptor(cls.prototype, prop);
     const setter = (existing && typeof existing.value === 'function') ?
-        (o,v) => { o[property.prop] = v; existing.value.call(o,v) } : 
-        (o,v) => { o[property.prop] = v; }
+        (o,v) => { o[property.prop] = v; existing.value.call(o,v); } : 
+        (o,v) => { o[property.prop] = v; };
 
     Object.defineProperty(cls.prototype, prop, {
         configurable: true,

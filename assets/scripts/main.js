@@ -1,4 +1,3 @@
-import { watch } from "./components/enso/watcher.js";
 
 (() => {
     const showModalBtn = document.getElementById('show-modal-btn');

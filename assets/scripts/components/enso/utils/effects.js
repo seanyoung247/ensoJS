@@ -1,13 +1,5 @@
 
-const isValid = v => !(v === false || v === null || v === undefined);
-
-const parse = (strings, ...values) => {
-    const str = strings.reduce((a,c,i) => {
-        const value = values[i-1];
-        return a += c + (isValid(value) ? value : '');
-    });
-    return str;
-};
+import { parse } from "./tags.js";
 
 export const createStringTemplate = (value) => (
     `parse\`${value
@@ -25,6 +17,6 @@ export const createFunction = (() => {
     };
 })();
 
-export const call = (fn, context, ...args) => {
+export const runEffect = (fn, context, ...args) => {
     if (fn) fn.call(context, parse, ...args);
 };

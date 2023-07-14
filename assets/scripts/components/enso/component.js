@@ -1,10 +1,10 @@
 
 import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate, { ENSO_NODE } from "./templates/templates.js";
-import { parser } from "./templates/parsers.js";
-import { call } from "./utils/functions.js";
+import EnsoTemplate from "./templates/templates.js";
 
-import { defineWatchedProperty } from "./utils/properties.js";
+import { parser } from "./templates/parsers.js";
+import { runEffect } from "./utils/effects.js";
+import { defineWatchedProperty, createComponent } from "./utils/properties.js";
 
 /**
  * Enso Web Component base class
@@ -14,18 +14,19 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
+     * @param {String} tag                            - DOM tag name for this component
      * @param {Object} props                          - Component properties
-     *  @param {String} props.tag                     - DOM tag name for this component
      *  @param {String|EnsoTemplate} props.template   - Template defining component HTML
      *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
      *  @param {Object} [props.properties]            - (optional) This component's properties
      *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
-     * @param {Enso} [component]                      - (Optional) Enso derived class implementation
+     *  @param {Object} [props.component]             - (Optional) Custom component code implementation
      * @static
      */
-    static component({tag, template, 
-        styles=null, properties={}, useShadow=true}, 
-        component=class extends Enso {}) {
+    static component(tag, 
+        {template, styles=null, properties={}, useShadow=true, component=null}) {
+
+        component = createComponent(this, component);
 
         // Create observed properties
         const attributes = [];
@@ -122,21 +123,16 @@ export default class Enso extends HTMLElement {
         }
 
         // Parse and attach template
-        if (this.template) {
-            const DOM = this.template.clone();
-            const watched = this.template.watchedNodes;
-            const elements = DOM.querySelectorAll(`[${ENSO_NODE}]`);
+        const DOM = this.template.clone();
+        const watched = this.template.watchedNodes;
+        const elements = parser.getElements(DOM);
 
-            for (const element of elements) {
-                const idx = parseInt(element.getAttribute(ENSO_NODE));
-
-                parser.process(watched[idx], this, element);
-
-                element.removeAttribute(ENSO_NODE);
-            }
-            // Attach to the dom on the next update
-            requestAnimationFrame( () => this.#root.append(DOM) );
+        for (const element of elements) {
+            const idx = parser.getNodeIndex(element);
+            parser.process(watched[idx], this, element);
         }
+        // Attach to the dom on the next update
+        requestAnimationFrame( () => this.#root.append(DOM) );
 
         if (this.styles) {
             this.styles.adopt(this.#root);
@@ -179,8 +175,7 @@ export default class Enso extends HTMLElement {
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
-                    // effect.action && effect.action.call(this, effect.element);
-                    call(effect.action, this, effect.element);
+                    runEffect(effect.action, this, effect.element);
                 }
                 bind.changed = false;
             }
