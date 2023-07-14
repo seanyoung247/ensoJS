@@ -1,3 +1,4 @@
+
 /**
  * @module properties Utillity functions for component property handling
  */
@@ -5,7 +6,7 @@
 
 //// Mixins
 
-// Creates a derived class from a base class and Object Literal mixin
+/** Creates a derived class from a base class and Object Literal mixin */
 export const createComponent = (base, proto) => {
     const component = class extends base {};
 
