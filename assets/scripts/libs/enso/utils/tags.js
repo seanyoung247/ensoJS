@@ -2,29 +2,40 @@
 import EnsoStylesheet from "../templates/stylesheets.js";
 import EnsoTemplate from "../templates/templates.js";
 
+// Is valid string value?
+const isValid = v => !(v === true || v === false || v === null || v === undefined);
 
-const isValid = v => !(v === false || v === null || v === undefined);
-
-const combine = values => {
-    return (a,c,i) => {
+const combine = (strings, ...values) => (
+    strings.reduce((a,c,i) => {
         const value = values[i];
-        return a += c + (isValid(value) ? value : '');
-    };
-};
+        return a + c + (isValid(value) ? value : '');
+    }, '')
+);
 
-export const parse = (strings, ...values) => 
-    strings.reduce(combine(values), '');
+/**
+ * Parses a string template and values for use in component reactive fields
+ * @returns {String|Boolean} - parsed string or true
+ */
+export const parse = (strings, ...values) => {
+    let isBool = false;
+    const str = strings.reduce((a,c,i) => {
+        const value = values[i];
+        if (value === true) isBool = true;
+        return a + c + (isValid(value) ? value : '');
+    }, '');
+    return (isBool && !str) ? true : str;
+};
 
 /**
  * Parses a template string and returns an Enso stylesheet
  * @returns {EnsoStylesheet}
  */
 export const css = (strings, ...values) => 
-    new EnsoStylesheet(parse(strings, ...values));
+    new EnsoStylesheet(combine(strings, ...values));
 
 /**
  * Parses a template string and returns an Enso HTML template
  * @returns {EnsoTemplate}
  */
 export const html = (strings, ...values) => 
-    new EnsoTemplate(parse(strings, ...values));
+    new EnsoTemplate(combine(strings, ...values));
