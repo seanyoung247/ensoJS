@@ -7,8 +7,8 @@ const isValid = v => !(v === true || v === false || v === null || v === undefine
 
 const combine = (strings, ...values) => (
     strings.reduce((a,c,i) => {
-        const value = values[i];
-        return a + c + (isValid(value) ? value : '');
+        const value = values[i] || '';
+        return a + c + value;
     }, '')
 );
 
