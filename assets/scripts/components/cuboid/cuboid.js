@@ -1,5 +1,5 @@
 
-import Enso, { css, html } from "../enso/enso.js";
+import Enso, { css, html } from "enso";
 
 
 const faces = [

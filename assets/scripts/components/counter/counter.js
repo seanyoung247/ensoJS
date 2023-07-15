@@ -1,5 +1,5 @@
 
-import Enso, {html, css} from "../enso/enso.js";
+import Enso, {html, css} from "enso";
 
 Enso.component(
     
@@ -12,12 +12,11 @@ Enso.component(
     styles: css`
         :host { display: flex; }
         .red { color: red; }
-        .underline { text-decoration: underline; }
         .display { flex-grow: 2; text-align: center; }`,
 
     template: html`
         <button @click="()=>this.count--">-</button>
-        <span class="display">
+        <span :class="display{{ (this.count >= 5) && ' red' }}">
             {{ this.count }}
         </span>
         <button @click="()=>this.count++">+</button>`,

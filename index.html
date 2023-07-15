@@ -6,8 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="assets/styles/styles.css">
-    <script src="assets/scripts/main.js" type="module"></script>
 
+
+    <script type="importmap">
+        {"imports": {"enso": "./assets/scripts/libs/enso/enso.js"}}
+    </script>
+
+    <script src="assets/scripts/main.js" type="module"></script>
     <!-- Component includes -->
     <script src="assets/scripts/components/modal/modal.js" type="module" async></script>
     <script src="assets/scripts/components/cuboid/cuboid.js" type="module" async></script>

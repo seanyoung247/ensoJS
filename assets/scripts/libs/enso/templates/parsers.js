@@ -215,7 +215,7 @@ parser.register(':', {
         return function (parse, el) {
             const content = fn.call(this, parse);
             if (content) {
-                el.setAttribute(attr, (content !== 'true') ? content : '');
+                el.setAttribute(attr, (content === true) ? '' : content);
             }
             else {
                 el.removeAttribute(attr);
