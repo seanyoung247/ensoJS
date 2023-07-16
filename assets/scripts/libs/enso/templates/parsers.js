@@ -119,7 +119,14 @@ const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
 parser.register('TEXT', {
 
     createEffect(code) {
-        return createFunction('el', `el.textContent = ${code};`);
+        // return createFunction('el', `el.textContent = ${code};`);
+        const fn = createFunction(code);
+        return function (environment, el) {
+            const content = fn.call(this, environment);
+            if (content) {
+                el.textContent = content;
+            }
+        };
     },
 
     preprocess(def, node) {
@@ -179,7 +186,8 @@ parser.register('#', {
 parser.register('@', {
 
     createEventHandler(code) {
-        return createFunction(`return (${code})`);
+        return createFunction(`with (environment) {return (function() {"use strict"; return ${code}})}`);
+        // return createFunction(`return (${code})`);
     },
 
     preprocess(def, node, attribute) {
@@ -199,7 +207,7 @@ parser.register('@', {
     process(def, component, element) {
         if (def.events?.length) {
             for (const event of def.events) {
-                const handler = event.value.call(component).bind(component);
+                const handler = event.value.call(component, {}).call(component).bind(component);
                 element.addEventListener( event.name, handler );
             }
         }
@@ -211,9 +219,10 @@ parser.register('@', {
 parser.register(':', {
 
     createEffect(attr, code) {
-        const fn = createFunction(`return ${code}`);
-        return function (parse, el) {
-            const content = fn.call(this, parse);
+        // const fn = createFunction(`return ${code}`);
+        const fn = createFunction(code);
+        return function (environment, el) {
+            const content = fn.call(this, environment);
             if (content) {
                 el.setAttribute(attr, (content === true) ? '' : content);
             }

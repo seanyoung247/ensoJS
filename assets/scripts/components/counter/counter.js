@@ -20,4 +20,5 @@ Enso.component(
             {{ this.count }}
         </span>
         <button @click="()=>this.count++">+</button>`,
+
 });
