@@ -121,8 +121,8 @@ parser.register('TEXT', {
 
     createEffect(code) {
         const fn = createEffect(code);
-        return function (environment, el) {
-            const content = fn.call(this, environment);
+        return function (env, el) {
+            const content = fn.call(this, env);
             if (content) {
                 el.textContent = content;
             }
@@ -206,7 +206,7 @@ parser.register('@', {
     process(def, component, element) {
         if (def.events?.length) {
             for (const event of def.events) {
-                const handler = event.value.call(component, {parse}).bind(component);
+                const handler = event.value.call(component, component.env).bind(component);
                 element.addEventListener( event.name, handler );
             }
         }
@@ -219,8 +219,8 @@ parser.register(':', {
 
     createEffect(attr, code) {
         const fn = createEffect(code);
-        return function (environment, el) {
-            const content = fn.call(this, environment);
+        return function (env, el) {
+            const content = fn.call(this, env);
             if (content) {
                 el.setAttribute(attr, (content === true) ? '' : content);
             }

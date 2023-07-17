@@ -3,7 +3,7 @@ import EnsoStylesheet from "./templates/stylesheets.js";
 import EnsoTemplate from "./templates/templates.js";
 
 import { parser } from "./templates/parsers.js";
-import { runEffect } from "./utils/effects.js";
+import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./utils/properties.js";
 
 /**
@@ -60,6 +60,7 @@ export default class Enso extends HTMLElement {
     // Reactivity properties
     #bindings = new Map();
     #refs = {};
+    #env = createEffectEnv();
 
     constructor() {
         super();
@@ -75,7 +76,7 @@ export default class Enso extends HTMLElement {
     }
 
     get refs() { return this.#refs; }
-
+    get env() { return this.#env; }
     getBinding(bind) { return this.#bindings.get(bind); }
 
     markChanged(prop) {

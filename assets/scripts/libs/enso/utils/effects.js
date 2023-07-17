@@ -1,9 +1,9 @@
 
 import { parse } from "./tags.js";
 
-export const createEffectEnvironment = () => {
-
-};
+export const createEffectEnv = () => ({
+    parse
+});
 
 /**
  * Formats expression code as a string litteral
@@ -19,7 +19,7 @@ export const createStringTemplate = (value) => (
 
 // Encapsulates effect body code in wrapper code
 const parseFunctionBody = (code) => (
-    `with (environment) {
+    `with (env) {
         return(() => {
             "use strict";
             return ${code};
@@ -38,7 +38,7 @@ export const createEffect = (() => {
     return (...args) => {
         const key = args.join('&');
         const body = parseFunctionBody(args.pop());
-        return cache[key] ?? (cache[key] = new Function('environment', ...args, body));
+        return cache[key] ?? (cache[key] = new Function('env', ...args, body));
     };
 })();
 
@@ -49,6 +49,6 @@ export const createEffect = (() => {
  * @param {...any} args         - Argument list
  */
 export const runEffect = (fn, context, ...args) => {
-    const environment = { parse };
-    if (fn) fn.call(context, environment, ...args);
+    const env = context.env;
+    if (fn) fn.call(context, env, ...args);
 };
