@@ -1,5 +1,6 @@
 
-import { runEffect, createFunction, createStringTemplate } from "../utils/effects.js";
+import { runEffect, createEffect, createStringTemplate } from "../utils/effects.js";
+import { parse } from "../utils/tags.js";
 
 const noParser = {
     preprocess() { return false; },
@@ -119,8 +120,7 @@ const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
 parser.register('TEXT', {
 
     createEffect(code) {
-        // return createFunction('el', `el.textContent = ${code};`);
-        const fn = createFunction(code);
+        const fn = createEffect(code);
         return function (environment, el) {
             const content = fn.call(this, environment);
             if (content) {
@@ -186,8 +186,7 @@ parser.register('#', {
 parser.register('@', {
 
     createEventHandler(code) {
-        return createFunction(`with (environment) {return (function() {"use strict"; return ${code}})}`);
-        // return createFunction(`return (${code})`);
+        return createEffect(code);
     },
 
     preprocess(def, node, attribute) {
@@ -207,7 +206,7 @@ parser.register('@', {
     process(def, component, element) {
         if (def.events?.length) {
             for (const event of def.events) {
-                const handler = event.value.call(component, {}).call(component).bind(component);
+                const handler = event.value.call(component, {parse}).bind(component);
                 element.addEventListener( event.name, handler );
             }
         }
@@ -219,8 +218,7 @@ parser.register('@', {
 parser.register(':', {
 
     createEffect(attr, code) {
-        // const fn = createFunction(`return ${code}`);
-        const fn = createFunction(code);
+        const fn = createEffect(code);
         return function (environment, el) {
             const content = fn.call(this, environment);
             if (content) {

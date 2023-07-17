@@ -1,36 +1,53 @@
 
 import { parse } from "./tags.js";
 
+export const createEffectEnvironment = () => {
 
-// export const createStringTemplate = (value) => (
-//     `parse\`${value
-//         .replaceAll('{{', '${')
-//         .replaceAll('}}', '}')
-//         .trim()}\``
-// );
+};
 
-const getCode = (value) => (
+/**
+ * Formats expression code as a string litteral
+ * @param {String} value - Text and JS expressions in handlebars format
+ * @returns {String} - Formatted expression
+ */
+export const createStringTemplate = (value) => (
     `parse\`${value
         .replaceAll('{{', '${')
         .replaceAll('}}', '}')
         .trim()}\``
 );
 
-export const createStringTemplate = (value) => {
-    const code = getCode(value);
-    return `with (environment) {return (() => {"use strict"; return ${code}}).call(this)}`;
-};
+// Encapsulates effect body code in wrapper code
+const parseFunctionBody = (code) => (
+    `with (environment) {
+        return(() => {
+            "use strict";
+            return ${code};
+        }).call(this);
+    }`
+);
 
-export const createFunction = (() => {
+/**
+ * Creates a new effect function
+ * @param {...any} - List of string parameter names and string function code body
+ * @returns {Function} - Compiled function
+ */
+export const createEffect = (() => {
     const cache = {};
 
     return (...args) => {
         const key = args.join('&');
-        // return cache[key] ?? (cache[key] = new Function('parse', ...args));
-        return cache[key] ?? (cache[key] = new Function('environment', ...args));
+        const body = parseFunctionBody(args.pop());
+        return cache[key] ?? (cache[key] = new Function('environment', ...args, body));
     };
 })();
 
+/**
+ * Runs an effect created with createEffect
+ * @param {Function} fn         - Effect function
+ * @param {typeof Enso} context - Effect component
+ * @param {...any} args         - Argument list
+ */
 export const runEffect = (fn, context, ...args) => {
     const environment = { parse };
     if (fn) fn.call(context, environment, ...args);
