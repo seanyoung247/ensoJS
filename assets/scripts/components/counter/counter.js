@@ -1,5 +1,5 @@
 
-import Enso, {html, css} from "enso";
+import Enso, {html, css, classList} from "enso";
 
 Enso.component(
     
@@ -9,6 +9,8 @@ Enso.component(
         count: { value: 0, attribute: { type: Number, force: true } }
     },
 
+    expose: { classList },
+
     styles: css`
         :host { display: flex; }
         .red { color: red; }
@@ -16,7 +18,9 @@ Enso.component(
 
     template: html`
         <button @click="()=>this.count--">-</button>
-        <span :class="display{{ (this.count >= 5) && ' red' }}">
+        <span :class="{{ 
+            classList('display', (this.count >= 10) && 'red') 
+        }}">
             {{ this.count }}
         </span>
         <button @click="()=>this.count++">+</button>`,

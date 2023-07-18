@@ -15,13 +15,14 @@ export default class Enso extends HTMLElement {
      * @param {Object} props                    - Component properties
      *  @param {EnsoTemplate} props.template    - Template defining component HTML
      *  @param {EnsoStylesheet} [props.styles]  - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.properties]      - (optional) This component's properties
+     *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
+     *  @param {Object} [props.properties]      - (optional) This component's watched properties
      *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
      *  @param {Object} [props.component]       - (Optional) Custom component code implementation
      * @static
      */
     static component(tag, 
-        {template, styles=null, properties={}, useShadow=true, component=null}) {
+        {template, styles=null, expose={}, properties={}, useShadow=true, component=null}) {
 
         component = createComponent(this, component);
 
@@ -42,6 +43,7 @@ export default class Enso extends HTMLElement {
             'useShadow': { get() { return useShadow; } },
             'template': { get() { return template; } },
             'styles': { get() { return styles; } },
+            'expose': { get() { return expose; } }
         });
 
         // Define the custom element
@@ -54,7 +56,7 @@ export default class Enso extends HTMLElement {
     // Reactivity properties
     #bindings = new Map();
     #refs = {};
-    #env = createEffectEnv();
+    #env = createEffectEnv(this.expose);
 
     constructor() {
         super();
