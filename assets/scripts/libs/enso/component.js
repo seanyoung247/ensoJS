@@ -1,7 +1,4 @@
 
-import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate from "./templates/templates.js";
-
 import { parser } from "./templates/parsers.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./utils/properties.js";
@@ -14,13 +11,13 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {String} tag                            - DOM tag name for this component
-     * @param {Object} props                          - Component properties
-     *  @param {String|EnsoTemplate} props.template   - Template defining component HTML
-     *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.properties]            - (optional) This component's properties
-     *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
-     *  @param {Object} [props.component]             - (Optional) Custom component code implementation
+     * @param {String} tag                      - DOM tag name for this component
+     * @param {Object} props                    - Component properties
+     *  @param {EnsoTemplate} props.template    - Template defining component HTML
+     *  @param {EnsoStylesheet} [props.styles]  - (Optional) Adoptable Style sheet
+     *  @param {Object} [props.properties]      - (optional) This component's properties
+     *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
+     *  @param {Object} [props.component]       - (Optional) Custom component code implementation
      * @static
      */
     static component(tag, 
@@ -34,9 +31,6 @@ export default class Enso extends HTMLElement {
             properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
             if (properties[prop].attribute) attributes.push(prop);
         }
-        
-        if (typeof template === 'string') template = new EnsoTemplate(template);
-        if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
 
         // Type properties
         Object.defineProperty(component, 'observedAttributes', {

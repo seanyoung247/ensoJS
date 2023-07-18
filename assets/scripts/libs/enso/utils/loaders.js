@@ -1,12 +1,39 @@
+import EnsoStylesheet from "../templates/stylesheets.js";
+import EnsoTemplate from "../templates/templates.js";
 
-const buildURL = (fileURL, baseUrl) => 
-    new URL(fileURL, baseUrl).href;
-
-const loadExternal = (url, baseUrl) => fetch(buildURL(url, baseUrl))
-    .then(responce => responce.text());
-
+const extension = /(?:\w+\.)(\w+)$/;
 
 export const load = {
-    external: (baseUrl, ...args) => Promise.all(args.map(file => loadExternal(file, baseUrl))),
+
+    all(resolver, ...args) {
+        return Promise.all( args.map(file => {
+            // Try and get the file type from the extension
+            const loader = this[file.match(extension)[1]] ?? this.text;
+            return loader(resolver(file));
+        }));
+    },
+
+    json(url) {
+        return fetch(url)
+            .then(responce => responce.json);
+    },
+
+    text(url) {
+        return fetch(url)
+            .then(responce => responce.text());
+    },
+
+    css(url) {
+        return fetch(url)
+            .then(responce => responce.text())
+            .then(css => new EnsoStylesheet(css));
+    },
+
+    html(url) {
+        return fetch(url)
+            .then(responce => responce.text())
+            .then(html => new EnsoTemplate(html));
+    },
+
 };
 
