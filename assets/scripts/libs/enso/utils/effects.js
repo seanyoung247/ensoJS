@@ -10,7 +10,7 @@ export const createEffectEnv = () => ({
  * @param {String} value - Text and JS expressions in handlebars format
  * @returns {String} - Formatted expression
  */
-export const createStringTemplate = (value) => (
+export const createStringTemplate = value => (
     `parse\`${value
         .replaceAll('{{', '${')
         .replaceAll('}}', '}')
@@ -18,9 +18,9 @@ export const createStringTemplate = (value) => (
 );
 
 // Encapsulates effect body code in wrapper code
-const parseFunctionBody = (code) => (
+const parseFunctionBody = code => (
     `with (env) {
-        return(() => {
+        return (() => {
             "use strict";
             return ${code};
         }).call(this);

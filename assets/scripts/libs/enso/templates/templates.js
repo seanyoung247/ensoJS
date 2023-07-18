@@ -5,8 +5,7 @@ import { createTemplate } from "../utils/dom.js";
 import { parser, createNodeDef } from "./parsers.js";
 
 
-const nodeEx = RegExp(/({{.+}})/);
-//node.nodeValue.includes('{{')
+const nodeEx = /({{.+}})/;
 
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?

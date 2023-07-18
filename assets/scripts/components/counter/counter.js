@@ -17,12 +17,8 @@ Enso.component(
     template: html`
         <button @click="()=>this.count--">-</button>
         <span :class="display{{ (this.count >= 5) && ' red' }}">
-            {{ this.env.count = this.count }}
+            {{ this.count }}
         </span>
-        <button @click="()=>{console.log(count); this.count++}">+</button>`,
-    component: {
-        onStart() {
-            this.env.count = this.count;
-        }
-    }
+        <button @click="()=>this.count++">+</button>`,
+
 });

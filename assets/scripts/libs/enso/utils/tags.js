@@ -6,10 +6,7 @@ import EnsoTemplate from "../templates/templates.js";
 const isValid = v => !(v === true || v === false || v === null || v === undefined);
 
 const combine = (strings, ...values) => (
-    strings.reduce((a,c,i) => {
-        const value = values[i] || '';
-        return a + c + value;
-    }, '')
+    strings.reduce((a,c,i) => a + c + (values[i] || ''), '')
 );
 
 /**

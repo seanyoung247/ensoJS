@@ -1,6 +1,5 @@
 
 import { runEffect, createEffect, createStringTemplate } from "../utils/effects.js";
-import { parse } from "../utils/tags.js";
 
 const noParser = {
     preprocess() { return false; },
@@ -113,7 +112,7 @@ const getBindings = (source, set) => {
 };
 
 // Matches object property dependencies, i.e. this.<property>:
-const bindEx = RegExp(/(?:this\.)(\w+|\d*)/gi);
+const bindEx = /(?:this\.)(\w+|\d*)/gi;
 
 
 // Textnode parser
