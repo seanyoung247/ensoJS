@@ -155,9 +155,6 @@ export default class Enso extends HTMLElement {
     }
 
     reflectAttribute(attribute) {
-        // We don't care about unobserved attributes
-        if (attribute in this.observedAttributes) return;
-
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
         
