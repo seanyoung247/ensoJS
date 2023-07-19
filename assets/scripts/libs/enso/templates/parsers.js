@@ -165,8 +165,7 @@ parser.register('#', {
         def.parsers.push(this);
         def.ref = attribute.value;
         node.removeAttribute(attribute.name);
-
-        return false;
+        return true;
     },
 
     process(def, component, element) {
