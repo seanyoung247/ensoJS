@@ -38,15 +38,13 @@ Enso.component(
             position: absolute;
             left: 50%; top: 50%;
         }
-        ${
-            faces.map(e => (
-                `#${e.label} {
-                    width: var(${e.width});
-                    height: var(${e.height});
-                    transform: translate(-50%,-50%) ${e.transform};
-                }`
-            )).join('\n')
-        }`,
+        ${faces.map(e => (
+            `#${e.label} {
+                width: var(${e.width});
+                height: var(${e.height});
+                transform: translate(-50%,-50%) ${e.transform};
+            }`
+        )).join('\n')}`,
 
     template: html`
         <div id="faces">
