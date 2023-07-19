@@ -1,6 +1,4 @@
-/**
- * Templating
- */
+
 import { createTemplate } from "../utils/dom.js";
 import { parser, createNodeDef } from "./parsers.js";
 

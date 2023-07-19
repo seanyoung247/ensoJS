@@ -6,7 +6,7 @@ import { parse } from "./tags.js";
  * @param {Object} args - Object 
  * @returns 
  */
-export const createEffectEnv = (args) => Object.seal({
+export const createEffectEnv = (args = {}) => Object.seal({
     parse, ...args
 });
 

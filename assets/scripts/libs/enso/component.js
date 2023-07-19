@@ -49,7 +49,9 @@ export default class Enso extends HTMLElement {
         // Define the custom element
         customElements.define(tag, component);
     }
-    
+
+    //// Instance Fields
+
     #intialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
@@ -57,6 +59,8 @@ export default class Enso extends HTMLElement {
     #bindings = new Map();
     #refs = {};
     #env = createEffectEnv(this.expose);
+
+    //// Setup
 
     constructor() {
         super();
@@ -68,19 +72,16 @@ export default class Enso extends HTMLElement {
         this.update = this.update.bind(this);
 
         this.#root = this.useShadow ? 
-            this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
+            this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
 
+    //// Accessors
     get refs() { return this.#refs; }
     get env() { return this.#env; }
     getBinding(bind) { return this.#bindings.get(bind); }
 
-    markChanged(prop) {
-        const bind = this.#bindings.get(prop);
-        if (bind) {
-            bind.changed = true;
-        }
-    }
+
+    //// LifeCycle hooks
 
     /**
      * Called after the component has been mounted and started on the page.
@@ -96,6 +97,9 @@ export default class Enso extends HTMLElement {
      */
     onPropertyChange() {}
 
+    preUpdate() {}
+    postUpdate() {}
+
     /**
      * Called before the component is removed from the page. Component cleanup
      * should be done here.
@@ -104,9 +108,8 @@ export default class Enso extends HTMLElement {
     onRemoved() {}
 
 
-    //
-    // Web Component API
-    //
+    //// Web Component API
+
     connectedCallback() {
         if (this.#intialised) return;
 
@@ -154,6 +157,8 @@ export default class Enso extends HTMLElement {
         if (this[property] !== val) this[property] = val;
     }
 
+    //// Lifecycle
+
     reflectAttribute(attribute) {
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
@@ -161,6 +166,13 @@ export default class Enso extends HTMLElement {
         if (value !== this.getAttribute(attribute)) {
             if (value === null) this.removeAttribute(attribute);
             else this.setAttribute(attribute, value);
+        }
+    }
+
+    markChanged(prop) {
+        const bind = this.#bindings.get(prop);
+        if (bind) {
+            bind.changed = true;
         }
     }
 

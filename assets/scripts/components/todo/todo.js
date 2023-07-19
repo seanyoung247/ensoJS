@@ -21,8 +21,7 @@ Enso.component( 'enso-todo', {
         <ul>
             <li>Test Items</li>
         </ul>
-        <!--<div id="hidden">-->
         <slot id="hidden" @slotchange="slotChange"></slot>
     `,
 
-})
+});
