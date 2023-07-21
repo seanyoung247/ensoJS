@@ -1,6 +1,7 @@
 
 import { createTemplate } from "../utils/dom.js";
-import { parser, createNodeDef } from "./parsers.js";
+import { parser, createNodeDef } from "./parser.js";
+import './parsers/parsers.js';
 
 
 const nodeEx = /({{.+}})/;

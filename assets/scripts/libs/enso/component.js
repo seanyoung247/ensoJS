@@ -1,5 +1,5 @@
 
-import { parser } from "./templates/parsers.js";
+import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./utils/properties.js";
 
