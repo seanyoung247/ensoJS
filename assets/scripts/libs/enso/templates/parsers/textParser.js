@@ -1,6 +1,7 @@
 
 import { parser } from "../parser.js";
 import { getBindings } from "./utils.js";
+import { getChildIndex } from "../../utils/dom.js";
 import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
 
 // Textnode parser
@@ -17,30 +18,43 @@ parser.register('TEXT', {
     },
 
     preprocess(def, node) {
-        const span = document.createElement('span');
+        // const span = document.createElement('span');
         // Indicates that this parser is needed to processes this node
         def.parsers.push(this);
-        def.content = {
+        const content = {
+            parent: node.parentNode,
+            index: getChildIndex(node.parentNode, node),
             effect: this.createEffect(
                 createStringTemplate(node.nodeValue)
             ),
             binds: new Set()
         };
-        node.parentNode.replaceChild(span, node);
 
-        getBindings(node.nodeValue, def.content.binds);
+        if (!def.content) def.content = [content];
+        else def.content.push(content);
+        const current = def.content.length - 1;
 
-        return span;
+        // node.parentNode.replaceChild(span, node);
+
+        getBindings(node.nodeValue, def.content[current].binds);
+
+        return node;
     },
 
     process(def, component, element) {
+        
         if (def.content) {
-            for (const bind of def.content.binds) {
-                const binding = component.getBinding(bind);
-                if (binding) binding.effects.push({ element, action: def.content.effect });
+            for (const content of def.content) {
+                const node = element.childNodes[content.index];
+                for (const bind of content.binds) {
+                    const binding = component.getBinding(bind);
+                    if (binding) {
+                        binding.effects.push({ element: node, action: content.effect });
+                    }
+                }
+                // Initial render
+                runEffect(content.effect, component, node);
             }
-            // Initial render
-            runEffect(def.content.effect, component, element);
         }
     }
 

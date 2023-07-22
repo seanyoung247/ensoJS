@@ -7,6 +7,16 @@ Enso.component( "enso-app", {
         flag: { value: false }
     },
 
+    styles: css`
+        div { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1em;
+            border: 1px solid black;
+        }
+    `,
+
     template: html`
         <style>
             div {
@@ -14,8 +24,10 @@ Enso.component( "enso-app", {
                 color: white;
             }
         </style>
-        <div>
-            Hello World
+        <div @click="()=>{this.flag = !this.flag}">
+            cheese
+            <span></span>
+            Hello {{ this.flag?'You':'World' }}
         </div>
     `
 });

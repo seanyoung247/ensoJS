@@ -31,9 +31,9 @@ export default class EnsoTemplate {
         const rootNode = template.content;
         const walker = getWalker(rootNode);
 
-        for (let node = walker.currentNode; node; node = walker.nextNode()) {
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
             let watched = false;
-            const def = createNodeDef(this.#watched.length);
+            const def = createNodeDef(this.#watched, node);
 
             if (node.nodeType === Node.TEXT_NODE) {
 

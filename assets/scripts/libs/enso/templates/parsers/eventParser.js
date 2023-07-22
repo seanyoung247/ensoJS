@@ -1,5 +1,6 @@
 
 import { parser } from "../parser.js";
+import { getName } from "./utils.js";
 import { createEffect } from "../../utils/effects.js";
 
 // Event Attribute (@<event name>) parser

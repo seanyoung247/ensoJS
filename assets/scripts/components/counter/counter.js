@@ -1,9 +1,7 @@
 
 import Enso, {html, css, classList} from "enso";
 
-Enso.component(
-    
-    'enso-counter', {
+Enso.component('enso-counter', {
 
     properties: {
         count: { value: 0, attribute: { type: Number, force: true } }
