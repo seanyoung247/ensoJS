@@ -1,5 +1,5 @@
 
-import Enso, { html, css, style } from "enso";
+import Enso, { html, css, cssObj } from "enso";
 
 Enso.component( "enso-app", {
 
@@ -7,7 +7,7 @@ Enso.component( "enso-app", {
         flag: { value: false }
     },
 
-    expose: { style },
+    expose: { cssObj },
 
     styles: css`
         div { 
@@ -21,7 +21,7 @@ Enso.component( "enso-app", {
 
     template: html`
         <style>{{
-            style({
+            cssObj({
                 div: {
                     backgroundColor: this.flag ? 'red' : 'green',
                     color: 'white'

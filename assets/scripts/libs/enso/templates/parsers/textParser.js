@@ -9,10 +9,10 @@ parser.register('TEXT', {
 
     createEffect(code) {
         const fn = createEffect(code);
-        return function (env, el) {
+        return function (env, node) {
             const content = fn.call(this, env);
             if (content) {
-                el.textContent = content;
+                node.textContent = content;
             }
         };
     },

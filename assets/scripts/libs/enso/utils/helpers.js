@@ -1,3 +1,6 @@
+/**
+ * @module helpers - Defines helper functions for use in html templates
+ */
 
 // Converts camelCase names to dash-case
 const camelToDash = str => str.replace(/(?:\B)[A-Z]/g, match => `-${match}`).toLowerCase();
@@ -14,12 +17,12 @@ export const classList = (...classes) => (
 
 /**
  * Generates a css string from a style object
- * @param {Object} obj - Style object
+ * @param {Object} css - Style object
  */
-export const style = css => (
+export const cssObj = css => (
     Object.entries(css).map(([key, value])=> {
         key = camelToDash(key);
-        if (typeof value === 'object') return `${key} {${style(value)}}\n`;
+        if (typeof value === 'object') return `${key} {${cssObj(value)}}\n`;
         else return `${key}:${value};`;
     }).join('')
 );
