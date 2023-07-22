@@ -1,6 +1,4 @@
 
-// import './parsers/parsers.js';
-
 const noParser = {
     preprocess() { return false; },
     process() { return false; }
@@ -13,15 +11,6 @@ const ENSO_NODE = 'data-enso-node';  // Watched node identifier and definition i
  * @param {Number} index - The next available index in the mutation list
  * @returns {Object} - Mutation definition
  */
-// export const createNodeDef = index => ({
-//     index,          // Index in the node list
-//     ref: null,      // Name to use for element reference or null (no reference)
-//     events: null,   // List of event handlers
-//     attrs: null,    // Attribute mutations
-//     content: null,  // Content mutations
-//     parsers: [],    // List of required parsers
-//     test: 0
-// });
 export const createNodeDef = (defs, node) => {
     const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
     const index = parseInt(el.getAttribute(ENSO_NODE));

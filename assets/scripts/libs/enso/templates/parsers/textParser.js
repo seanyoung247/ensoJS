@@ -18,7 +18,6 @@ parser.register('TEXT', {
     },
 
     preprocess(def, node) {
-        // const span = document.createElement('span');
         // Indicates that this parser is needed to processes this node
         def.parsers.push(this);
         const content = {
@@ -34,11 +33,9 @@ parser.register('TEXT', {
         else def.content.push(content);
         const current = def.content.length - 1;
 
-        // node.parentNode.replaceChild(span, node);
-
         getBindings(node.nodeValue, def.content[current].binds);
 
-        return node;
+        return true;
     },
 
     process(def, component, element) {

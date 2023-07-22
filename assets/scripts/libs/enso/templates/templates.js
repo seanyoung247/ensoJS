@@ -4,7 +4,7 @@ import { parser, createNodeDef } from "./parser.js";
 import './parsers/parsers.js';
 
 
-const nodeEx = /({{.+}})/;
+const nodeEx = /({{(.|\n)*}})/;
 
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
@@ -37,8 +37,7 @@ export default class EnsoTemplate {
 
             if (node.nodeType === Node.TEXT_NODE) {
 
-                watched = true;
-                node = walker.currentNode = parser.preprocess(def, node);
+                watched = parser.preprocess(def, node) || watched;
         
             } else if (node.nodeType === Node.ELEMENT_NODE) {
 

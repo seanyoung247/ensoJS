@@ -1,11 +1,13 @@
 
-import Enso, { html, css } from "enso";
+import Enso, { html, css, style } from "enso";
 
 Enso.component( "enso-app", {
 
     properties: {
         flag: { value: false }
     },
+
+    expose: { style },
 
     styles: css`
         div { 
@@ -18,16 +20,18 @@ Enso.component( "enso-app", {
     `,
 
     template: html`
-        <style>
-            div {
-                background: {{ this.flag ? 'red' : 'green' }};
-                color: white;
-            }
+        <style>{{
+            style({
+                div: {
+                    backgroundColor: this.flag ? 'red' : 'green',
+                    color: 'white'
+                }
+            }) }}
         </style>
         <div @click="()=>{this.flag = !this.flag}">
-            cheese
-            <span></span>
-            Hello {{ this.flag?'You':'World' }}
+            Enso app
+            <span>Content</span>
+            Hello {{ this.flag ? 'You' : 'World' }}
         </div>
     `
 });
