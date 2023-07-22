@@ -9,15 +9,15 @@ Enso.component( "enso-app", {
 
     expose: { cssObj },
 
-    styles: css`
-        div { 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1em;
-            border: 1px solid black;
+    styles: css`${cssObj({
+        div: {
+            display: 'flex',
+            flexDirection: 'column',
+            "align-items": 'center',
+            padding: '1em',
+            border: '1px solid black'
         }
-    `,
+    })}`,
 
     template: html`
         <style>{{

@@ -3,9 +3,8 @@ import { createTemplate } from "../utils/dom.js";
 import { parser, createNodeDef } from "./parser.js";
 import './parsers/parsers.js';
 
-
+// If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /({{(.|\n)*}})/;
-
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
