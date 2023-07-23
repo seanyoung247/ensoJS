@@ -35,19 +35,19 @@ export default class EnsoTemplate {
             let watched = false;
             const def = createNodeDef(this.#watched, node);
 
-            if (node.nodeType === Node.TEXT_NODE) {
-
-                watched = parser.preprocess(def, node) || watched;
-        
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-
-                if (node.attributes) {
-                    const attributes = [...node.attributes];
-                    for (const attr of attributes) {
-                        watched = parser.preprocess(def, node, attr) || watched;
+            switch (node.nodeType) {
+                case Node.TEXT_NODE:
+                    watched = parser.preprocess(def, node) || watched;
+                    break;
+                
+                case Node.ELEMENT_NODE:
+                    if (node.attributes) {
+                        const attributes = [...node.attributes];
+                        for (const attr of attributes) {
+                            watched = parser.preprocess(def, node, attr) || watched;
+                        }
                     }
-                }
-
+                    break;
             }
 
             if (watched) {
