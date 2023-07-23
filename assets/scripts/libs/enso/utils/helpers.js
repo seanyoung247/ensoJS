@@ -3,7 +3,9 @@
  */
 
 // Converts camelCase names to dash-case
-const camelToDash = str => str.replace(/(?:\B)[A-Z]/g, match => `-${match}`).toLowerCase();
+const camelToDash = str => 
+    str.replace(/(?:\B)[A-Z]/g, match => `-${match}`)
+    .toLowerCase();
 
 /**
  * Generates a class list string for use in the DOM class attribute from 
@@ -23,9 +25,13 @@ export const cssObj = css => (
     Object.entries(css).map(([key, value])=> {
 
         key = camelToDash(key);
-        return (typeof value === 'object') ?
-            `${key} {${cssObj(value)}}\n` :     // Nested object -> selector
-            `${key}:${value};`;                 // Property : value
+
+        if (value) {
+            return (typeof value === 'object') ?
+                `${key} {${cssObj(value)}}\n` :     // Nested object -> selector
+                `${key}:${value};`;                 // Property : value
+        }
+        return null; // If value is falsy
 
     }).join('')
 );

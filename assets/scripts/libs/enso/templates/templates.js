@@ -30,6 +30,7 @@ export default class EnsoTemplate {
         const rootNode = template.content;
         const walker = getWalker(rootNode);
 
+        // First node is a document fragment, which we don't care about.
         for (let node = walker.nextNode(); node; node = walker.nextNode()) {
             let watched = false;
             const def = createNodeDef(this.#watched, node);

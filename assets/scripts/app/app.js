@@ -14,7 +14,7 @@ Enso.component( "enso-app", {
             display: 'flex',
             flexDirection: 'column',
             "align-items": 'center',
-            justifyContent: 'center',
+            justifyContent: 'space-evenly',
             border: '1px solid black',
             height: '100vh',
         },
@@ -22,19 +22,20 @@ Enso.component( "enso-app", {
             boxSizing: 'border-box',
             padding: 0,
             margin: 0
-        }   
+        }
     })}`,
 
     template: html`
-        <style>{{
-            cssObj({
+        <style>
+            {{cssObj({
                 div: {
                     backgroundColor: this.flag ? 'red' : 'green',
                     color: 'white'
                 }
             }) }}
         </style>
-        <div @click="()=>{this.flag = !this.flag}">
+        <div @click="()=>{this.flag = !this.flag}"
+            :style="{{cssObj({fontWeight:this.flag && 'bold'})}}">
             Enso app
             <span>Content</span>
             Hello {{ this.flag ? 'You' : 'World' }}
