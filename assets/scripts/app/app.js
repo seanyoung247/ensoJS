@@ -14,9 +14,15 @@ Enso.component( "enso-app", {
             display: 'flex',
             flexDirection: 'column',
             "align-items": 'center',
-            padding: '1em',
-            border: '1px solid black'
-        }
+            justifyContent: 'center',
+            border: '1px solid black',
+            height: '100vh',
+        },
+        '*': {
+            boxSizing: 'border-box',
+            padding: 0,
+            margin: 0
+        }   
     })}`,
 
     template: html`

@@ -17,7 +17,8 @@ Enso.component('enso-counter', {
     template: html`
         <button @click="()=>this.count--">-</button>
         <span :class="{{ 
-            classList('display', (this.count >= 10) && 'red') 
+            classList('display', 
+            (this.count >= 10) && 'red') 
         }}">
             {{ this.count }}
         </span>
