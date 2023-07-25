@@ -49,6 +49,9 @@ export default class Enso extends HTMLElement {
         // Define the custom element
         customElements.define(tag, component);
     }
+    static #cssReset = null;
+    static set cssReset(val) { this.#cssReset = val; }
+    static get cssReset() { return this.#cssReset; }
 
     //// Instance Fields
 
@@ -76,10 +79,10 @@ export default class Enso extends HTMLElement {
     }
 
     //// Accessors
+
     get refs() { return this.#refs; }
     get env() { return this.#env; }
     getBinding(bind) { return this.#bindings.get(bind); }
-
 
     //// LifeCycle hooks
 
