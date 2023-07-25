@@ -1,7 +1,7 @@
 
 import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
-import { defineWatchedProperty, createComponent } from "./utils/properties.js";
+import { defineWatchedProperty, createComponent } from "./utils/components.js";
 
 /**
  * Enso Web Component base class
@@ -14,11 +14,12 @@ export default class Enso extends HTMLElement {
      * @param {String} tag                      - DOM tag name for this component
      * @param {Object} props                    - Component properties
      *  @param {EnsoTemplate} props.template    - Template defining component HTML
-     *  @param {EnsoStylesheet} [props.styles]  - (Optional) Adoptable Style sheet
+     *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
      *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
      *  @param {Object} [props.properties]      - (optional) This component's watched properties
      *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
      *  @param {Object} [props.component]       - (Optional) Custom component code implementation
+     * @returns {typeof Enso} - The newly constructed component class
      * @static
      */
     static component(tag, 
@@ -32,6 +33,8 @@ export default class Enso extends HTMLElement {
             properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
             if (properties[prop].attribute) attributes.push(prop);
         }
+
+        if (styles && !Array.isArray(styles)) styles = [styles];
 
         // Type properties
         Object.defineProperty(component, 'observedAttributes', {
@@ -48,10 +51,8 @@ export default class Enso extends HTMLElement {
 
         // Define the custom element
         customElements.define(tag, component);
+        return component;
     }
-    static #cssReset = null;
-    static set cssReset(val) { this.#cssReset = val; }
-    static get cssReset() { return this.#cssReset; }
 
     //// Instance Fields
 
@@ -138,7 +139,9 @@ export default class Enso extends HTMLElement {
         requestAnimationFrame( () => this.#root.append(DOM) );
 
         if (this.styles) {
-            this.styles.adopt(this.#root);
+            for (const style of this.styles) {
+                style.adopt(this.#root);
+            }
         }
 
         this.#intialised = true;

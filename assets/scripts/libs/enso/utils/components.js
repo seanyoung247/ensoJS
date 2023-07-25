@@ -1,6 +1,6 @@
 
 /**
- * @module properties Utillity functions for component property handling
+ * @module components Utillity functions for component handling
  */
 
 
@@ -114,3 +114,4 @@ export function defineWatchedProperty(cls, prop, desc) {
 
     return property;
 }
+

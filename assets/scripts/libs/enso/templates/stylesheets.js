@@ -7,6 +7,8 @@ export default class EnsoStylesheet {
         this.#sheet.replaceSync(css);
     }
 
+    get sheet() { return this.#sheet; }
+
     adopt(root) {
         const dom = (root instanceof ShadowRoot) ? 
             root : document;

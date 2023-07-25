@@ -9,33 +9,37 @@ Enso.component( "enso-app", {
 
     expose: { cssObj },
 
-    styles: css`${cssObj({
-        div: {
-            display: 'flex',
-            flexDirection: 'column',
-            "align-items": 'center',
-            justifyContent: 'space-evenly',
-            border: '1px solid black',
-            height: '100vh',
-        },
-        '*': {
-            boxSizing: 'border-box',
-            padding: 0,
-            margin: 0
-        }
-    })}`,
+    styles: [
+        css`
+            * {
+                box-sizing: border-box;
+                padding: 0;
+                margin: 0;
+            }
+        `,
+        css`${cssObj({
+            div: {
+                display: 'flex',
+                flexDirection: 'column',
+                "align-items": 'center',
+                justifyContent: 'space-evenly',
+                border: '1px solid black',
+                height: '100vh',
+            }
+        })}`
+    ],
 
     template: html`
         <style>
-            {{cssObj({
+            ${ cssObj({
                 div: {
-                    backgroundColor: this.flag ? 'red' : 'green',
-                    color: 'white'
+                    backgroundColor: "{{this.flag ? 'red' : 'green'}}",
+                    color: 'white',
                 }
-            }) }}
+            }) }
         </style>
-        <div @click="()=>{this.flag = !this.flag}"
-            :style="{{cssObj({fontWeight:this.flag && 'bold'})}}">
+        <div @click="()=>{ this.flag = !this.flag }"
+            :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
             Enso app
             <span>Content</span>
             Hello {{ this.flag ? 'You' : 'World' }}
