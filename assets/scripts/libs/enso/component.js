@@ -22,10 +22,16 @@ export default class Enso extends HTMLElement {
      * @returns {typeof Enso} - The newly constructed component class
      * @static
      */
-    static component(tag, 
-        {template, styles=null, expose={}, properties={}, useShadow=true, component=null}) {
+    static component(tag, {
+            template,
+            styles=null, 
+            expose={},
+            properties={},
+            useShadow=true,
+            component=null
+        }) {
 
-        component = createComponent(this, component);
+        component = createComponent(Enso, component);
 
         // Create observed properties
         const attributes = [];
