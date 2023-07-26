@@ -1,6 +1,7 @@
 
-import EnsoStylesheet from "../templates/stylesheets.js";
+// import EnsoStylesheet from "../templates/stylesheets.js";
 import EnsoTemplate from "../templates/templates.js";
+import { createStyleSheet } from "./css.js";
 
 // Is valid string value?
 const isValid = v => !(v === true || v === false || v === null || v === undefined);
@@ -25,10 +26,11 @@ export const parse = (strings, ...values) => {
 
 /**
  * Parses a template string and returns an Enso stylesheet
- * @returns {EnsoStylesheet}
+ * @returns {CSSStyleSheet}
  */
-export const css = (strings, ...values) => 
-    new EnsoStylesheet(combine(strings, ...values));
+export const css = (strings, ...values) =>
+    createStyleSheet(combine(strings, ...values));
+    // new EnsoStylesheet(combine(strings, ...values));
 
 /**
  * Parses a template string and returns an Enso HTML template

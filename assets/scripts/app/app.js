@@ -1,5 +1,7 @@
 
-import Enso, { html, css, cssObj } from "enso";
+import Enso, { html, css, load, cssObj } from "enso";
+
+const cssReset = await load.css('assets/styles/reset.css');
 
 Enso.component( "enso-app", {
 
@@ -10,13 +12,7 @@ Enso.component( "enso-app", {
     expose: { cssObj },
 
     styles: [
-        css`
-            * {
-                box-sizing: border-box;
-                padding: 0;
-                margin: 0;
-            }
-        `,
+        cssReset,
         css`${cssObj({
             div: {
                 display: 'flex',

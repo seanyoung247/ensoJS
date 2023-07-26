@@ -1,5 +1,6 @@
-import EnsoStylesheet from "../templates/stylesheets.js";
+// import EnsoStylesheet from "../templates/stylesheets.js";
 import EnsoTemplate from "../templates/templates.js";
+import { createStyleSheet } from "./css.js";
 
 const extension = /(?:\w+\.)(\w+)$/;
 
@@ -26,7 +27,7 @@ export const load = {
     css(url) {
         return fetch(url)
             .then(responce => responce.text())
-            .then(css => new EnsoStylesheet(css));
+            .then(css => createStyleSheet(css));
     },
 
     html(url) {
