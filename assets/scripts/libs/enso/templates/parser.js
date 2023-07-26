@@ -28,7 +28,7 @@ export const createNodeDef = (defs, node) => {
 };
 
 export const parser = (() => {
-    const parsers = new Map();
+    const parsers = [];
 
     return Object.freeze({
         /**
@@ -36,8 +36,8 @@ export const parser = (() => {
          * @param {String} id       - String identfier for the parser
          * @param {Object} parser   - Parser code implementation
          */
-        register(id, parser) {
-            parsers.set(id, parser);
+        register(parser) {
+            parsers.push(parser);
         },
 
         /**
@@ -45,8 +45,11 @@ export const parser = (() => {
          * @param {String} id       - String identifier for the parser
          * @returns {Object}        - The parser requested
          */
-        getParser(id) {
-            return (parsers.get(id) ?? noParser);
+        getParser(node, attribute) {
+            for (const parser of parsers) {
+                if (parser.match(node, attribute)) return parser;
+            }
+            return noParser;
         },
 
         /**
@@ -91,8 +94,11 @@ export const parser = (() => {
          * @returns {Boolean} - True if node was processed, otherwise false
          */
         preprocess(def, node, attribute=null) {
-            const id = attribute ? attribute.name[0] : 'TEXT';
-            const parser = this.getParser(id);
+            const parser = this.getParser(node, attribute);
+            if (parser !== noParser) {
+                def.parsers.push(parser);
+                
+            }
             return parser.preprocess(def, node, attribute);
         },
 

@@ -4,8 +4,17 @@ import { getBindings } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
 import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
 
+const nodeEx = /({{(.|\n)*}})/;
+
 // Textnode parser
-parser.register('TEXT', {
+parser.register({
+
+    match(node) {
+        return (
+            node.nodeType === Node.TEXT_NODE &&
+            nodeEx.test(node.nodeValue)
+        );
+    },
 
     createEffect(code) {
         const fn = createEffect(code);
@@ -18,8 +27,6 @@ parser.register('TEXT', {
     },
 
     preprocess(def, node) {
-        // Indicates that this parser is needed to processes this node
-        def.parsers.push(this);
         const content = {
             parent: node.parentNode,
             index: getChildIndex(node.parentNode, node),

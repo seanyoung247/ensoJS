@@ -33,7 +33,7 @@ Enso.component( "enso-app", {
         <style>
             ${ cssObj({
                 div: {
-                    backgroundColor: "{{this.flag ? 'red' : 'green'}}",
+                    backgroundColor: "{{ this.flag ? 'red' : 'green' }}",
                     color: 'white',
                 }
             }) }

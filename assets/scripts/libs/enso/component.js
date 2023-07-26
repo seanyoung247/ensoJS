@@ -154,7 +154,7 @@ export default class Enso extends HTMLElement {
         this.onRemoved();
     }
       
-    // adoptedCallback() {}
+    // adoptedCallback() {} -- Not Yet Supported
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
