@@ -4,7 +4,14 @@ import { getName } from "./utils.js";
 import { createEffect } from "../../utils/effects.js";
 
 // Event Attribute (@<event name>) parser
-parser.register('@', {
+parser.register({
+
+    match(node, attribute) {
+        return (
+            node.nodeType === Node.ELEMENT_NODE &&
+            attribute.name[0] === '@'
+        );
+    },
 
     createEventHandler(code) {
         return createEffect(code);
@@ -15,7 +22,6 @@ parser.register('@', {
             name: getName(attribute), 
             value: this.createEventHandler(attribute.value)
         };
-        def.parsers.push(this);
 
         if (!def.events) def.events = [ event ];
         else def.events.push( event );

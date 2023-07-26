@@ -2,6 +2,7 @@
 import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./utils/components.js";
+import { attachStyleSheets } from "./utils/css.js";
 
 /**
  * Enso Web Component base class
@@ -145,9 +146,7 @@ export default class Enso extends HTMLElement {
         requestAnimationFrame( () => this.#root.append(DOM) );
 
         if (this.styles) {
-            for (const style of this.styles) {
-                style.adopt(this.#root);
-            }
+            attachStyleSheets(this.#root, this.styles);
         }
 
         this.#intialised = true;
@@ -160,7 +159,7 @@ export default class Enso extends HTMLElement {
         this.onRemoved();
     }
       
-    // adoptedCallback() {}
+    // adoptedCallback() {} -- Not Yet Supported
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;

@@ -2,10 +2,16 @@
 import { parser } from "../parser.js";
 
 // Reference Attribute (#ref) parser
-parser.register('#', {
+parser.register({
+
+    match(node, attribute) {
+        return (
+            node.nodeType === Node.ELEMENT_NODE &&
+            attribute.name[0] === '#'
+        );
+    },
 
     preprocess(def, node, attribute) {
-        def.parsers.push(this);
         def.ref = attribute.value;
         node.removeAttribute(attribute.name);
         return true;

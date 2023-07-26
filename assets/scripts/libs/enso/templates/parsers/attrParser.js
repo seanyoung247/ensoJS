@@ -4,7 +4,14 @@ import { getName, getBindings } from "./utils.js";
 import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
 
 // Attribute binding (:<attribute name>) parser
-parser.register(':', {
+parser.register({
+
+    match(node, attribute) {
+        return (
+            node.nodeType === Node.ELEMENT_NODE &&
+            attribute.name[0] === ':'
+        );
+    },
 
     createEffect(attr, code) {
         const fn = createEffect(code);
@@ -27,7 +34,6 @@ parser.register(':', {
         const attr = {
             name, effect, binds: new Set()
         };
-        def.parsers.push(this);
 
         getBindings(attribute.value, attr.binds);
 
