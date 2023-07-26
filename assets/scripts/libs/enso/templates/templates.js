@@ -51,8 +51,7 @@ export default class EnsoTemplate {
             }
 
             if (watched) {
-                parser.setNodeIndex(node, def.index);
-                this.#watched.push(def); // <- ToDo: Only do this if not already set
+                parser.addWatchedNode(node, def, this.#watched);
             }
         }
 

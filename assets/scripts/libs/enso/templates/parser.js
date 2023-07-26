@@ -61,13 +61,18 @@ export const parser = (() => {
 
         /**
          * Tags the element as watched and stores it's node 
-         * definition index.
+         * definition.
          * @param {HTMLElement} element - Watched element
-         * @param {Number} index        - Node definition index
+         * @param {Object} def          - Node definition object
+         * @param {Object[]} watched    - Array of watched node definition
          */
-        setNodeIndex(node, index) {
-            const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-            el.setAttribute(ENSO_NODE, index);
+        addWatchedNode(node, def, watched) {
+            const el = node.nodeType === Node.TEXT_NODE ? 
+                node.parentElement : node;
+            el.setAttribute(ENSO_NODE, def.index);
+            if (def.index >= watched.length) {
+                watched.push(def);
+            }
         },
 
         /**
