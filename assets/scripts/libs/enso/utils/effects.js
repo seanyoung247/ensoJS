@@ -28,7 +28,7 @@ const createFunctionBody = code => (
         return (() => {
             "use strict";
             return ${code};
-        }).call(this);
+        })();
     }`
 );
 

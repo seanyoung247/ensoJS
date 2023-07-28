@@ -1,4 +1,4 @@
-// import EnsoStylesheet from "../templates/stylesheets.js";
+
 import EnsoTemplate from "../templates/templates.js";
 import { createStyleSheet } from "./css.js";
 
@@ -8,33 +8,40 @@ export const load = {
 
     all(resolver, ...args) {
         return Promise.all( args.map(file => {
-            // Try and get the file type from the extension
+            // Try and guess the file type from the extension
             const loader = this[file.match(extension)[1]] ?? this.text;
-            return loader(resolver(file));
+            return loader.call(this, resolver, file);
         }));
     },
 
-    json(url) {
-        return fetch(url)
+    json(resolver, file) {
+        return this.load(resolver, file)
             .then(responce => responce.json);
     },
 
-    text(url) {
-        return fetch(url)
+    text(resolver, file) {
+        return this.load(resolver, file)
             .then(responce => responce.text());
     },
 
-    css(url) {
-        return fetch(url)
-            .then(responce => responce.text())
+    css(resolver, file) {
+        return this.text(resolver, file)
             .then(css => createStyleSheet(css));
     },
 
-    html(url) {
-        return fetch(url)
-            .then(responce => responce.text())
+    html(resolver, file) {
+        return this.text(resolver, file)
             .then(html => new EnsoTemplate(html));
     },
+
+    load(resolver, file) {
+        if (typeof resolver === 'function') {
+            file = resolver(file);
+        } else {
+            file = resolver;
+        }
+        return fetch(file);
+    }
 
 };
 

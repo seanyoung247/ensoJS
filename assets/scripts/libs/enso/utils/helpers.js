@@ -3,9 +3,10 @@
  */
 
 // Converts camelCase names to dash-case
-const camelToDash = str => 
+const camelToDash = str => (
     str.replace(/(?:\B)[A-Z]/g, match => `-${match}`)
-    .toLowerCase();
+        .toLowerCase()
+);
 
 /**
  * Generates a class list string for use in the DOM class attribute from 
@@ -13,8 +14,9 @@ const camelToDash = str =>
  * @param  { ...any } classes - Arguments that can resolve to css class names
  * @returns { String } class list
  */
-export const classList = (...classes) => 
-    classes.filter(v => v).join(' ');
+export const classList = (...classes) => (
+    classes.filter(v => v).join(' ')
+);
 
 /**
  * Generates a css string from a style object

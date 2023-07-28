@@ -1,5 +1,4 @@
 
-// import EnsoStylesheet from "../templates/stylesheets.js";
 import EnsoTemplate from "../templates/templates.js";
 import { createStyleSheet } from "./css.js";
 
@@ -28,13 +27,14 @@ export const parse = (strings, ...values) => {
  * Parses a template string and returns an Enso stylesheet
  * @returns {CSSStyleSheet}
  */
-export const css = (strings, ...values) =>
-    createStyleSheet(combine(strings, ...values));
-    // new EnsoStylesheet(combine(strings, ...values));
-
+export const css = (strings, ...values) => (
+    createStyleSheet(combine(strings, ...values))
+);
+    
 /**
  * Parses a template string and returns an Enso HTML template
  * @returns {EnsoTemplate}
  */
-export const html = (strings, ...values) => 
-    new EnsoTemplate(combine(strings, ...values));
+export const html = (strings, ...values) => (
+    new EnsoTemplate(combine(strings, ...values))
+);
