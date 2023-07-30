@@ -3,7 +3,7 @@ export const createStyleSheet = css => {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(css);
     return sheet;
-}
+};
 
 export const attachStyleSheets = (root, sheets)=> {
     const dom = (root instanceof ShadowRoot) ?
@@ -11,4 +11,4 @@ export const attachStyleSheets = (root, sheets)=> {
 
     dom.adoptedStyleSheets = 
         [ ...dom.adoptedStyleSheets, ...sheets];
-}
+};

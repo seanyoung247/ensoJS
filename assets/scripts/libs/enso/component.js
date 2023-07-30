@@ -68,6 +68,7 @@ export default class Enso extends HTMLElement {
     #root = null;
     // Reactivity properties
     #bindings = new Map();
+    #templates = [];
     #refs = {};
     #env = createEffectEnv(this.expose);
 
