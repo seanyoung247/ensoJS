@@ -35,20 +35,20 @@ export default class Enso extends HTMLElement {
         component = createComponent(Enso, component);
 
         // Create observed properties
-        const attributes = [];
+        const observedAttributes = [];
         for (const prop in properties) {
             properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
-            if (properties[prop].attribute) attributes.push(prop);
+            if (properties[prop].attribute) observedAttributes.push(prop);
         }
 
         if (styles && !Array.isArray(styles)) styles = [styles];
 
         // Type properties
         Object.defineProperty(component, 'observedAttributes', {
-            get() { return attributes; }
+            get() { return observedAttributes; }
         });
         Object.defineProperties(component.prototype, {
-            'observedAttributes': { get() { return attributes; } },
+            'observedAttributes': { get() { return observedAttributes; } },
             'properties': { get() { return properties; } },
             'useShadow': { get() { return useShadow; } },
             'template': { get() { return template; } },
