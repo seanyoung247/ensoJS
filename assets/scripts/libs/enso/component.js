@@ -1,10 +1,8 @@
 
-import EnsoStylesheet from "./templates/stylesheets.js";
-import EnsoTemplate from "./templates/templates.js";
-
-import { parser } from "./templates/parsers.js";
-import { runEffect } from "./utils/effects.js";
-import { defineWatchedProperty, createComponent } from "./utils/properties.js";
+import { parser } from "./templates/parser.js";
+import { runEffect, createEffectEnv } from "./utils/effects.js";
+import { defineWatchedProperty, createComponent } from "./utils/components.js";
+import { attachStyleSheets } from "./utils/css.js";
 
 /**
  * Enso Web Component base class
@@ -14,53 +12,67 @@ export default class Enso extends HTMLElement {
 
     /**
      * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {String} tag                            - DOM tag name for this component
-     * @param {Object} props                          - Component properties
-     *  @param {String|EnsoTemplate} props.template   - Template defining component HTML
-     *  @param {String|EnsoStylesheet} [props.styles] - (Optional) Adoptable Style sheet
-     *  @param {Object} [props.attributes]
-     *  @param {Object} [props.properties]            - (optional) This component's properties
-     *  @param {Boolean} [props.useShadow=true]       - (Optional) Should the component use shadow dom 
-     *  @param {Object} [props.component]             - (Optional) Custom component code implementation
+     * @param {String} tag                      - DOM tag name for this component
+     * @param {Object} props                    - Component properties
+     *  @param {EnsoTemplate} props.template    - Template defining component HTML
+     *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
+     *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
+     *  @param {Object} [props.properties]      - (optional) This component's watched properties
+     *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
+     *  @param {Object} [props.component]       - (Optional) Custom component code implementation
+     * @returns {typeof Enso} - The newly constructed component class
      * @static
      */
-    static component(tag, 
-        {template, styles=null, properties={}, useShadow=true, component=null}) {
+    static component(tag, {
+            template,
+            styles=null, 
+            expose={},
+            properties={},
+            useShadow=true,
+            component=null
+        }) {
 
-        component = createComponent(this, component);
+        component = createComponent(Enso, component);
 
         // Create observed properties
-        const attributes = [];
+        const observedAttributes = [];
         for (const prop in properties) {
             properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
-            if (properties[prop].attribute) attributes.push(prop);
+            if (properties[prop].attribute) observedAttributes.push(prop);
         }
-        
-        if (typeof template === 'string') template = new EnsoTemplate(template);
-        if (typeof styles === 'string') styles = new EnsoStylesheet(styles);
+
+        if (styles && !Array.isArray(styles)) styles = [styles];
 
         // Type properties
         Object.defineProperty(component, 'observedAttributes', {
-            get() { return attributes; }
+            get() { return observedAttributes; }
         });
         Object.defineProperties(component.prototype, {
-            'observedAttributes': { get() { return attributes; } },
+            'observedAttributes': { get() { return observedAttributes; } },
             'properties': { get() { return properties; } },
             'useShadow': { get() { return useShadow; } },
             'template': { get() { return template; } },
             'styles': { get() { return styles; } },
+            'expose': { get() { return expose; } }
         });
 
         // Define the custom element
         customElements.define(tag, component);
+        return component;
     }
-    
+
+    //// Instance Fields
+
     #intialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
     // Reactivity properties
     #bindings = new Map();
+    #templates = [];
     #refs = {};
+    #env = createEffectEnv(this.expose);
+
+    //// Setup
 
     constructor() {
         super();
@@ -72,19 +84,16 @@ export default class Enso extends HTMLElement {
         this.update = this.update.bind(this);
 
         this.#root = this.useShadow ? 
-            this.shadowRoot ?? this.attachShadow({mode:'open'}) : this;
+            this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
+
+    //// Accessors
 
     get refs() { return this.#refs; }
-
+    get env() { return this.#env; }
     getBinding(bind) { return this.#bindings.get(bind); }
 
-    markChanged(prop) {
-        const bind = this.#bindings.get(prop);
-        if (bind) {
-            bind.changed = true;
-        }
-    }
+    //// LifeCycle hooks
 
     /**
      * Called after the component has been mounted and started on the page.
@@ -100,6 +109,9 @@ export default class Enso extends HTMLElement {
      */
     onPropertyChange() {}
 
+    preUpdate() {}
+    postUpdate() {}
+
     /**
      * Called before the component is removed from the page. Component cleanup
      * should be done here.
@@ -108,9 +120,8 @@ export default class Enso extends HTMLElement {
     onRemoved() {}
 
 
-    //
-    // Web Component API
-    //
+    //// Web Component API
+
     connectedCallback() {
         if (this.#intialised) return;
 
@@ -136,7 +147,7 @@ export default class Enso extends HTMLElement {
         requestAnimationFrame( () => this.#root.append(DOM) );
 
         if (this.styles) {
-            this.styles.adopt(this.#root);
+            attachStyleSheets(this.#root, this.styles);
         }
 
         this.#intialised = true;
@@ -149,7 +160,7 @@ export default class Enso extends HTMLElement {
         this.onRemoved();
     }
       
-    // adoptedCallback() {}
+    // adoptedCallback() {} -- Not Yet Supported
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
@@ -158,16 +169,22 @@ export default class Enso extends HTMLElement {
         if (this[property] !== val) this[property] = val;
     }
 
-    reflectAttribute(attribute) {
-        // We don't care about unobserved attributes
-        if (attribute in this.observedAttributes) return;
+    //// Lifecycle
 
+    reflectAttribute(attribute) {
         const attr = this.properties[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
         
         if (value !== this.getAttribute(attribute)) {
             if (value === null) this.removeAttribute(attribute);
             else this.setAttribute(attribute, value);
+        }
+    }
+
+    markChanged(prop) {
+        const bind = this.#bindings.get(prop);
+        if (bind) {
+            bind.changed = true;
         }
     }
 

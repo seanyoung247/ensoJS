@@ -1,13 +1,10 @@
-/**
- * Templating
- */
+
 import { createTemplate } from "../utils/dom.js";
-import { parser, createNodeDef } from "./parsers.js";
+import { parser, createNodeDef } from "./parser.js";
+import './parsers/parsers.js';
 
-
-const nodeEx = RegExp(/({{.+}})/);
-//node.nodeValue.includes('{{')
-
+// If node is a text node with handle bars ({{}}) or an element, parse it
+const nodeEx = /({{(.|\n)*}})/;
 const acceptNode = node => 
     node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
@@ -32,30 +29,29 @@ export default class EnsoTemplate {
     #parse(template) {
         const rootNode = template.content;
         const walker = getWalker(rootNode);
-
-        for (let node = walker.currentNode; node; node = walker.nextNode()) {
-            let watched = false;
-            const def = createNodeDef(this.#watched.length);
-
-            if (node.nodeType === Node.TEXT_NODE) {
-
-                watched = true;
-                node = walker.currentNode = parser.preprocess(def, node);
         
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
+        let node;
+        while ((node = walker.nextNode())) {
+            let watched = false;
+            const def = createNodeDef(this.#watched, node);
 
-                if (node.attributes) {
-                    const attributes = [...node.attributes];
-                    for (const attr of attributes) {
-                        watched = parser.preprocess(def, node, attr) || watched;
+            switch (node.nodeType) {
+                case Node.TEXT_NODE:
+                    watched = parser.preprocess(def, node) || watched;
+                    break;
+                
+                case Node.ELEMENT_NODE:
+                    if (node.attributes) {
+                        const attributes = [...node.attributes];
+                        for (const attr of attributes) {
+                            watched = parser.preprocess(def, node, attr) || watched;
+                        }
                     }
-                }
-
+                    break;
             }
 
             if (watched) {
-                parser.setNodeIndex(node, def.index);
-                this.#watched.push(def);
+                parser.addWatchedNode(node, def, this.#watched);
             }
         }
 

@@ -1,7 +1,10 @@
 
 import Enso, { load } from "enso";
 
-const [template, styles] = await load.external(import.meta.url, 'modal.html', 'modal.css');
+const [template, styles] = await load.all(import.meta.resolve,
+    './modal.html',
+    './modal.css',
+);
 
 Enso.component(
 

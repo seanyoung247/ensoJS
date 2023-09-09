@@ -1,6 +1,6 @@
 
 /**
- * @module properties Utillity functions for component property handling
+ * @module components Utillity functions for component handling
  */
 
 
@@ -31,9 +31,7 @@ export const createComponent = (base, proto) => {
 
 //// Watched Properties
 export const attributeTypes = Object.freeze([
-    Boolean, 
-    Number,
-    String
+    Boolean, Number, String
 ]);
 
 const converters = new Map([
@@ -108,10 +106,12 @@ export function defineWatchedProperty(cls, prop, desc) {
         set(val) {
             setter(this, val);
             this.markChanged(prop);
-            this.reflectAttribute(prop);
+
+            if (property.attribute) this.reflectAttribute(prop);
             this.onPropertyChange(prop, val);
         }
     });
 
     return property;
 }
+
