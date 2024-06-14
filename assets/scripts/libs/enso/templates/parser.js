@@ -8,7 +8,8 @@ const ENSO_NODE = 'data-enso-node';  // Watched node identifier and definition i
 
 /**
  * Creates a new mutation definition for a node
- * @param {Number} index - The next available index in the mutation list
+ * @param {Object[]} defs - The node mutation definition list
+ * @param {Node} node - HTML node 
  * @returns {Object} - Mutation definition
  */
 export const createNodeDef = (defs, node) => {
@@ -34,7 +35,6 @@ export const parser = (() => {
     return Object.freeze({
         /**
          * Register a new template parser
-         * @param {String} id       - String identfier for the parser
          * @param {Object} parser   - Parser code implementation
          */
         register(parser) {
@@ -43,7 +43,8 @@ export const parser = (() => {
 
         /**
          * Returns a Parser identified by the id
-         * @param {String} id       - String identifier for the parser
+         * @param {Node} node       - The node to parse
+         * @param {Attr} attribute  - The Attribute node to parse     
          * @returns {Object}        - The parser requested
          */
         getParser(node, attribute) {
@@ -119,7 +120,3 @@ export const parser = (() => {
         }
     });
 })();
-
-
-// Property binding (.<property name>) parser
-// Command directive (*<command>) parser
