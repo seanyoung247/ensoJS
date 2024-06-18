@@ -14,7 +14,7 @@ parser.register({
     },
 
     preprocess(def, node, attribute) {
-        
+        const record = {temp:null, node:null};
     },
 
     process(def, component, element) {
