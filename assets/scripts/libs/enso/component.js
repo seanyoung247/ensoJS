@@ -88,7 +88,7 @@ export default class Enso extends HTMLElement {
     }
 
     //// Accessors
-
+    get templates() { return this.#templates; }
     get refs() { return this.#refs; }
     get env() { return this.#env; }
     getBinding(bind) { return this.#bindings.get(bind); }
