@@ -4,6 +4,9 @@ import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./utils/components.js";
 import { attachStyleSheets } from "./utils/css.js";
 
+const MARK_CHANGED = Symbol("markChanged");
+const UPDATE = Symbol("update");
+
 /**
  * Enso Web Component base class
  * @abstract
@@ -48,7 +51,7 @@ export default class Enso extends HTMLElement {
             get() { return observedAttributes; }
         });
         Object.defineProperties(component.prototype, {
-            'observedAttributes': { get() { return observedAttributes; } },
+            'observedAttributesList': { get() { return observedAttributes; } },
             'properties': { get() { return properties; } },
             'useShadow': { get() { return useShadow; } },
             'template': { get() { return template; } },
@@ -63,10 +66,11 @@ export default class Enso extends HTMLElement {
 
     //// Instance Fields
 
-    #intialised = false;
+    #initialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
     // Reactivity properties
+    #updateScheduled = false;
     #bindings = new Map();
     #templates = [];
     #refs = {};
@@ -81,7 +85,7 @@ export default class Enso extends HTMLElement {
             this.#bindings.set(prop, { changed: false, effects: [] });
         }
 
-        this.update = this.update.bind(this);
+        this[UPDATE] = this[UPDATE].bind(this);
 
         this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
@@ -123,7 +127,7 @@ export default class Enso extends HTMLElement {
     //// Web Component API
 
     connectedCallback() {
-        if (this.#intialised) return;
+        if (this.#initialised) return;
 
         // Loops through all properties defined as attributes and sets 
         // their initial value if they're forced.
@@ -150,10 +154,8 @@ export default class Enso extends HTMLElement {
             attachStyleSheets(this.#root, this.styles);
         }
 
-        this.#intialised = true;
+        this.#initialised = true;
         this.onStart();
-
-        requestAnimationFrame(this.update);
     }
 
     disconnectedCallback() {
@@ -185,11 +187,15 @@ export default class Enso extends HTMLElement {
         const bind = this.#bindings.get(prop);
         if (bind) {
             bind.changed = true;
+            if (!this.#updateScheduled) {
+                this.#updateScheduled = true;
+                requestAnimationFrame(this[UPDATE]);
+            }
         }
     }
 
-    update() {
-
+    [UPDATE]() {
+        this.#updateScheduled = false;
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
@@ -198,7 +204,5 @@ export default class Enso extends HTMLElement {
                 bind.changed = false;
             }
         }
-
-        requestAnimationFrame(this.update);
     }
 }
