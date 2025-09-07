@@ -1,7 +1,7 @@
 
 import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
-import { defineWatchedProperty, createComponent } from "./utils/components.js";
+import { defineWatchedProperty, createComponent } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
 
 const MARK_CHANGED = Symbol("markChanged");
@@ -131,7 +131,7 @@ export default class Enso extends HTMLElement {
 
         // Loops through all properties defined as attributes and sets 
         // their initial value if they're forced.
-        const attributes = this.observedAttributes;
+        const attributes = this.observedAttributesList;
         for (const attr of attributes) {
             if (this.properties[attr].attribute.force) {
                 this.reflectAttribute(attr);
