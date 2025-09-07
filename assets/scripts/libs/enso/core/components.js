@@ -1,4 +1,6 @@
 
+import { MARK_CHANGED } from "./symbols.js";
+
 /**
  * @module components Utillity functions for component handling
  */
@@ -105,7 +107,7 @@ export function defineWatchedProperty(cls, prop, desc) {
         },
         set(val) {
             setter(this, val);
-            this.markChanged(prop);
+            this[MARK_CHANGED](prop);
 
             if (property.attribute) this.reflectAttribute(prop);
             this.onPropertyChange(prop, val);

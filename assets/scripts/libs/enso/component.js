@@ -3,9 +3,7 @@ import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
-
-const MARK_CHANGED = Symbol("markChanged");
-const UPDATE = Symbol("update");
+import { UPDATE, MARK_CHANGED } from "./core/symbols.js";
 
 /**
  * Enso Web Component base class
@@ -183,7 +181,7 @@ export default class Enso extends HTMLElement {
         }
     }
 
-    markChanged(prop) {
+    [MARK_CHANGED](prop) {
         const bind = this.#bindings.get(prop);
         if (bind) {
             bind.changed = true;
