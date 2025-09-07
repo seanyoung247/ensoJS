@@ -1,13 +1,17 @@
 
 import { parse } from "./tags.js";
 
+const objectMasks = {
+    Window: {}, Document: {}
+}
+
 /**
  * 
  * @param {Object} args - Object 
  * @returns 
  */
 export const createEffectEnv = (args = {}) => Object.seal({
-    parse, ...args
+    parse, ...objectMasks, ...args
 });
 
 /**
