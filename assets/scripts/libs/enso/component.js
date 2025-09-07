@@ -142,8 +142,8 @@ export default class Enso extends HTMLElement {
     connectedCallback() {
         if (this.#initialised) return;
 
-        // Loops through all properties defined as attributes and sets 
-        // their initial value if they're forced.
+        // Loops through all properties defined as attributes 
+        // and sets their initial value if they're forced.
         const attributes = this.observedAttributesList;
         for (const attr of attributes) {
             if (this.properties[attr].attribute.force) {
