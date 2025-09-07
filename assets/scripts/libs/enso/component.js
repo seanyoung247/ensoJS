@@ -81,8 +81,15 @@ export default class Enso extends HTMLElement {
 
     //// Setup
 
-    constructor() {
+    constructor(key) {
         super();
+
+        if (key !== ENSO_INTERNAL) {
+            throw new Error(
+                "Direct subclassing of Enso is not supported.\n" +
+                "Use Enso.component() instead."
+            );
+        }
 
         for (const prop in this.properties) {
             this.#bindings.set(prop, { changed: false, effects: [] });

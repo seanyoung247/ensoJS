@@ -1,5 +1,5 @@
 
-import { MARK_CHANGED } from "./symbols.js";
+import { MARK_CHANGED, ENSO_INTERNAL } from "./symbols.js";
 
 /**
  * @module components Utillity functions for component handling
@@ -10,7 +10,7 @@ import { MARK_CHANGED } from "./symbols.js";
 
 /** Creates a derived class from a base class and Object Literal mixin */
 export const createComponent = (base, proto) => {
-    const component = class extends base {};
+    const component = class extends base { constructor() { super(ENSO_INTERNAL); } };
 
     // If no custom code implementation:
     if (!proto) return component;
