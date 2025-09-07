@@ -3,7 +3,12 @@ import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./utils/effects.js";
 import { defineWatchedProperty, createComponent } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
-import { UPDATE, MARK_CHANGED } from "./core/symbols.js";
+
+import { 
+    UPDATE, MARK_CHANGED, GET_BINDING, 
+    TEMPLATES, ENV,
+    ENSO_INTERNAL 
+} from "./core/symbols.js";
 
 /**
  * Enso Web Component base class
@@ -84,16 +89,19 @@ export default class Enso extends HTMLElement {
         }
 
         this[UPDATE] = this[UPDATE].bind(this);
+        this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
 
         this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
 
-    //// Accessors
-    get templates() { return this.#templates; }
+    //// Accessors - Framework internal
+    [GET_BINDING](bind) { return this.#bindings.get(bind); }
+    get [TEMPLATES]() { return this.#templates; }
+    get [ENV]() { return this.#env; }
+    //// Accessors - External
     get refs() { return this.#refs; }
-    get env() { return this.#env; }
-    getBinding(bind) { return this.#bindings.get(bind); }
+
 
     //// LifeCycle hooks
 

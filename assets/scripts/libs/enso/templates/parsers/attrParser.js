@@ -3,6 +3,8 @@ import { parser } from "../parser.js"
 import { getName, getBindings } from "./utils.js";
 import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
 
+import { GET_BINDING } from "../../core/symbols.js";
+
 // Attribute binding (:<attribute name>) parser
 parser.register({
 
@@ -49,7 +51,7 @@ parser.register({
         if (def.attrs) {
             for (const attr of def.attrs) {
                 for (const bind of attr.binds) {
-                    const binding = component.getBinding(bind);
+                    const binding = component[GET_BINDING](bind);
                     if (binding) binding.effects.push({element, action: attr.effect});
                 }
                 runEffect(attr.effect, component, element);

@@ -1,6 +1,8 @@
 
 import { parse } from "./tags.js";
 
+import { ENV } from "../core/symbols.js";
+
 const objectMasks = {
     Window: {}, Document: {}, eval: null, Function: null, setTimeout:null
 }
@@ -58,6 +60,6 @@ export const createEffect = (() => {
  * @param {...any} args         - Argument list
  */
 export const runEffect = (fn, context, ...args) => {
-    const env = context.env;
+    const env = context[ENV];
     if (fn) fn.call(context, env, ...args);
 };

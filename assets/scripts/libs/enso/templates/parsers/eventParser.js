@@ -3,6 +3,8 @@ import { parser } from "../parser.js";
 import { getName } from "./utils.js";
 import { createEffect } from "../../utils/effects.js";
 
+import { ENV } from "../../core/symbols.js";
+
 // Event Attribute (@<event name>) parser
 parser.register({
 
@@ -33,7 +35,7 @@ parser.register({
     process(def, component, element) {
         if (def.events?.length) {
             for (const event of def.events) {
-                const handler = event.value.call(component, component.env).bind(component);
+                const handler = event.value.call(component, component[ENV]).bind(component);
                 element.addEventListener( event.name, handler );
             }
         }

@@ -4,6 +4,8 @@ import { getBindings } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
 import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
 
+import { GET_BINDING } from "../../core/symbols.js";
+
 const nodeEx = /({{(.|\n)*}})/;
 
 // Textnode parser
@@ -51,7 +53,7 @@ parser.register({
             for (const content of def.content) {
                 const node = element.childNodes[content.index];
                 for (const bind of content.binds) {
-                    const binding = component.getBinding(bind);
+                    const binding = component[GET_BINDING](bind);
                     if (binding) {
                         binding.effects.push({ element: node, action: content.effect });
                     }
