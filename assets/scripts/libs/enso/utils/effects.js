@@ -2,7 +2,7 @@
 import { parse } from "./tags.js";
 
 const objectMasks = {
-    Window: {}, Document: {}
+    Window: {}, Document: {}, eval: null, Function: null, setTimeout:null
 }
 
 /**
