@@ -1,5 +1,6 @@
 
 import { MARK_CHANGED, ENSO_INTERNAL } from "./symbols.js";
+import { watch } from "./watcher.js";
 
 /**
  * @module components Utillity functions for component handling
@@ -98,21 +99,45 @@ export function defineWatchedProperty(cls, prop, desc) {
         (o,v) => { o[property.prop] = v; existing.value.call(o,v); } : 
         (o,v) => { o[property.prop] = v; };
 
-    Object.defineProperty(cls.prototype, prop, {
-        configurable: true,
-        enumerable: true,
-        get() {
-            // ToDo: If deep need to return proxy -
-            return this[property.prop] ?? property.value; 
-        },
-        set(val) {
-            setter(this, val);
-            this[MARK_CHANGED](prop);
+    if (property.deep) {
+        // Deep reactivity
+        Object.defineProperty(cls.prototype, prop, {
+            configurable: true,
+            enumerable: true,
+            get() {
+                const val = watch(
+                    this[property.prop] ?? property.value, 
+                    prop, this[MARK_CHANGED]
+                );
+                this[property.prop] = val;
+                return val;
+            },
+            set(val) {
+                val = watch(val, prop, this[MARK_CHANGED]);
+                this[property.prop] = val;
+                this[MARK_CHANGED](prop);
+                
+                if (property.attribute) this.reflectAttribute(prop);
+                this.onPropertyChange(prop, val);
+            }
+        });
+    } else {
+        // Shallow reactivity
+        Object.defineProperty(cls.prototype, prop, {
+            configurable: true,
+            enumerable: true,
+            get() {
+                return this[property.prop] ?? property.value; 
+            },
+            set(val) {
+                setter(this, val);
+                this[MARK_CHANGED](prop);
 
-            if (property.attribute) this.reflectAttribute(prop);
-            this.onPropertyChange(prop, val);
-        }
-    });
+                if (property.attribute) this.reflectAttribute(prop);
+                this.onPropertyChange(prop, val);
+            }
+        });
+    }
 
     return property;
 }

@@ -6,7 +6,7 @@ const baseWatcher = (onChange, name) => ({
     const value = Reflect.get(target, prop, receiver);
 
     if (typeof value === 'object' && value !== null) {
-      return watch(value, name, onChange);
+        return watch(value, name, onChange);
     }
     return value;
   },
@@ -16,7 +16,7 @@ const baseWatcher = (onChange, name) => ({
     const result = Reflect.set(target, prop, value, receiver);
 
     if (oldValue !== value) {
-      onChange(name);
+        onChange(name);
     }
 
     return result;
@@ -29,15 +29,15 @@ const mutatorWatcher = (onChange, name, trapMethods) => {
   return {
     ...base,
     get(target, prop, receiver) {
-      const value = Reflect.get(target, prop, receiver);
-      if (typeof value === 'function' && trapMethods.has(prop)) {
-        return (...args) => {
-          const result = value.apply(target, args);
-          onChange(name);
-          return result;
+        const value = Reflect.get(target, prop, receiver);
+        if (typeof value === 'function' && trapMethods.has(prop)) {
+            return (...args) => {
+            const result = value.apply(target, args);
+            onChange(name);
+            return result;
+            }
         }
-      }
-      return base.get(target, prop, receiver);
+        return base.get(target, prop, receiver);
     }
   }
 }
@@ -49,19 +49,19 @@ const typeMap = {
 }
 
 const getWatcher = (target, name, onChange) => {
-  if (Array.isArray(target)) return mutatorWatcher(onChange, name, typeMap.Array);
-  if (target instanceof Set) return mutatorWatcher(onChange, name, typeMap.Set);
-  if (target instanceof Map) return mutatorWatcher(onChange, name, typeMap.Map);
-  return baseWatcher(onChange, name);
+    if (Array.isArray(target)) return mutatorWatcher(onChange, name, typeMap.Array);
+    if (target instanceof Set) return mutatorWatcher(onChange, name, typeMap.Set);
+    if (target instanceof Map) return mutatorWatcher(onChange, name, typeMap.Map);
+    return baseWatcher(onChange, name);
 }
 
 export const watch = (target, name, onChange) => {
-  if (typeof target !== 'object' || target === null) return target;
+    if (typeof target !== 'object' || target === null) return target;
   
-  if (proxies.has(target)) return proxies.get(target);
+    if (proxies.has(target)) return proxies.get(target);
   
-  const watcher = getWatcher(target, name, onChange);
-  const proxy = new Proxy(target, watcher);
-  proxies.set(target, proxy);
-  return proxy;
+    const watcher = getWatcher(target, name, onChange);
+    const proxy = new Proxy(target, watcher);
+    proxies.set(target, proxy);
+    return proxy;
 }
