@@ -2,44 +2,44 @@
 const proxies = new WeakMap();
 
 const baseWatcher = (onChange, name) => ({
-  get(target, prop, receiver) {
-    const value = Reflect.get(target, prop, receiver);
+    get(target, prop, receiver) {
+        const value = Reflect.get(target, prop, receiver);
 
-    if (typeof value === 'object' && value !== null) {
-        return watch(value, name, onChange);
-    }
-    return value;
-  },
+        if (typeof value === 'object' && value !== null) {
+            return watch(value, name, onChange);
+        }
+        return value;
+    },
 
-  set(target, prop, value, receiver) {
-    const oldValue = target[prop];
-    const result = Reflect.set(target, prop, value, receiver);
+    set(target, prop, value, receiver) {
+        const oldValue = target[prop];
+        const result = Reflect.set(target, prop, value, receiver);
 
-    if (oldValue !== value) {
-        onChange(name);
-    }
+        if (oldValue !== value) {
+            onChange(name);
+        }
 
-    return result;
-  },
+        return result;
+    },
 });
 
 const mutatorWatcher = (onChange, name, trapMethods) => {
-  const base = baseWatcher(onChange, name);
-  
-  return {
-    ...base,
-    get(target, prop, receiver) {
-        const value = Reflect.get(target, prop, receiver);
-        if (typeof value === 'function' && trapMethods.has(prop)) {
-            return (...args) => {
-            const result = value.apply(target, args);
-            onChange(name);
-            return result;
+    const base = baseWatcher(onChange, name);
+    
+    return {
+        ...base,
+        get(target, prop, receiver) {
+            const value = Reflect.get(target, prop, receiver);
+            if (typeof value === 'function' && trapMethods.has(prop)) {
+                return (...args) => {
+                    const result = value.apply(target, args);
+                    onChange(name);
+                    return result;
+                }
             }
+            return base.get(target, prop, receiver);
         }
-        return base.get(target, prop, receiver);
     }
-  }
 }
 
 const typeMap = {
