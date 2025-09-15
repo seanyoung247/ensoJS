@@ -1,5 +1,6 @@
 
 import { parser } from "../parser.js";
+import { isAttr } from "./utils.js";
 
 // Reference Attribute (#ref) parser
 parser.register({
@@ -7,7 +8,7 @@ parser.register({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            attribute.name[0] === '#'
+            isAttr(attribute, '#')
         );
     },
 

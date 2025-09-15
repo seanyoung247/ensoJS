@@ -1,7 +1,7 @@
 
 import { parser } from "../parser.js";
-import { getName } from "./utils.js";
-import { createEffect } from "../../utils/effects.js";
+import { getName, isAttr } from "./utils.js";
+import { createEffect } from "../../core/effects.js";
 
 import { ENV } from "../../core/symbols.js";
 
@@ -11,7 +11,7 @@ parser.register({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            attribute.name[0] === '@'
+            isAttr(attribute, '@')
         );
     },
 
@@ -24,7 +24,6 @@ parser.register({
             name: getName(attribute), 
             value: this.createEventHandler(attribute.value)
         };
-
         if (!def.events) def.events = [ event ];
         else def.events.push( event );
         node.removeAttribute(attribute.name);

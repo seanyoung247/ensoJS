@@ -1,7 +1,7 @@
 
 import { parser } from "../parser.js"
-import { getName, getBindings } from "./utils.js";
-import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
+import { getName, getBindings, isAttr } from "./utils.js";
+import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
 
 import { GET_BINDING } from "../../core/symbols.js";
 
@@ -11,7 +11,7 @@ parser.register({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            attribute.name[0] === ':'
+            isAttr(attribute, ':')
         );
     },
 

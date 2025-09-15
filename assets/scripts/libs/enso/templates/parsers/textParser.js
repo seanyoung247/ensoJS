@@ -2,7 +2,7 @@
 import { parser } from "../parser.js";
 import { getBindings } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
-import { runEffect, createEffect, createStringTemplate } from "../../utils/effects.js";
+import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
 
 import { GET_BINDING } from "../../core/symbols.js";
 

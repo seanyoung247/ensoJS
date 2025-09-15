@@ -9,3 +9,7 @@ export const getBindings = (source, set) => {
         set.add(bind[1]);
     }
 };
+
+export const isAttr = (attribute, prefix) => (
+    attribute?.name?.startsWith(prefix) ?? false
+);
