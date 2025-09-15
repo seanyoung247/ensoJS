@@ -1,6 +1,6 @@
 
 import Enso, { html, css, load, cssObj } from "enso";
-
+import "../libs/enso/directives/ensoIf.js";
 const cssReset = await load.css('assets/styles/reset.css');
 
 Enso.component( "enso-app", {
@@ -34,6 +34,7 @@ Enso.component( "enso-app", {
                 }
             }) }
         </style>
+        <enso-if><div>TEST</div></enso-if>
         <div @click="()=>{ this.flag = !this.flag }"
             :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
             Enso app

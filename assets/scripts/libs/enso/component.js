@@ -208,6 +208,7 @@ export default class Enso extends HTMLElement {
     }
 
     [UPDATE]() {
+        this.preUpdate();
         this.#updateScheduled = false;
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
@@ -217,5 +218,6 @@ export default class Enso extends HTMLElement {
                 bind.changed = false;
             }
         }
+        this.postUpdate();
     }
 }
