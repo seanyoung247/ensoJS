@@ -11,7 +11,7 @@ Enso.component('enso-if', {
         :host([hidden]) { display: none; }
     `,
 
-    template: html`<slot></slot>`,
+    template: html``,
 
     component: {
         onStart() {
