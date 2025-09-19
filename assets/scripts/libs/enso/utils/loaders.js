@@ -1,3 +1,6 @@
+/**
+ * @module loaders - Defines template file loaders
+ */
 
 import EnsoTemplate from "../templates/templates.js";
 import { createStyleSheet } from "./css.js";
