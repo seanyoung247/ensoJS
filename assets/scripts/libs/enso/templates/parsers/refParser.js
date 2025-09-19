@@ -3,7 +3,7 @@ import { parser } from "../parser.js";
 import { isAttr } from "./utils.js";
 
 // Reference Attribute (#ref) parser
-parser.register({
+parser.registerAttribute({
 
     match(node, attribute) {
         return (

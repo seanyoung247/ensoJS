@@ -32,17 +32,9 @@ export default class EnsoTemplate {
         
         let node;
         while ((node = walker.nextNode())) {
-            let watched = false;
             const def = createNodeDef(this.#watched, node);
-
-            watched = parser.preprocess(def, node) || watched;
-
-            if (node.attributes) {
-                const attributes = [...node.attributes];
-                for (const attr of attributes) {
-                    watched = parser.preprocess(def, node, attr) || watched;
-                }
-            }
+            const watched = parser.preprocess(def, node);
+            
 
             if (watched) {
                 parser.addWatchedNode(node, def, this.#watched);

@@ -9,7 +9,7 @@ import { GET_BINDING } from "../../core/symbols.js";
 const nodeEx = /({{(.|\n)*}})/;
 
 // Textnode parser
-parser.register({
+parser.registerDirective({
 
     match(node) {
         return (

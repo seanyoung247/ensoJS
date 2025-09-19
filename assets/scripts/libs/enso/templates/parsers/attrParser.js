@@ -6,7 +6,7 @@ import { runEffect, createEffect, createStringTemplate } from "../../core/effect
 import { GET_BINDING } from "../../core/symbols.js";
 
 // Attribute binding (:<attribute name>) parser
-parser.register({
+parser.registerAttribute({
 
     match(node, attribute) {
         return (

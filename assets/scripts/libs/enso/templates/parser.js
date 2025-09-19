@@ -24,21 +24,41 @@ export const createNodeDef = (defs, node) => {
             events: null,    // List of event handlers
             attrs: null,     // Attribute mutations
             content: null,   // Content mutations
-            templates: null, // List of generated nodes
+            fragment: null, // List of generated fragments
             parsers: [],     // List of required parsers
         };
 };
 
 export const parser = (() => {
-    const parsers = [];
+    const directives = [];
+    const attrParsers = [];
 
     return Object.freeze({
         /**
-         * Register a new template parser
-         * @param {Object} parser   - Parser code implementation
+         * Register a new template directive parser
+         * @param {Object} parser   - Directive parser code implementation
          */
-        register(parser) {
-            parsers.push(parser);
+        registerDirective(parser) {
+            directives.push(parser);
+        },
+        /**
+         * Register a new template attribute parser
+         * @param {Object} parser   - Attribute parser code implementation
+         */
+        registerAttribute(parser) {
+            attrParsers.push(parser);
+        },
+
+        /**
+         * Find a directive for this node
+         * @param {Node} node       - The node to parse
+         * @returns {Object}        - The directive requested
+         */
+        getDirective(node) {
+            for (const directive of directives) {
+                if (directive.match(node)) return directive;
+            }
+            return null;
         },
 
         /**
@@ -47,11 +67,11 @@ export const parser = (() => {
          * @param {Attr} attribute  - The Attribute node to parse     
          * @returns {Object}        - The parser requested
          */
-        getParser(node, attribute) {
-            for (const parser of parsers) {
+        getAttrParser(node, attribute) {
+            for (const parser of attrParsers) {
                 if (parser.match(node, attribute)) return parser;
             }
-            return noParser;
+            return null;
         },
 
         /**
@@ -92,16 +112,24 @@ export const parser = (() => {
          * Preprocesses the given node and/or attribute
          * @param {Object} def      - Node mutation definition
          * @param {Node} node       - The current template node
-         * @param {Attr} attribute  - The current attribute or none
          * @returns {Boolean} - True if node was processed, otherwise false
          */
-        preprocess(def, node, attribute=null) {
-            const parser = this.getParser(node, attribute);
-            if (parser !== noParser) {
-                def.parsers.push(parser);
-                
+        preprocess(def, node) {
+            const directive = this.getDirective(node);
+            if (directive) {
+                def.parsers.push(directive);
+                return directive.preprocess(def, node);
             }
-            return parser.preprocess(def, node, attribute);
+
+            const attributes = [...node.attributes];
+            for (const attribute of attributes) {
+                const parser = this.getAttrParser(node, attribute);
+                if (parser) {
+                    def.parsers.push(parser);
+                    parser.preprocess(def, node, attribute);
+                }
+            }
+            return (def.parsers.length > 0);
         },
 
         /**
