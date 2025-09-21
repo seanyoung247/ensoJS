@@ -4,7 +4,7 @@
  *   Based on the non-secure version of the Nanoid library.
  */
 
-const alphabet = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict'
+const alphabet = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
 
 /**
  * Generates a simple, non-secure UUID of variable length
@@ -22,11 +22,11 @@ export const uuid = (length = 6) => {
  * Provides a function that generates a series of unique IDs for a scope.
  * All IDs generated from the same function share the same random base string,
  * with only the counter incrementing.
- * @param {String} prefix - A desired prefix for the ID
+ * @param {String} prefix - A prefix for the ID
  * @param {Number} length - Length of the unique part of the ID (default 6)
  * @returns {Function} - A function that generates a scoped ID each time it is called
  */
-export const scopedId = (prefix="enso", length=6) => {
+export const scopedId = (prefix = "enso", length = 6) => {
     const base = uuid(length);
     let counter = 1;
     return () => `${prefix}-${base}-${counter++}`;
