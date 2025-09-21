@@ -20,3 +20,17 @@ export const placeholder = id => {
     return el;
 }
 
+export const getDirective = (node, prefix='*') => {
+    if (!node.attributes) return null;
+
+    let directive = null;
+    for (const attr of [...node.attributes]) {
+        if (attr.name.startsWith(prefix)) {
+            // Only one directive per node is supported
+            if (!directive) directive = attr;
+            node.removeAttribute(attr.name);
+        }
+    }
+
+    return directive;
+};
