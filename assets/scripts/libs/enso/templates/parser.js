@@ -1,10 +1,9 @@
+/**
+ * @module parser - Template parser and processor
+ */
 
-const noParser = {
-    preprocess() { return false; },
-    process() { return false; }
-};
-
-const ENSO_NODE = 'data-enso-node';  // Watched node identifier and definition index
+// Watched node identifier and definition index
+const ENSO_NODE = 'data-enso-node';
 
 /**
  * Creates a new mutation definition for a node
@@ -24,13 +23,13 @@ export const createNodeDef = (defs, node) => {
             events: null,    // List of event handlers
             attrs: null,     // Attribute mutations
             content: null,   // Content mutations
-            fragment: null, // List of generated fragments
+            fragment: null,  // Attached fragment
             parsers: [],     // List of required parsers
         };
 };
 
 export const parser = (() => {
-    const directives = [];
+    const nodeParsers = [];
     const attrParsers = [];
 
     return Object.freeze({
@@ -38,14 +37,14 @@ export const parser = (() => {
          * Register a new template directive parser
          * @param {Object} parser   - Directive parser code implementation
          */
-        registerDirective(parser) {
-            directives.push(parser);
+        registerNode(parser) {
+            nodeParsers.push(parser);
         },
         /**
          * Register a new template attribute parser
          * @param {Object} parser   - Attribute parser code implementation
          */
-        registerAttribute(parser) {
+        registerAttr(parser) {
             attrParsers.push(parser);
         },
 
@@ -54,9 +53,9 @@ export const parser = (() => {
          * @param {Node} node       - The node to parse
          * @returns {Object}        - The directive requested
          */
-        getDirective(node) {
-            for (const directive of directives) {
-                if (directive.match(node)) return directive;
+        getNodeParser(node) {
+            for (const nodeParser of nodeParsers) {
+                if (nodeParser.match(node)) return nodeParser;
             }
             return null;
         },
@@ -92,8 +91,10 @@ export const parser = (() => {
          * @param {Object[]} watched    - Array of watched node definition
          */
         addWatchedNode(node, def, watched) {
-            const el = node.nodeType === Node.TEXT_NODE ? 
+            // Do we need to attach to the node itself or it's parent?
+            const el = (node.nodeType === Node.TEXT_NODE) ? 
                 node.parentElement : node;
+            // Tag the element as watched
             el.setAttribute(ENSO_NODE, def.index);
             if (def.index >= watched.length) {
                 watched.push(def);
@@ -115,10 +116,10 @@ export const parser = (() => {
          * @returns {Boolean} - True if node was processed, otherwise false
          */
         preprocess(def, node) {
-            const directive = this.getDirective(node);
-            if (directive) {
-                def.parsers.push(directive);
-                return directive.preprocess(def, node);
+            const nodeParser = this.getNodeParser(node);
+            if (nodeParser) {
+                def.parsers.push(nodeParser);
+                return nodeParser.preprocess(def, node);
             }
 
             const attributes = [...node.attributes];
@@ -140,8 +141,9 @@ export const parser = (() => {
          * @param {HTMLElement} element - Current mutated element
          */
         process(def, component, element) {
-            // Loop through all the processors attached to this node
+            // Loop through all the parsers attached to this node
             for (const parser of def.parsers) {
+                // Process the live node and attach any mutation effects
                 parser.process(def, component, element);
             }
             element.removeAttribute(ENSO_NODE);

@@ -6,7 +6,7 @@ import { createEffect } from "../../core/effects.js";
 import { ENV } from "../../core/symbols.js";
 
 // Event Attribute (@<event name>) parser
-parser.registerAttribute({
+parser.registerAttr({
 
     match(node, attribute) {
         return (
