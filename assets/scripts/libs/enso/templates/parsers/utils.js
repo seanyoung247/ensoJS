@@ -13,3 +13,10 @@ export const getBindings = (source, set) => {
 export const isAttr = (attribute, prefix) => (
     attribute?.name?.startsWith(prefix) ?? false
 );
+
+export const placeholder = id => {
+    const el = document.createElement("template");
+    el.id = id;
+    return el;
+}
+

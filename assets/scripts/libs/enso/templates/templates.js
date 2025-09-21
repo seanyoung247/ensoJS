@@ -6,6 +6,7 @@ import './parsers/parsers.js';
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /({{(.|\n)*}})/;
 const acceptNode = node => 
+    // If a node is a text node, it must contain template directives {{}} to be accepted
     node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
 
@@ -34,7 +35,6 @@ export default class EnsoTemplate {
         while ((node = walker.nextNode())) {
             const def = createNodeDef(this.#watched, node);
             const watched = parser.preprocess(def, node);
-            
 
             if (watched) {
                 parser.addWatchedNode(node, def, this.#watched);
