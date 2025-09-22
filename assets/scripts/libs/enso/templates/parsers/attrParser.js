@@ -17,7 +17,7 @@ parser.registerAttr({
 
     createEffect(attr, code) {
         const fn = createEffect(code);
-        return function (env, el) {
+        return function (env, { element: el }) {
             const content = fn.call(this, env);
             if (content) {
                 el.setAttribute(attr, (content === true) ? '' : content);
@@ -50,11 +50,13 @@ parser.registerAttr({
     process(def, component, element) {
         if (def.attrs) {
             for (const attr of def.attrs) {
+                const effect = {element, action: attr.effect};
+                // Attach effect to all bindings
                 for (const bind of attr.binds) {
                     const binding = component[GET_BINDING](bind);
-                    if (binding) binding.effects.push({element, action: attr.effect});
+                    if (binding) binding.effects.push(effect);
                 }
-                runEffect(attr.effect, component, element);
+                runEffect(component, effect);
             }
         }
     }

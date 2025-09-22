@@ -55,11 +55,10 @@ export const createEffect = (() => {
 
 /**
  * Runs an effect created with createEffect
- * @param {Function} fn         - Effect function
- * @param {typeof Enso} context - Effect component
- * @param {...any} args         - Argument list
+ * @param {typeof Enso} context - Effect component 
+ * @param {Object} effect       - Effect definition object
  */
-export const runEffect = (fn, context, ...args) => {
+export const runEffect = (context, effect) => {
     const env = context[ENV];
-    if (fn) fn.call(context, env, ...args);
-};
+    if (effect && effect.action) effect.action.call(context, env, effect);
+}

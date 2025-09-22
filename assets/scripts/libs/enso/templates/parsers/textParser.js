@@ -20,10 +20,10 @@ parser.registerNode({
 
     createEffect(code) {
         const fn = createEffect(code);
-        return function (env, node) {
+        return function (env, {element}) {
             const content = fn.call(this, env);
             if (content) {
-                node.textContent = content;
+                element.textContent = content;
             }
         };
     },
@@ -52,14 +52,16 @@ parser.registerNode({
         if (def.content) {
             for (const content of def.content) {
                 const node = element.childNodes[content.index];
+                const effect = {element: node, action: content.effect};
+                // Attach effect to all bindings
                 for (const bind of content.binds) {
                     const binding = component[GET_BINDING](bind);
                     if (binding) {
-                        binding.effects.push({ element: node, action: content.effect });
+                        binding.effects.push(effect);
                     }
                 }
                 // Initial render
-                runEffect(content.effect, component, node);
+                runEffect(component, effect);
             }
         }
     }
