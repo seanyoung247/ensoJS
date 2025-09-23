@@ -4,6 +4,7 @@ import { isAttr } from "./utils.js";
 
 // Reference Attribute (#ref) parser
 parser.registerAttr({
+    type: 'ref',
 
     match(node, attribute) {
         return (

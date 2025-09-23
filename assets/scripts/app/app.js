@@ -34,7 +34,9 @@ Enso.component( "enso-app", {
                 }
             }) }
         </style>
-        <div @click="()=>{ this.flag = !this.flag }"
+        <div 
+            @click="()=>{ this.flag = !this.flag; }"
+            @mouseover="()=>{ console.log('hover'); }"
             :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
             {{ this.flag ? 'App Enso' : 'Enso App' }}
             <span>Content</span>
@@ -43,14 +45,15 @@ Enso.component( "enso-app", {
     `,
     
     script: {
+        //// Lifecycle methods
         onStart() {
             console.log("App connected");
         },
         preUpdate() {
             console.log("App preUpdate");
         },
-        onPropertyChange() {
-            console.log("App property changed");
+        onPropertyChange(prop, value) {
+            console.log(`App property change: ${prop} = ${value}`);
         },
         postUpdate() {
             console.log("App postUpdate");

@@ -10,6 +10,7 @@ const nodeEx = /({{(.|\n)*}})/;
 
 // Textnode parser
 parser.registerNode({
+    type: 'text',
 
     match(node) {
         return (

@@ -7,6 +7,7 @@ import { GET_BINDING } from "../../core/symbols.js";
 
 // Attribute binding (:<attribute name>) parser
 parser.registerAttr({
+    type: 'attr',
 
     match(node, attribute) {
         return (

@@ -19,12 +19,12 @@ export const createNodeDef = (defs, node) => {
         defs[index] :   // Node is already watched, so return it's existing def
         {
             index: defs.length,
-            ref: null,       // Name to use for element reference or null (no reference)
-            events: null,    // List of event handlers
-            attrs: null,     // Attribute mutations
-            content: null,   // Content mutations
-            directive: null, // Node mutation
-            parsers: [],     // List of required parsers
+            ref: null,          // Name to use for element reference or null (no reference)
+            events: null,       // List of event handlers
+            attrs: null,        // Attribute mutations
+            content: null,      // Content mutations
+            directive: null,    // Node mutation
+            parsers: [],        // List of required parsers
         };
 };
 
@@ -74,6 +74,17 @@ export const parser = (() => {
         },
 
         /**
+         * Attaches the given parser to the node definition
+         * @param {Object} parser   - Parser to attach
+         * @param {Object} def      - Node definition
+         */
+        attachParser(parser, def) { 
+            if (!def.parsers.includes(parser)) {
+                def.parsers.push(parser); 
+            }
+        },
+
+        /**
          * Returns the node definition index for the given
          * mutated element.
          * @param {HTMLElement} element - Watched element
@@ -118,7 +129,7 @@ export const parser = (() => {
         preprocess(def, node) {
             const nodeParser = this.getNodeParser(node);
             if (nodeParser) {
-                def.parsers.push(nodeParser);
+                this.attachParser(nodeParser, def);
                 return nodeParser.preprocess(def, node);
             }
 
@@ -126,7 +137,7 @@ export const parser = (() => {
             for (const attribute of attributes) {
                 const parser = this.getAttrParser(node, attribute);
                 if (parser) {
-                    def.parsers.push(parser);
+                    this.attachParser(parser, def);
                     parser.preprocess(def, node, attribute);
                 }
             }
@@ -143,6 +154,7 @@ export const parser = (() => {
         process(def, component, element) {
             // Loop through all the parsers attached to this node
             for (const parser of def.parsers) {
+                console.log(parser.type);
                 // Process the live node and attach any mutation effects
                 parser.process(def, component, element);
             }
