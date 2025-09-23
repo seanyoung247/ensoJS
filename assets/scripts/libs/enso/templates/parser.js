@@ -24,7 +24,6 @@ export const createNodeDef = (defs, node) => {
             attrs: null,     // Attribute mutations
             content: null,   // Content mutations
             directive: null, // Node mutation
-            fragment: null,  // Attached fragment
             parsers: [],     // List of required parsers
         };
 };

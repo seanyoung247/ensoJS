@@ -17,11 +17,16 @@ parser.registerNode({
 
     createEffect(code) {
         const fn = createEffect(code);
-        return function (env, el) {
+        return function (env, effect) {
             const show = fn.call(this, env);
             if (show) {
-            }
-            else {
+                if (!effect.element) {
+                    // Mount effect.fragment here
+                }
+            } else {
+                if (effect.element) {
+                    // Unmount effect.fragment here 
+                }
             }   
         }
     },
@@ -32,21 +37,23 @@ parser.registerNode({
         if (!directive || directive.name !== '*if') return false;
 
         // Create a placeholder to mark the location of the node
-        const id = `enso-${def.index}-${uuid()}`;
-        const placeholder = createPlaceholder(id);
-        node.replaceWith(placeholder);
+        const placeholder = `enso-${def.index}-${uuid()}`;
+        node.replaceWith(createPlaceholder(placeholder));
 
         // Parse the directive expression
         const binds = new Set();
-
-        getBindings(directive.value, );
-            // Generate effect
-        
-        // Attach to node definition
+        getBindings(directive.value, binds);
+        // Generate effect
+        const effect = this.createEffect(directive.value);
 
         // Create a new template from the node
-        def.fragment = new EnsoTemplate(node);
+        const fragment = new EnsoTemplate(node);
 
+        def.directive = {
+            type: 'if', placeholder, fragment, effect, binds
+        };
+        
+        return true;
     },
 
     process(def, component, element) {
