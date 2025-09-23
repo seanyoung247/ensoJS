@@ -36,9 +36,27 @@ Enso.component( "enso-app", {
         </style>
         <div @click="()=>{ this.flag = !this.flag }"
             :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
-            Enso app
+            {{ this.flag ? 'App Enso' : 'Enso App' }}
             <span>Content</span>
             Hello {{ this.flag ? 'You' : 'World' }}
         </div>
-    `
+    `,
+    
+    script: {
+        onStart() {
+            console.log("App connected");
+        },
+        preUpdate() {
+            console.log("App preUpdate");
+        },
+        onPropertyChange() {
+            console.log("App property changed");
+        },
+        postUpdate() {
+            console.log("App postUpdate");
+        },
+        onRemoved() {
+            console.log("App disconnected");
+        }
+    }
 });

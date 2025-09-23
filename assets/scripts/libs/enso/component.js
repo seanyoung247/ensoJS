@@ -25,7 +25,7 @@ export default class Enso extends HTMLElement {
      *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
      *  @param {Object} [props.properties]      - (optional) This component's watched properties
      *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
-     *  @param {Object} [props.component]       - (Optional) Custom component code implementation
+     *  @param {Object} [props.script]          - (Optional) Custom component code implementation
      * @returns {typeof Enso} - The newly constructed component class
      * @static
      */
@@ -35,10 +35,10 @@ export default class Enso extends HTMLElement {
             expose={},
             properties={},
             useShadow=true,
-            component=null
+            script=null
         }) {
 
-        component = createComponent(Enso, component);
+        const component = createComponent(Enso, script);
 
         // Create observed properties
         const observedAttributes = [];
@@ -126,7 +126,15 @@ export default class Enso extends HTMLElement {
      */
     onPropertyChange() {}
 
+    /**
+     * Called before the component updates the DOM in response to property changes.
+     * @abstract
+     */
     preUpdate() {}
+    /**
+     * Called after the component updates the DOM in response to property changes.
+     * @abstract
+     */
     postUpdate() {}
 
     /**
