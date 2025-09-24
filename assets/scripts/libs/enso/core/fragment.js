@@ -1,3 +1,4 @@
+import { runEffect } from "./effects";
 
 /**
  * Enso Fragment base class
@@ -13,21 +14,46 @@ class EnsoFragment {
     #template;              // Template for this fragment
     #parent;                // Parent Component
     #anchor;                // Comment node defining the fragments DOM position
-    #root;                  // Mounted fragment root node
+    #root = null;           // Mounted fragment root node
+
+    #updateScheduled = false; // Is an update scheduled
 
     constructor(parent, template, anchor) {
-
+        this.#parent = parent;
+        this.#template = template;
+        this.#anchor = anchor;
+ 
+        this.update.bind(this);
     }
 
     get placeholder() { return "enso:fragment"; }
     get component() { return this.#parent; }
 
     //// Fragment Lifecycle
-    mount() {}
+    mount() {
 
-    markChanged() {}
+    }
 
-    update() {}
+    markChanged(prop) {
+        const bind = this.#bindings.get(prop);
+        if (bind) {
+            bind.changed = true;
+            return true;
+        }
+        return false;
+    }
+
+    update() {
+        this.#updateScheduled = false;
+        for (const bind of this.#bindings.values()) {
+            if (bind.changed) {
+                for (const effect of bind.effects) {
+                    runEffect(this, effect);
+                }
+                bind.changed = false;
+            }
+        }
+    }
 
     unmount() {}
 }
