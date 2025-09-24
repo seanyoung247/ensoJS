@@ -19,9 +19,9 @@ parser.registerAttr({
         return true;
     },
 
-    process(def, component, element) {
+    process(def, parent, element) {
         if (def.ref) {
-            Object.defineProperty(component.refs, def.ref, {
+            Object.defineProperty(parent.component.refs, def.ref, {
                 value: element,
                 writable: false,
                 configurable: false,

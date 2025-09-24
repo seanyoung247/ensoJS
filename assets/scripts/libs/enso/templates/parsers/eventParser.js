@@ -34,12 +34,10 @@ parser.registerAttr({
         return true;
     },
 
-    process(def, component, element) {
-        console.log(def.events);
+    process(def, parent, element) {
+        const component = parent.component;
         if (def.events?.length) {
-            console.log(def.events);
             for (const event of def.events) {
-                console.log(event);
                 const handler = event.value.call(component, component[ENV]).bind(component);
                 element.addEventListener( event.name, handler );
             }

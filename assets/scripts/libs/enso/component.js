@@ -6,7 +6,7 @@ import { attachStyleSheets } from "./utils/css.js";
 
 import { 
     UPDATE, MARK_CHANGED, GET_BINDING, 
-    TEMPLATES, ENV,
+    TEMPLATES, ENV, ROOT,
     ENSO_INTERNAL 
 } from "./core/symbols.js";
 
@@ -71,7 +71,7 @@ export default class Enso extends HTMLElement {
 
     #initialised = false;
     // Root element -> either this, or shadowroot
-    #root = null;
+    [ROOT] = null;
     // Reactivity properties
     #updateScheduled = false;
     #bindings = new Map();
@@ -98,7 +98,7 @@ export default class Enso extends HTMLElement {
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
 
-        this.#root = this.useShadow ? 
+        this[ROOT] = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
 
@@ -108,6 +108,7 @@ export default class Enso extends HTMLElement {
     get [ENV]() { return this.#env; }
     //// Accessors - External
     get refs() { return this.#refs; }
+    get component() { return this; }
 
 
     //// LifeCycle hooks
@@ -169,10 +170,10 @@ export default class Enso extends HTMLElement {
             parser.process(watched[idx], this, element);
         }
         // Attach to the dom on the next update
-        requestAnimationFrame( () => this.#root.append(DOM) );
+        requestAnimationFrame( () => this[ROOT].append(DOM) );
 
         if (this.styles) {
-            attachStyleSheets(this.#root, this.styles);
+            attachStyleSheets(this[ROOT], this.styles);
         }
 
         this.#initialised = true;

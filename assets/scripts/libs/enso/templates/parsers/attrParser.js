@@ -48,16 +48,16 @@ parser.registerAttr({
         return true;
     },
 
-    process(def, component, element) {
+    process(def, parent, element) {
         if (def.attrs) {
             for (const attr of def.attrs) {
                 const effect = {element, action: attr.effect};
                 // Attach effect to all bindings
                 for (const bind of attr.binds) {
-                    const binding = component[GET_BINDING](bind);
+                    const binding = parent[GET_BINDING](bind);
                     if (binding) binding.effects.push(effect);
                 }
-                runEffect(component, effect);
+                runEffect(parent.component, effect);
             }
         }
     }

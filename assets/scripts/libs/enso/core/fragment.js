@@ -19,7 +19,8 @@ class EnsoFragment {
 
     }
 
-    get placeholder() {return "enso:fragment";}
+    get placeholder() { return "enso:fragment"; }
+    get component() { return this.#parent; }
 
     //// Fragment Lifecycle
     mount() {}

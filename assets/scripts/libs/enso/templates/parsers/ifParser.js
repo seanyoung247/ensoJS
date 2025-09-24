@@ -56,7 +56,7 @@ parser.registerNode({
         return true;
     },
 
-    process(def, component, element) {
+    process(def, parent, element) {
 
     }
 });

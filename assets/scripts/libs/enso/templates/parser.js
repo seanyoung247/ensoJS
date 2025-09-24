@@ -148,15 +148,14 @@ export const parser = (() => {
          * Processes a HTML element attached to a component instance based
          * on a mutation definition.
          * @param {Object} def          - Node mutation definition
-         * @param {Enso} component      - Host component instance
+         * @param {Enso} parent         - Host component or fragment instance
          * @param {HTMLElement} element - Current mutated element
          */
-        process(def, component, element) {
+        process(def, parent, element) {
             // Loop through all the parsers attached to this node
             for (const parser of def.parsers) {
-                console.log(parser.type);
                 // Process the live node and attach any mutation effects
-                parser.process(def, component, element);
+                parser.process(def, parent, element);
             }
             element.removeAttribute(ENSO_NODE);
         }

@@ -48,7 +48,7 @@ parser.registerNode({
         return true;
     },
 
-    process(def, component, element) {
+    process(def, parent, element) {
         
         if (def.content) {
             for (const content of def.content) {
@@ -56,13 +56,13 @@ parser.registerNode({
                 const effect = {element: node, action: content.effect};
                 // Attach effect to all bindings
                 for (const bind of content.binds) {
-                    const binding = component[GET_BINDING](bind);
+                    const binding = parent[GET_BINDING](bind);
                     if (binding) {
                         binding.effects.push(effect);
                     }
                 }
                 // Initial render
-                runEffect(component, effect);
+                runEffect(parent.component, effect);
             }
         }
     }
