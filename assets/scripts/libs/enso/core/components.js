@@ -1,11 +1,11 @@
 
-import { MARK_CHANGED, ENSO_INTERNAL } from "./symbols.js";
-import { watch } from "./watcher.js";
-
 /**
  * @module components Utillity functions for component handling
  */
 
+import { watch } from "./watcher.js";
+import { parser } from "../templates/parser.js";
+import { MARK_CHANGED, ENSO_INTERNAL, ROOT } from "./symbols.js";
 
 //// Mixins
 
@@ -142,3 +142,20 @@ export function defineWatchedProperty(cls, prop, desc) {
     return property;
 }
 
+//// Component template instantiation
+
+export function connectTemplate(parent, template) {
+
+    // Parse and attach template
+    const DOM = template.clone();
+    const watched = template.watchedNodes;
+    const elements = parser.getElements(DOM);
+    // Loop through the elements and process any watched nodes
+    for (const element of elements) {
+        const idx = parser.getNodeIndex(element);
+        parser.process(watched[idx], parent, element);
+    }
+
+    // Attach to the dom on the next update
+
+}
