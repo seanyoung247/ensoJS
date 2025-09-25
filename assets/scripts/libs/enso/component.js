@@ -1,12 +1,12 @@
 
 import { parser } from "./templates/parser.js";
 import { runEffect, createEffectEnv } from "./core/effects.js";
-import { defineWatchedProperty, createComponent } from "./core/components.js";
+import { defineWatchedProperty, createComponent, processTemplate } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
 
 import { 
-    UPDATE, MARK_CHANGED, GET_BINDING, 
-    TEMPLATES, ENV, ROOT,
+    UPDATE, MARK_CHANGED, GET_BINDING, SCHEDULE_UPDATE,
+    ATTACH_TEMPLATE, TEMPLATES, ENV, ROOT,
     ENSO_INTERNAL 
 } from "./core/symbols.js";
 
@@ -160,24 +160,14 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        // Parse and attach template
-        const DOM = this.template.clone();
-        const watched = this.template.watchedNodes;
-        const elements = parser.getElements(DOM);
-
-        for (const element of elements) {
-            const idx = parser.getNodeIndex(element);
-            parser.process(watched[idx], this, element);
-        }
-        // Attach to the dom on the next update
-        requestAnimationFrame( () => this[ROOT].append(DOM) );
+        // // Parse and attach template
+        processTemplate(this, this.template);
 
         if (this.styles) {
             attachStyleSheets(this[ROOT], this.styles);
         }
 
         this.#initialised = true;
-        this.onStart();
     }
 
     disconnectedCallback() {
@@ -194,6 +184,10 @@ export default class Enso extends HTMLElement {
     }
 
     //// Lifecycle
+    [ATTACH_TEMPLATE](DOM) { 
+        this[ROOT].append(DOM);
+        this.onStart();
+    }
 
     reflectAttribute(attribute) {
         const attr = this.properties[attribute];
@@ -205,14 +199,18 @@ export default class Enso extends HTMLElement {
         }
     }
 
+    [SCHEDULE_UPDATE]() {
+        if (!this.#updateScheduled) {
+            this.#updateScheduled = true;
+            requestAnimationFrame(this[UPDATE]);
+        }
+    }
+
     [MARK_CHANGED](prop) {
         const bind = this.#bindings.get(prop);
         if (bind) {
             bind.changed = true;
-            if (!this.#updateScheduled) {
-                this.#updateScheduled = true;
-                requestAnimationFrame(this[UPDATE]);
-            }
+            this[SCHEDULE_UPDATE]();
         }
     }
 

@@ -5,7 +5,11 @@
 
 import { watch } from "./watcher.js";
 import { parser } from "../templates/parser.js";
-import { MARK_CHANGED, ENSO_INTERNAL, ROOT } from "./symbols.js";
+import { 
+    MARK_CHANGED, 
+    ENSO_INTERNAL, 
+    ATTACH_TEMPLATE
+} from "./symbols.js";
 
 //// Mixins
 
@@ -144,7 +148,7 @@ export function defineWatchedProperty(cls, prop, desc) {
 
 //// Component template instantiation
 
-export function connectTemplate(parent, template) {
+export function processTemplate(parent, template) {
 
     // Parse and attach template
     const DOM = template.clone();
@@ -157,5 +161,5 @@ export function connectTemplate(parent, template) {
     }
 
     // Attach to the dom on the next update
-
+    requestAnimationFrame( () => parent[ATTACH_TEMPLATE](DOM) );
 }

@@ -4,6 +4,8 @@
 export const ENSO_INTERNAL = Symbol("enso.internal");
 
 // Enso Component internal framework method Symbols
+export const SCHEDULE_UPDATE = Symbol("enso.scheduleUpdate");
+export const ATTACH_TEMPLATE = Symbol("enso.attachTemplates");
 export const MARK_CHANGED = Symbol("enso.markChanged");
 export const UPDATE = Symbol("enso.update");
 // Enso Component internal framework property Symbols
