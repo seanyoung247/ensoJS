@@ -222,7 +222,7 @@ export default class Enso extends HTMLElement {
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
-                    runEffect(this, effect);
+                    runEffect(this, this.#env, effect);
                 }
                 bind.changed = false;
             }

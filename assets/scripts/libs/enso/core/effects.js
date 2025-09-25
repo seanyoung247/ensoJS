@@ -56,8 +56,9 @@ export const createEffect = (() => {
 /**
  * Runs an effect created with createEffect
  * @param {typeof Enso} context - Effect component 
+ * @param {Object} scope        - Effect runtime environment
  * @param {Object} effect       - Effect definition object
  */
-export const runEffect = (context, effect) => (
-    effect?.action?.call(context, context[ENV], effect)
+export const runEffect = (context, scope, effect) => (
+    effect?.action?.call(context, scope, effect)
 )

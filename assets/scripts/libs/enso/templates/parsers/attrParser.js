@@ -3,7 +3,7 @@ import { parser } from "../parser.js"
 import { getName, getBindings, isAttr } from "./utils.js";
 import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
 
-import { GET_BINDING } from "../../core/symbols.js";
+import { GET_BINDING, ENV } from "../../core/symbols.js";
 
 // Attribute binding (:<attribute name>) parser
 parser.registerAttr({
@@ -57,7 +57,7 @@ parser.registerAttr({
                     const binding = parent[GET_BINDING](bind);
                     if (binding) binding.effects.push(effect);
                 }
-                runEffect(parent.component, effect);
+                runEffect(parent.component, parent[ENV], effect);
             }
         }
     }

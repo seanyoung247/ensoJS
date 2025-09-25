@@ -4,7 +4,7 @@ import { getBindings } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
 import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
 
-import { GET_BINDING } from "../../core/symbols.js";
+import { GET_BINDING, ENV } from "../../core/symbols.js";
 
 const nodeEx = /({{(.|\n)*}})/;
 
@@ -62,7 +62,7 @@ parser.registerNode({
                     }
                 }
                 // Initial render
-                runEffect(parent.component, effect);
+                runEffect(parent.component, parent[ENV], effect);
             }
         }
     }
