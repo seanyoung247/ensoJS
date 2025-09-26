@@ -1,7 +1,7 @@
 
 import { processTemplate } from "./components.js";
 import { runEffect } from "./effects";
-import { ENV, SCHEDULE_UPDATE } from "./symbols.js";
+import { ENV, ADD_CHILD, SCHEDULE_UPDATE } from "./symbols.js";
 
 /**
  * Enso Fragment base class
@@ -12,17 +12,21 @@ import { ENV, SCHEDULE_UPDATE } from "./symbols.js";
  * Fragments are used to implement control flow directives such as *if and *for
  * 
  */
-class EnsoFragment {
+export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
     #template;              // Template for this fragment
-    #component;             // Parent Component
+    #parent;                // Parent Component or Fragment
+    #component;             // Root component
     #anchor;                // Comment node defining the fragments DOM position
-    #root = null;           // Mounted fragment root node
+    #children = [];         // Child fragments
 
+    #attached = false;      // Is the fragment currently attached to the DOM?
+    #root = null;           // Mounted fragment root node
     #updateScheduled = false; // Is an update scheduled
 
-    constructor(component, template, placeholder) {
-        this.#component = component;
+    constructor(parent, template, placeholder) {
+        this.#parent = parent;
+        this.#component = parent.component;
         this.#template = template;
         this.#anchor = document.createComment(this.placeholder);
         placeholder.replaceWith(this.#anchor);
@@ -34,14 +38,32 @@ class EnsoFragment {
     get component() { return this.#component; }
     get [ENV]() { return this.#component[ENV]; }
 
+    [ADD_CHILD](fragment) {
+        this.#children.push(fragment);
+    }
+
+
+    //// Fragment Lifecycle
+    [ATTACH_TEMPLATE](DOM) {
+        this.#anchor.after(DOM);
+        this.#root = DOM;
+        this.#attached = true;
+        this.update();
+    }
+
     [SCHEDULE_UPDATE]() {
         this.#updateScheduled = true;
         this.#component[SCHEDULE_UPDATE]();
     }
 
-    //// Fragment Lifecycle
     mount() {
-        processTemplate(this, this.#template);
+        if (this.#attached) return;
+
+        if (!this.#root) {
+            processTemplate(this, this.#template);
+        } else {
+            requestAnimationFrame( () => this[ATTACH_TEMPLATE](this.#root) );
+        }
     }
 
     markChanged(prop) {
@@ -50,9 +72,14 @@ class EnsoFragment {
             bind.changed = true;
             this[SCHEDULE_UPDATE]();
         }
+        for (const child of this.#children) {
+            child.markChanged(prop);
+        }
     }
 
     update() {
+        if (!this.#updateScheduled || !this.#attached) return;
+
         this.#updateScheduled = false;
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
@@ -62,7 +89,13 @@ class EnsoFragment {
                 bind.changed = false;
             }
         }
+        for (const child of this.#children) {
+            child.update();
+        }
     }
 
-    unmount() {}
+    unmount() {
+        this.#root?.remove();
+        this.#attached = false;
+    }
 }
