@@ -5,8 +5,10 @@ import { defineWatchedProperty, createComponent, processTemplate } from "./core/
 import { attachStyleSheets } from "./utils/css.js";
 
 import { 
-    UPDATE, MARK_CHANGED, GET_BINDING, SCHEDULE_UPDATE,
-    ATTACH_TEMPLATE, TEMPLATES, ENV, ROOT,
+    TEMPLATES, ENV, ROOT,
+    UPDATE, MARK_CHANGED, GET_BINDING, 
+    SCHEDULE_UPDATE, ATTACH_TEMPLATE,
+    ADD_CHILD,
     ENSO_INTERNAL 
 } from "./core/symbols.js";
 
@@ -71,7 +73,7 @@ export default class Enso extends HTMLElement {
 
     #initialised = false;
     // Root element -> either this, or shadowroot
-    [ROOT] = null;
+    #root = null;
     // Reactivity properties
     #updateScheduled = false;
     #bindings = new Map();
@@ -99,7 +101,7 @@ export default class Enso extends HTMLElement {
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
 
-        this[ROOT] = this.useShadow ? 
+        this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
     
@@ -109,6 +111,7 @@ export default class Enso extends HTMLElement {
 
     //// Accessors - Framework internal
     [GET_BINDING](bind) { return this.#bindings.get(bind); }
+    get [ROOT]() { return this.#root; }
     get [TEMPLATES]() { return this.#templates; }
     get [ENV]() { return this.#env; }
     //// Accessors - External

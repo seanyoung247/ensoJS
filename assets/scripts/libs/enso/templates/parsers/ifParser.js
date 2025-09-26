@@ -6,6 +6,20 @@ import { createEffect } from "../../core/effects.js";
 import EnsoTemplate from "../templates.js";
 
 
+class IfFragment extends EnsoFragment {
+    #effect;    // Effect function
+
+    constructor(parent, template, placeholder, effect) {
+        super(parent, template, placeholder);
+        this.#effect = effect;
+    }
+
+    process(env) {
+        this.#effect.call(this, env, this);
+    }
+}
+
+
 // *if="<expression>"
 parser.registerNode({
     match(node) {
