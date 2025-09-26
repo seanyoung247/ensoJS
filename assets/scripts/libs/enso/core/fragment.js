@@ -15,7 +15,6 @@ import { ENV, ADD_CHILD, SCHEDULE_UPDATE } from "./symbols.js";
 export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
     #template;              // Template for this fragment
-    #parent;                // Parent Component or Fragment
     #component;             // Root component
     #anchor;                // Comment node defining the fragments DOM position
     #children = [];         // Child fragments
@@ -25,11 +24,12 @@ export class EnsoFragment {
     #updateScheduled = false; // Is an update scheduled
 
     constructor(parent, template, placeholder) {
-        this.#parent = parent;
         this.#component = parent.component;
         this.#template = template;
         this.#anchor = document.createComment(this.placeholder);
         placeholder.replaceWith(this.#anchor);
+
+        parent[ADD_CHILD](this);
  
         this.update = this.update.bind(this);
     }

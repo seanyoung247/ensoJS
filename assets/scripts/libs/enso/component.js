@@ -75,6 +75,7 @@ export default class Enso extends HTMLElement {
     // Reactivity properties
     #updateScheduled = false;
     #bindings = new Map();
+    #children = [];
     #templates = [];
     #refs = {};
     #env = createEffectEnv(this.expose);
@@ -101,6 +102,10 @@ export default class Enso extends HTMLElement {
         this[ROOT] = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
+    
+    [ADD_CHILD](fragment) {
+        this.#children.push(fragment);
+    }
 
     //// Accessors - Framework internal
     [GET_BINDING](bind) { return this.#bindings.get(bind); }
@@ -109,7 +114,6 @@ export default class Enso extends HTMLElement {
     //// Accessors - External
     get refs() { return this.#refs; }
     get component() { return this; }
-
 
     //// LifeCycle hooks
 
@@ -212,6 +216,9 @@ export default class Enso extends HTMLElement {
             bind.changed = true;
             this[SCHEDULE_UPDATE]();
         }
+        for (const child of this.#children) {
+            child.markChanged(prop);
+        }
     }
 
     [UPDATE]() {
@@ -224,6 +231,9 @@ export default class Enso extends HTMLElement {
                 }
                 bind.changed = false;
             }
+        }
+        for (const child of this.#children) {
+            child.update();
         }
         this.postUpdate();
     }
