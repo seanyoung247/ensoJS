@@ -55,9 +55,11 @@ parser.registerAttr({
                 // Attach effect to all bindings
                 for (const bind of attr.binds) {
                     const binding = parent[GET_BINDING](bind);
-                    if (binding) binding.effects.push(effect);
+                    if (binding) {
+                        binding.effects.push(effect);
+                        binding.changed = true;
+                    }
                 }
-                runEffect(parent.component, parent[ENV], effect);
             }
         }
     }

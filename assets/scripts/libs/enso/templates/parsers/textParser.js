@@ -59,10 +59,9 @@ parser.registerNode({
                     const binding = parent[GET_BINDING](bind);
                     if (binding) {
                         binding.effects.push(effect);
+                        binding.changed = true;
                     }
                 }
-                // Initial render
-                runEffect(parent.component, parent[ENV], effect);
             }
         }
     }
