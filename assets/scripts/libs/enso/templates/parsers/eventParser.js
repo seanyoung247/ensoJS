@@ -28,7 +28,6 @@ parser.registerAttr({
         if (!def.events) def.events = [ event ];
         else def.events.push( event );
 
-        console.log(def.events)
         node.removeAttribute(attribute.name);
 
         return true;

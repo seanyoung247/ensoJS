@@ -116,6 +116,7 @@ export default class Enso extends HTMLElement {
     //// Accessors - External
     get refs() { return this.#refs; }
     get component() { return this; }
+    get isAttached() { return this.#initialised; }
 
     //// LifeCycle hooks
 
@@ -174,6 +175,7 @@ export default class Enso extends HTMLElement {
         }
 
         this.#initialised = true;
+        this[UPDATE]();
     }
 
     disconnectedCallback() {

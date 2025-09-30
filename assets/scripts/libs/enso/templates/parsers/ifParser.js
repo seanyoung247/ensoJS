@@ -1,17 +1,18 @@
 
 import { parser } from "../parser.js";
-import { createPlaceholder, getDirective } from "./utils.js";
 import { uuid } from "../../utils/uuid.js";
+import { createPlaceholder, getDirective, getBindings } from "./utils.js";
 import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
+import { EnsoFragment } from "../../core/fragment.js";
 import EnsoTemplate from "../templates.js";
-import EnsoFragment from "../../core/fragment.js";
 
-import { ROOT, ENV } from "../../core/symbols.js";
+import { ROOT, ENV, GET_BINDING } from "../../core/symbols.js";
 
 class IfFragment extends EnsoFragment {
     constructor(parent, template, placeholder) {
         super(parent, template, placeholder);
     }
+    get tag() { return "enso:if"; }
 }
 
 
@@ -28,16 +29,13 @@ parser.registerNode({
         const fn = createEffect(code);
         return function (env, effect) {
             const show = fn.call(this, env);
+
             if (show) {
-                if (!effect.element) {
-                    effect.fragment.mount();
-                    effect.element = effect.fragment[ROOT];
-                }
+                effect.fragment.mount();
+                effect.element = effect.fragment[ROOT];
             } else {
-                if (effect.element) {
-                    effect.fragment.unmount();
-                    effect.element = null;
-                }
+                effect.fragment.unmount();
+                effect.element = null;
             }   
         }
     },
@@ -81,10 +79,9 @@ parser.registerNode({
                 const binding = parent[GET_BINDING](bind);
                 if (binding) {
                     binding.effects.push(effect);
+                    binding.changed = true;
                 }
             }
-            // Initial render
-            runEffect(parent.component, parent[ENV], effect);
         }
     }
 });

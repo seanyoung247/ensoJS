@@ -1,7 +1,10 @@
 
 import { processTemplate } from "./components.js";
-import { runEffect } from "./effects";
-import { ROOT, ENV, ADD_CHILD, SCHEDULE_UPDATE } from "./symbols.js";
+import { runEffect } from "./effects.js";
+import { 
+    ROOT, ENV, ADD_CHILD, 
+    SCHEDULE_UPDATE, ATTACH_TEMPLATE
+} from "./symbols.js";
 
 /**
  * Enso Fragment base class
@@ -16,6 +19,7 @@ export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
     #template;              // Template for this fragment
     #component;             // Root component
+    #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
     #children = [];         // Child fragments
 
@@ -26,9 +30,13 @@ export class EnsoFragment {
     constructor(parent, template, placeholder) {
         this.#component = parent.component;
         this.#template = template;
+        this.#parent = parent;
+
+        // Remove the searchable placeholder node and replace with a comment anchor
         this.#anchor = document.createComment(this.tag);
         placeholder.replaceWith(this.#anchor);
 
+        // Register with parent
         parent[ADD_CHILD](this);
  
         this.update = this.update.bind(this);
@@ -36,8 +44,12 @@ export class EnsoFragment {
 
     get tag() { return "enso:fragment"; }
     get component() { return this.#component; }
+    get isAttached() { return this.#attached; }
+
     get [ENV]() { return this.#component[ENV]; }
     get [ROOT]() { return this.#root; }
+
+    get #parentAttached() { return this.#parent.isAttached; }
 
     [ADD_CHILD](fragment) {
         this.#children.push(fragment);
@@ -46,8 +58,9 @@ export class EnsoFragment {
 
     //// Fragment Lifecycle
     [ATTACH_TEMPLATE](DOM) {
+        this.#root = DOM.firstElementChild;
         this.#anchor.after(DOM);
-        this.#root = DOM;
+
         this.#attached = true;
         this.update();
     }
@@ -58,12 +71,14 @@ export class EnsoFragment {
     }
 
     mount() {
-        if (this.#attached) return;
+        if (this.#attached || !this.#parentAttached) return;
 
         if (!this.#root) {
             processTemplate(this, this.#template);
         } else {
-            requestAnimationFrame( () => this[ATTACH_TEMPLATE](this.#root) );
+            this.#anchor.after(this.#root);
+            this.#attached = true;
+            this.update();
         }
     }
 
