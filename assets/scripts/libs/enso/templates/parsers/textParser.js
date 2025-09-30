@@ -2,9 +2,9 @@
 import { parser } from "../parser.js";
 import { getBindings } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
-import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
+import { createEffect, createStringTemplate } from "../../core/effects.js";
 
-import { GET_BINDING, ENV } from "../../core/symbols.js";
+import { GET_BINDING } from "../../core/symbols.js";
 
 const nodeEx = /({{(.|\n)*}})/;
 

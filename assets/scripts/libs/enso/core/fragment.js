@@ -2,7 +2,7 @@
 import { processTemplate } from "./components.js";
 import { runEffect } from "./effects.js";
 import { 
-    ROOT, ENV, ADD_CHILD, 
+    ROOT, ENV, ADD_CHILD, GET_BINDING,
     SCHEDULE_UPDATE, ATTACH_TEMPLATE
 } from "./symbols.js";
 
@@ -55,6 +55,9 @@ export class EnsoFragment {
         this.#children.push(fragment);
     }
 
+    [GET_BINDING](bind) {
+        return this.#bindings.get(bind) || this.#parent[GET_BINDING](bind); 
+    }
 
     //// Fragment Lifecycle
     [ATTACH_TEMPLATE](DOM) {

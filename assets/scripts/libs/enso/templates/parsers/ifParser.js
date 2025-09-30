@@ -2,7 +2,7 @@
 import { parser } from "../parser.js";
 import { uuid } from "../../utils/uuid.js";
 import { createPlaceholder, getDirective, getBindings } from "./utils.js";
-import { runEffect, createEffect, createStringTemplate } from "../../core/effects.js";
+import { createEffect, createStringTemplate } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
 import EnsoTemplate from "../templates.js";
 

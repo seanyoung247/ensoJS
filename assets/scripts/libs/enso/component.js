@@ -167,7 +167,7 @@ export default class Enso extends HTMLElement {
             }
         }
 
-        // // Parse and attach template
+        // Parse and attach template
         processTemplate(this, this.template);
 
         if (this.styles) {
@@ -175,6 +175,7 @@ export default class Enso extends HTMLElement {
         }
 
         this.#initialised = true;
+        // Initial render
         this[UPDATE]();
     }
 

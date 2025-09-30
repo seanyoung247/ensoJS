@@ -6,7 +6,8 @@ const cssReset = await load.css('assets/styles/reset.css');
 Enso.component( "enso-app", {
 
     properties: {
-        flag: { value: false }
+        flag: { value: false },
+        showChild: { value: true }
     },
 
     expose: { cssObj },
@@ -21,6 +22,11 @@ Enso.component( "enso-app", {
                 justifyContent: 'space-evenly',
                 border: '1px solid black',
                 height: '100vh',
+            },
+            ".if-test": {
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
             }
         })}`
     ],
@@ -35,13 +41,16 @@ Enso.component( "enso-app", {
             }) }
         </style>
         <div id="app-root"
-            @click="()=>{ this.flag = !this.flag; }"
-            @mouseover="()=>{ console.log('hover'); }"
             :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
+            <button @click="()=>{ this.flag = !this.flag; }">Toggle Flag</button>
             {{ this.flag ? 'App Enso' : 'Enso App' }}
 
-            <div *if="{{ this.flag }}">Content</div>
-            <div *if="{{ !this.flag }}">!Content</div>
+            <div *if="{{ this.flag }}" class="if-test">
+                Content
+                <div *if="{{ this.showChild }}">Child Content</div>
+                <button @click="(e)=>{ this.showChild = !this.showChild; }">Toggle Child</button>
+            </div>
+            <div *if="{{ !this.flag }}">No Content</div>
 
             Hello {{ this.flag ? 'You' : 'World' }}
         </div>
