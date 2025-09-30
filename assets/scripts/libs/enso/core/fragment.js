@@ -1,7 +1,7 @@
 
 import { processTemplate } from "./components.js";
 import { runEffect } from "./effects";
-import { ENV, ADD_CHILD, SCHEDULE_UPDATE } from "./symbols.js";
+import { ROOT, ENV, ADD_CHILD, SCHEDULE_UPDATE } from "./symbols.js";
 
 /**
  * Enso Fragment base class
@@ -26,7 +26,7 @@ export class EnsoFragment {
     constructor(parent, template, placeholder) {
         this.#component = parent.component;
         this.#template = template;
-        this.#anchor = document.createComment(this.placeholder);
+        this.#anchor = document.createComment(this.tag);
         placeholder.replaceWith(this.#anchor);
 
         parent[ADD_CHILD](this);
@@ -34,9 +34,10 @@ export class EnsoFragment {
         this.update = this.update.bind(this);
     }
 
-    get placeholder() { return "enso:fragment"; }
+    get tag() { return "enso:fragment"; }
     get component() { return this.#component; }
     get [ENV]() { return this.#component[ENV]; }
+    get [ROOT]() { return this.#root; }
 
     [ADD_CHILD](fragment) {
         this.#children.push(fragment);

@@ -37,7 +37,7 @@ export default class EnsoTemplate {
             const watched = parser.preprocess(def, node);
 
             if (watched) {
-                parser.addWatchedNode(node, def, this.#watched);
+                parser.addWatchedNode(def.node, def, this.#watched);
             }
         }
 

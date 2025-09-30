@@ -19,6 +19,7 @@ export const createNodeDef = (defs, node) => {
         defs[index] :   // Node is already watched, so return it's existing def
         {
             index: defs.length,
+            node: node,         // The actual node
             ref: null,          // Name to use for element reference or null (no reference)
             events: null,       // List of event handlers
             attrs: null,        // Attribute mutations
