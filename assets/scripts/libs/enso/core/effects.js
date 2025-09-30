@@ -1,7 +1,7 @@
 
 import { parse } from "./tags.js";
 
-import { ENV } from "./symbols.js";
+// import { ENV } from "./symbols.js";
 
 const objectMasks = {
     Window: {}, Document: {}, eval: null, Function: null, setTimeout:null

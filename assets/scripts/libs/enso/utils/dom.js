@@ -8,9 +8,16 @@ export const createFragment = html =>
     document.createRange().createContextualFragment(html);
 
 export const createTemplate = html => {
+
+    if (html instanceof HTMLTemplateElement) return html;
+
     const template = document.createElement('template');
-    template.content.appendChild(createFragment(html));
+    template.content.appendChild(
+        (typeof html === "string") ? createFragment(html) : html
+    );
+
     return template;
+
 };
 
 

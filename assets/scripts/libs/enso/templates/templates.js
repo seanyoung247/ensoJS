@@ -21,8 +21,7 @@ export default class EnsoTemplate {
     #watched = [];          // List of nodes that are referenced or mutated
 
     constructor(html) {
-        const template = (typeof html === 'string') ?
-            createTemplate(html) : html;
+        const template = createTemplate(html);
 
         this.#template = this.#parse(template);
     }
@@ -32,7 +31,10 @@ export default class EnsoTemplate {
         const walker = getWalker(rootNode);
         
         let node;
-        while ((node = walker.nextNode())) {
+        const nodes = [];
+        while ((node = walker.nextNode())) nodes.push(node);
+
+        for (const node of nodes) {
             const def = createNodeDef(this.#watched, node);
             const watched = parser.preprocess(def, node);
 

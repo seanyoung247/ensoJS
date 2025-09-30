@@ -160,6 +160,5 @@ export function processTemplate(parent, template) {
         parser.process(watched[idx], parent, element);
     }
 
-    // Attach to the dom on the next update
-    requestAnimationFrame( () => parent[ATTACH_TEMPLATE](DOM) );
+    parent[ATTACH_TEMPLATE](DOM);
 }
