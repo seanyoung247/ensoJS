@@ -5,6 +5,29 @@ import { createEffect } from "../../core/effects.js";
 
 import { ENV } from "../../core/symbols.js";
 
+
+function createEventHandler(code) {
+    return createEffect(code);
+}
+
+function attachEventListener(component, element, event) {
+
+    let handler;
+    try {
+        handler = event.func.call(component, component[ENV]);
+        if (typeof handler !== 'function') {
+            throw new Error(`Invalid event handler for event '${event.name}' on element ${element.tagName}\n`+
+                `- event handler must be a function but got: ${typeof handler}`);
+        }
+        handler = handler.bind(component);
+    } catch (e) {
+        console.error('[Enso] - ',e);
+        handler = () => { console.warn(`Invalid event handler for event '${event.name}'`) };
+        handler = handler.bind(component);
+    }
+    element.addEventListener( event.name, handler );
+}
+
 // Event Attribute (@<event name>) parser
 parser.registerAttr({
     type: 'event',
@@ -16,14 +39,10 @@ parser.registerAttr({
         );
     },
 
-    createEventHandler(code) {
-        return createEffect(code);
-    },
-
     preprocess(def, node, attribute) {
         const event = {
-            name: getName(attribute), 
-            value: this.createEventHandler(attribute.value)
+            name: getName(attribute),
+            func: createEventHandler(attribute.value)
         };
         if (!def.events) def.events = [ event ];
         else def.events.push( event );
@@ -37,8 +56,7 @@ parser.registerAttr({
         const component = parent.component;
         if (def.events?.length) {
             for (const event of def.events) {
-                const handler = event.value.call(component, component[ENV]).bind(component);
-                element.addEventListener( event.name, handler );
+                attachEventListener(component, element, event);
             }
         }
     }

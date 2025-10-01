@@ -7,7 +7,7 @@ Enso.component( "enso-app", {
 
     properties: {
         flag: { value: false },
-        showChild: { value: true }
+        showChild: { value: 'show' }
     },
 
     expose: { cssObj },
@@ -47,12 +47,18 @@ Enso.component( "enso-app", {
 
             <div *if="{{ this.flag }}" class="if-test">
                 Content
-                <div *if="{{ this.showChild }}">Child Content</div>
-                <button @click="(e)=>{ this.showChild = !this.showChild; }">Toggle Child</button>
+                <div *if="{{ this.showChild === 'show' }}">Child Content</div>
+                <button @click="this.childHide">Toggle Child</button>
             </div>
             <div *if="{{ !this.flag }}">No Content</div>
 
             Hello {{ this.flag ? 'You' : 'World' }}
         </div>
     `,
+
+    script: {
+        childHide() {
+            this.showChild = (this.showChild === 'hide') ? 'show' : 'hide';
+        }
+    }
 });
