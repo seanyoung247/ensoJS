@@ -15,29 +15,30 @@ class IfFragment extends EnsoFragment {
     get tag() { return "enso:if"; }
 }
 
+function createConditionEffect(code) {
+    const fn = createEffect(code);
+    return function (env, effect) {
+        const show = fn.call(this, env);
+
+        if (show) {
+            effect.fragment.mount();
+            effect.element = effect.fragment[ROOT];
+        } else {
+            effect.fragment.unmount();
+            effect.element = null;
+        }   
+    }
+}
 
 // *if="<expression>"
 parser.registerNode({
+    type: 'if',
+
     match(node) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
             node.hasAttribute('*if')
         );
-    },
-
-    createEffect(code) {
-        const fn = createEffect(code);
-        return function (env, effect) {
-            const show = fn.call(this, env);
-
-            if (show) {
-                effect.fragment.mount();
-                effect.element = effect.fragment[ROOT];
-            } else {
-                effect.fragment.unmount();
-                effect.element = null;
-            }   
-        }
     },
 
     preprocess(def, node) {
@@ -54,7 +55,7 @@ parser.registerNode({
         const binds = new Set();
         getBindings(directive.value, binds);
         // Generate effect
-        const effect = this.createEffect(
+        const effect = createConditionEffect(
             createStringTemplate(directive.value)
         );
 

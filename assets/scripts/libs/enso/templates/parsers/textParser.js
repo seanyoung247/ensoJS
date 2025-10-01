@@ -8,6 +8,17 @@ import { GET_BINDING } from "../../core/symbols.js";
 
 const nodeEx = /({{(.|\n)*}})/;
 
+
+function createTextEffect(code) {
+    const fn = createEffect(code);
+    return function (env, {element}) {
+        const content = fn.call(this, env);
+        if (content) {
+            element.textContent = content;
+        }
+    };
+}
+
 // Textnode parser
 parser.registerNode({
     type: 'text',
@@ -19,21 +30,11 @@ parser.registerNode({
         );
     },
 
-    createEffect(code) {
-        const fn = createEffect(code);
-        return function (env, {element}) {
-            const content = fn.call(this, env);
-            if (content) {
-                element.textContent = content;
-            }
-        };
-    },
-
     preprocess(def, node) {
         const content = {
             parent: node.parentNode,
             index: getChildIndex(node.parentNode, node),
-            effect: this.createEffect(
+            effect: createTextEffect(
                 createStringTemplate(node.nodeValue)
             ),
             binds: new Set()

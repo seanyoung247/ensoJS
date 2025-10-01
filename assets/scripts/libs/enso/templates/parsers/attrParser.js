@@ -5,6 +5,19 @@ import { createEffect, createStringTemplate } from "../../core/effects.js";
 
 import { GET_BINDING } from "../../core/symbols.js";
 
+function createAttrEffect(attr, code) {
+    const fn = createEffect(code);
+    return function (env, { element: el }) {
+        const content = fn.call(this, env);
+        if (content) {
+            el.setAttribute(attr, (content === true) ? '' : content);
+        }
+        else {
+            el.removeAttribute(attr);
+        }
+    };
+}
+
 // Attribute binding (:<attribute name>) parser
 parser.registerAttr({
     type: 'attr',
@@ -16,22 +29,9 @@ parser.registerAttr({
         );
     },
 
-    createEffect(attr, code) {
-        const fn = createEffect(code);
-        return function (env, { element: el }) {
-            const content = fn.call(this, env);
-            if (content) {
-                el.setAttribute(attr, (content === true) ? '' : content);
-            }
-            else {
-                el.removeAttribute(attr);
-            }
-        };
-    },
-
     preprocess(def, node, attribute) {
         const name = getName(attribute);
-        const effect = this.createEffect(name, 
+        const effect = createAttrEffect(name, 
             createStringTemplate(attribute.value)
         );
         const attr = {
