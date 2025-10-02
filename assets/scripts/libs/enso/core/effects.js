@@ -1,20 +1,25 @@
 
 import { parse } from "./tags.js";
 
-// import { ENV } from "./symbols.js";
 
-const objectMasks = {
+const objectMasks = Object.freeze({
     Window: {}, Document: {}, eval: null, Function: null, setTimeout:null
-}
+});
+const rootEnv = Object.freeze({parse, ...objectMasks});
 
 /**
  * 
- * @param {Object} args - Object 
- * @returns 
+ * @param {Object} args     - (Optional) Object containing environment 
+ * @param {Object} baseEnv  - (Optional) Base environment to extend
+ * @returns {Object} - New effect environment
  */
-export const createEffectEnv = (args = {}) => Object.seal({
-    parse, ...objectMasks, ...args
-});
+export const createEffectEnv = (args = {}, baseEnv = rootEnv) => (
+    Object.freeze(
+        Object.assign(
+            Object.create(baseEnv), args
+        )
+    )
+);
 
 /**
  * Formats expression code as a string litteral

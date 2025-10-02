@@ -1,6 +1,6 @@
 
 import { processTemplate } from "./components.js";
-import { runEffect } from "./effects.js";
+import { runEffect, createEffectEnv } from "./effects.js";
 import { 
     ROOT, ENV, ADD_CHILD, GET_BINDING,
     SCHEDULE_UPDATE, ATTACH_TEMPLATE
@@ -21,16 +21,20 @@ export class EnsoFragment {
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
+    #root = null;           // Mounted fragment root node
+    #env;                   // Effect environment
+
     #children = [];         // Child fragments
 
     #attached = false;      // Is the fragment currently attached to the DOM?
-    #root = null;           // Mounted fragment root node
     #updateScheduled = false; // Is an update scheduled
 
     constructor(parent, template, placeholder) {
         this.#component = parent.component;
         this.#template = template;
         this.#parent = parent;
+
+        this.#env = createEffectEnv(this.#component.expose, this.#component[ENV]);
 
         // Remove the searchable placeholder node and replace with a comment anchor
         this.#anchor = document.createComment(this.tag);
@@ -46,8 +50,11 @@ export class EnsoFragment {
     get component() { return this.#component; }
     get isAttached() { return this.#attached; }
 
-    get [ENV]() { return this.#component[ENV]; }
     get [ROOT]() { return this.#root; }
+    get [ENV]() { return this.#env; }
+    set [ENV](env) {
+        this.#env = createEffectEnv(env, this.#component[ENV]);
+    }
 
     get #parentAttached() { return this.#parent.isAttached; }
 
