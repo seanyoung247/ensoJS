@@ -18,7 +18,7 @@
     "Component"
   ],
   "author": "Sean Young",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/seanyoung247/enso/issues"
   },

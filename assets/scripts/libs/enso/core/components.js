@@ -3,6 +3,9 @@
  * @module components Utillity functions for component handling
  */
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { watch } from "./watcher.js";
 import { parser } from "../templates/parser.js";
 import { 

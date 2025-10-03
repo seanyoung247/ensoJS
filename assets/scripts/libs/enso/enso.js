@@ -1,3 +1,9 @@
+/*!
+ * Enso v1.0.0
+ * Copyright (c) 2025 Sean Young
+ * Licensed under the MIT License
+ */
+
 // Resource loaders
 export { load } from './utils/loaders.js';
 // Template tags

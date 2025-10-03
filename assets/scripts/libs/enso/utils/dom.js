@@ -1,7 +1,9 @@
+
 /**
  * @module DOM Defines functions for DOM manipulation
  */
-
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
 
 //// Templating
 export const createFragment = html => 

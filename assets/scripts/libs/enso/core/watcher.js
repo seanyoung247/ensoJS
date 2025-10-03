@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 const proxies = new WeakMap();
 
 const baseWatcher = (onChange, name) => ({

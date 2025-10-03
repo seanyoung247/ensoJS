@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { processTemplate } from "./components.js";
 import { runEffect, createEffectEnv } from "./effects.js";
 import { 

@@ -3,6 +3,8 @@
  * 
  *   Based on the non-secure version of the Nanoid library.
  */
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
 
 const alphabet = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
 

@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { parser } from "../parser.js";
 import { uuid } from "../../utils/uuid.js";
 import { createPlaceholder, getDirective, getBindings } from "./utils.js";

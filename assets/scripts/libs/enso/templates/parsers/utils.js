@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 // Matches object property dependencies, i.e. this.<property>:
 const bindEx = /(?:this\.)(\w+|\d*)/gi;
 

@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { createTemplate } from "../utils/dom.js";
 import { parser, createNodeDef } from "./parser.js";
 import './parsers/parsers.js';

@@ -1,6 +1,9 @@
+
 /**
  * @module helpers - Defines helper functions for use in html templates
  */
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
 
 // Converts camelCase names to dash-case
 const camelToDash = str => (

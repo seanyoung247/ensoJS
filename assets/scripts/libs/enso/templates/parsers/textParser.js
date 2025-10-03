@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { parser } from "../parser.js";
 import { getBindings } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";

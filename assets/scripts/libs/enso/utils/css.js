@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 export const createStyleSheet = css => {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(css);

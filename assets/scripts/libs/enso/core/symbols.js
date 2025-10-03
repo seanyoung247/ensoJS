@@ -1,4 +1,6 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
 
 // Framework internal key
 export const ENSO_INTERNAL = Symbol("enso.internal");

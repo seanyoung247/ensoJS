@@ -2,6 +2,9 @@
  * @module parser - Template parser and processor
  */
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 // Watched node identifier and definition index
 const ENSO_NODE = 'data-enso-node';
 

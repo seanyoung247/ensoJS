@@ -1,4 +1,10 @@
 
+/*!
+ * Enso v1.0.0
+ * Copyright (c) 2025 Sean Young
+ * Licensed under the MIT License
+ */
+
 import { runEffect, createEffectEnv } from "./core/effects.js";
 import { defineWatchedProperty, createComponent, processTemplate } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
