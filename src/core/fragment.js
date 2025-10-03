@@ -36,8 +36,7 @@ export class EnsoFragment {
         this.#component = parent.component;
         this.#template = template;
         this.#parent = parent;
-
-        this.#env = createEffectEnv(this.#component.expose, this.#component[ENV]);
+        this.#env = parent[ENV];
 
         // Remove the searchable placeholder node and replace with a comment anchor
         this.#anchor = document.createComment(this.tag);
@@ -56,7 +55,7 @@ export class EnsoFragment {
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
-        this.#env = createEffectEnv(env, this.#component[ENV]);
+        this.#env = createEffectEnv(env, this.#parent[ENV]);
     }
 
     get #parentAttached() { return this.#parent.isAttached; }
