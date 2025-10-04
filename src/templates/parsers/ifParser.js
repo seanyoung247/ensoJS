@@ -9,7 +9,7 @@ import { createEffect, createStringTemplate } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
 import EnsoTemplate from "../templates.js";
 
-import { ROOT, ENV, GET_BINDING } from "../../core/symbols.js";
+import { ROOT, GET_BINDING } from "../../core/symbols.js";
 
 class IfFragment extends EnsoFragment {
     constructor(parent, template, placeholder) {

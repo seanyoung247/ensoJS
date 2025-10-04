@@ -6,7 +6,8 @@ import { processTemplate } from "./components.js";
 import { runEffect, createEffectEnv } from "./effects.js";
 import { 
     ROOT, ENV, ADD_CHILD, GET_BINDING,
-    SCHEDULE_UPDATE, ATTACH_TEMPLATE
+    SCHEDULE_UPDATE, ATTACH_TEMPLATE,
+    UPDATE, MARK_CHANGED
 } from "./symbols.js";
 
 /**
@@ -24,7 +25,7 @@ export class EnsoFragment {
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
-    #root = null;           // Mounted fragment root node
+    #root = null;           // Fragment root node
     #env;                   // Effect environment
 
     #children = [];         // Child fragments
@@ -48,10 +49,14 @@ export class EnsoFragment {
         this.update = this.update.bind(this);
     }
 
+    //// Accessors - Public
     get tag() { return "enso:fragment"; }
     get component() { return this.#component; }
     get isAttached() { return this.#attached; }
 
+    //// Accessors - Framework internal
+    get [BINDINGS]() { return this.#bindings; }
+    get [CHILDREN]() { return this.#children; }
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
@@ -94,31 +99,31 @@ export class EnsoFragment {
         }
     }
 
-    markChanged(prop) {
+    [MARK_CHANGED](prop) {
         const bind = this.#bindings.get(prop);
         if (bind) {
             bind.changed = true;
             this[SCHEDULE_UPDATE]();
         }
         for (const child of this.#children) {
-            child.markChanged(prop);
+            child[MARK_CHANGED](prop);
         }
     }
 
-    update() {
+    [UPDATE]() {
         if (!this.#updateScheduled || !this.#attached) return;
 
         this.#updateScheduled = false;
         for (const bind of this.#bindings.values()) {
             if (bind.changed) {
                 for (const effect of bind.effects) {
-                    runEffect(this, effect);
+                    runEffect(this, this.#env, effect);
                 }
                 bind.changed = false;
             }
         }
         for (const child of this.#children) {
-            child.update();
+            child[UPDATE]();
         }
     }
 

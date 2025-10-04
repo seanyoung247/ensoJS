@@ -23,6 +23,11 @@ Enso.component( "enso-app", {
                 border: '1px solid black',
                 height: '100vh',
             },
+            button: {
+                padding: '10px',
+                borderRadius: '10px',
+                backgroundColor: '#888',
+            },
             ".if-test": {
                 display: 'flex',
                 flexDirection: 'column',

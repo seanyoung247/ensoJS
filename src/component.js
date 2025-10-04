@@ -109,20 +109,24 @@ export default class Enso extends HTMLElement {
         this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
     }
-    
-    [ADD_CHILD](fragment) {
-        this.#children.push(fragment);
-    }
 
-    //// Accessors - Framework internal
-    [GET_BINDING](bind) { return this.#bindings.get(bind); }
-    get [ROOT]() { return this.#root; }
-    get [TEMPLATES]() { return this.#templates; }
-    get [ENV]() { return this.#env; }
     //// Accessors - External
     get refs() { return this.#refs; }
     get component() { return this; }
     get isAttached() { return this.#initialised; }
+
+    //// Accessors - Framework internal
+    get [TEMPLATES]() { return this.#templates; }
+    get [BINDINGS]() { return this.#bindings; }
+    get [CHILDREN]() { return this.#children; }
+    get [ROOT]() { return this.#root; }
+    get [ENV]() { return this.#env; }
+    
+    [GET_BINDING](bind) { return this.#bindings.get(bind); }
+
+    [ADD_CHILD](fragment) {
+        this.#children.push(fragment);
+    }
 
     //// LifeCycle hooks
 
@@ -228,7 +232,7 @@ export default class Enso extends HTMLElement {
             this[SCHEDULE_UPDATE]();
         }
         for (const child of this.#children) {
-            child.markChanged(prop);
+            child[MARK_CHANGED](prop);
         }
     }
 
@@ -244,7 +248,7 @@ export default class Enso extends HTMLElement {
             }
         }
         for (const child of this.#children) {
-            child.update();
+            child[UPDATE]();
         }
         this.postUpdate();
     }
