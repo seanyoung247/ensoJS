@@ -5,15 +5,15 @@
  * Licensed under the MIT License
  */
 
-import { runEffect, createEffectEnv } from "./core/effects.js";
-import { defineWatchedProperty, createComponent, processTemplate } from "./core/components.js";
+import { createEffectEnv } from "./core/effects.js";
+import { defineWatchedProperty, createComponent, processTemplate, markChanged, update } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
 
 import { 
     TEMPLATES, ENV, ROOT,
     UPDATE, MARK_CHANGED, GET_BINDING, 
     SCHEDULE_UPDATE, ATTACH_TEMPLATE,
-    ADD_CHILD,
+    ADD_CHILD, BINDINGS, CHILDREN,
     ENSO_INTERNAL 
 } from "./core/symbols.js";
 
@@ -225,31 +225,14 @@ export default class Enso extends HTMLElement {
         }
     }
 
-    [MARK_CHANGED](prop) {
-        const bind = this.#bindings.get(prop);
-        if (bind) {
-            bind.changed = true;
-            this[SCHEDULE_UPDATE]();
-        }
-        for (const child of this.#children) {
-            child[MARK_CHANGED](prop);
-        }
-    }
+    [MARK_CHANGED](prop) { markChanged(this, prop); }
 
     [UPDATE]() {
         this.preUpdate();
         this.#updateScheduled = false;
-        for (const bind of this.#bindings.values()) {
-            if (bind.changed) {
-                for (const effect of bind.effects) {
-                    runEffect(this, this.#env, effect);
-                }
-                bind.changed = false;
-            }
-        }
-        for (const child of this.#children) {
-            child[UPDATE]();
-        }
+
+        update(this);
+
         this.postUpdate();
     }
 }

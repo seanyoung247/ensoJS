@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parse } from "./tags.js";
-
+import { ENV } from "./symbols.js";
 
 const objectMasks = Object.freeze({
     Window: {}, Document: {}, eval: null, Function: null, setTimeout:null
@@ -63,10 +63,11 @@ export const createEffect = (() => {
 
 /**
  * Runs an effect created with createEffect
- * @param {typeof Enso} context - Effect component 
- * @param {Object} scope        - Effect runtime environment
+ * @param {typeof Enso} parent  - Effect parent 
  * @param {Object} effect       - Effect definition object
  */
-export const runEffect = (context, scope, effect) => (
+export const runEffect = (parent, effect) => {
+    const context = parent.component;
+    const scope = parent[ENV];
     effect?.action?.call(context, scope, effect)
-)
+}

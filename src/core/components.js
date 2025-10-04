@@ -9,10 +9,11 @@
 import { watch } from "./watcher.js";
 import { parser } from "../templates/parser.js";
 import { 
-    MARK_CHANGED, 
-    ENSO_INTERNAL, 
-    ATTACH_TEMPLATE
+    UPDATE, MARK_CHANGED, GET_BINDING,
+    SCHEDULE_UPDATE, ATTACH_TEMPLATE, 
+    ENSO_INTERNAL, BINDINGS, CHILDREN,
 } from "./symbols.js";
+import { runEffect } from "./effects.js";
 
 //// Mixins
 
@@ -164,4 +165,32 @@ export function processTemplate(parent, template) {
     }
 
     parent[ATTACH_TEMPLATE](DOM);
+}
+
+//// Component/Fragment lifecycle methods
+export function markChanged(owner, prop) {
+    const bind = owner[GET_BINDING](prop);
+    if (bind) {
+        bind.changed = true;
+        owner[SCHEDULE_UPDATE]();
+    }
+    for (const child of owner[CHILDREN]) {
+        child[MARK_CHANGED](prop);
+    }
+}
+
+export function update(owner) {
+    const bindings = owner[BINDINGS];
+    for (const bind of bindings.values()) {
+        if (bind.changed) {
+            for (const effect of bind.effects) {
+                runEffect(owner, effect);
+            }
+            bind.changed = false;
+        }
+    }
+    const children = [...owner[CHILDREN]];
+    for (const child of children) {
+        child[UPDATE]();
+    }
 }
