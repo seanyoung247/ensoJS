@@ -9,8 +9,8 @@
 import { watch } from "./watcher.js";
 import { parser } from "../templates/parser.js";
 import { 
-    UPDATE, MARK_CHANGED, GET_BINDING,
-    SCHEDULE_UPDATE, ATTACH_TEMPLATE, 
+    UPDATE, MARK_CHANGED, GET_BINDING, TASK_LIST,
+    SCHEDULE_EFFECT, SCHEDULE_UPDATE, ATTACH_TEMPLATE, 
     ENSO_INTERNAL, BINDINGS, CHILDREN,
 } from "./symbols.js";
 import { runEffect } from "./effects.js";
@@ -170,25 +170,33 @@ export function processTemplate(parent, template) {
 //// Component/Fragment lifecycle methods
 export function markChanged(owner, prop) {
     const bind = owner[GET_BINDING](prop);
-    if (bind) {
+    if (bind && !bind.changed) {
         bind.changed = true;
+
+        for (const effect of bind.effects) {
+            owner[SCHEDULE_EFFECT](effect);
+        }
         owner[SCHEDULE_UPDATE]();
     }
+
     for (const child of owner[CHILDREN]) {
         child[MARK_CHANGED](prop);
     }
 }
 
 export function update(owner) {
-    const bindings = owner[BINDINGS];
-    for (const bind of bindings.values()) {
-        if (bind.changed) {
-            for (const effect of bind.effects) {
-                runEffect(owner, effect);
-            }
-            bind.changed = false;
-        }
+    // run all effects once
+    for (const effect of owner[TASK_LIST]) {
+        runEffect(owner, effect);
     }
+    owner[TASK_LIST].clear();
+
+    // reset all bindings
+    for (const bind of owner[BINDINGS].values()) {
+        bind.changed = false;
+    }
+
+    // recurse into children safely
     const children = [...owner[CHILDREN]];
     for (const child of children) {
         child[UPDATE]();

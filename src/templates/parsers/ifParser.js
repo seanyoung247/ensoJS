@@ -4,12 +4,12 @@
 
 import { parser } from "../parser.js";
 import { uuid } from "../../utils/uuid.js";
-import { createPlaceholder, getDirective, getBindings } from "./utils.js";
+import { createPlaceholder, getDirective, getBindings, addBinding } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
 import EnsoTemplate from "../templates.js";
 
-import { ROOT, GET_BINDING } from "../../core/symbols.js";
+import { ROOT } from "../../core/symbols.js";
 
 class IfFragment extends EnsoFragment {
     constructor(parent, template, placeholder) {
@@ -80,11 +80,7 @@ parser.registerNode({
             const effect = {element: null, fragment, action: def.directive.effect};
             // Attach effect to all bindings
             for (const bind of def.directive.binds) {
-                const binding = parent[GET_BINDING](bind);
-                if (binding) {
-                    binding.effects.push(effect);
-                    binding.changed = true;
-                }
+                addBinding(parent, bind, effect);
             }
         }
     }

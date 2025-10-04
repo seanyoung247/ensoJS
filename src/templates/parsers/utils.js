@@ -2,14 +2,25 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
+import { GET_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
+
 // Matches object property dependencies, i.e. this.<property>:
 const bindEx = /(?:this\.)(\w+|\d*)/gi;
 
-export const getName = attr => attr.name.slice(1).toLowerCase();
+export const getName = (attr, prefixLen = 1) => attr.name.slice(prefixLen).toLowerCase();
 export const getBindings = (source, set) => {
     let bind;
     while ((bind = bindEx.exec(source)) !== null) {
         set.add(bind[1]);
+    }
+};
+
+export const addBinding = (parent, bind, effect) => {
+    const binding = parent[GET_BINDING](bind);
+    if (binding) {
+        binding.effects.push(effect);
+        binding.changed = true;
+        parent[SCHEDULE_EFFECT](effect);
     }
 };
 
@@ -37,3 +48,4 @@ export const getDirective = (node, prefix='*') => {
 
     return directive;
 };
+

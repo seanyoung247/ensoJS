@@ -3,10 +3,8 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js"
-import { getName, getBindings, isAttr } from "./utils.js";
+import { getName, getBindings, isAttr, addBinding } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
-
-import { GET_BINDING } from "../../core/symbols.js";
 
 function createAttrEffect(attr, code) {
     const fn = createEffect(code);
@@ -57,11 +55,7 @@ parser.registerAttr({
                 const effect = {element, action: attr.effect};
                 // Attach effect to all bindings
                 for (const bind of attr.binds) {
-                    const binding = parent[GET_BINDING](bind);
-                    if (binding) {
-                        binding.effects.push(effect);
-                        binding.changed = true;
-                    }
+                    addBinding(parent, bind, effect);
                 }
             }
         }

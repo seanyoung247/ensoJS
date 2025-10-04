@@ -6,15 +6,19 @@
  */
 
 import { createEffectEnv } from "./core/effects.js";
-import { defineWatchedProperty, createComponent, processTemplate, markChanged, update } from "./core/components.js";
 import { attachStyleSheets } from "./utils/css.js";
 
 import { 
-    TEMPLATES, ENV, ROOT,
+    defineWatchedProperty, createComponent, 
+    processTemplate, markChanged, update 
+} from "./core/components.js";
+
+import { 
+    TEMPLATES, ENV, ROOT, TASK_LIST,
     UPDATE, MARK_CHANGED, GET_BINDING, 
-    SCHEDULE_UPDATE, ATTACH_TEMPLATE,
-    ADD_CHILD, BINDINGS, CHILDREN,
-    ENSO_INTERNAL 
+    SCHEDULE_UPDATE, SCHEDULE_EFFECT,
+    ATTACH_TEMPLATE, ADD_CHILD, 
+    BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
 /**
@@ -81,6 +85,7 @@ export default class Enso extends HTMLElement {
     #root = null;
     // Reactivity properties
     #updateScheduled = false;
+    #taskList = new Set();
     #bindings = new Map();
     #children = [];
     #templates = [];
@@ -117,11 +122,16 @@ export default class Enso extends HTMLElement {
 
     //// Accessors - Framework internal
     get [TEMPLATES]() { return this.#templates; }
+    get [TASK_LIST]() { return this.#taskList; }
     get [BINDINGS]() { return this.#bindings; }
     get [CHILDREN]() { return this.#children; }
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
-    
+
+    [SCHEDULE_EFFECT](effect) {
+        this.#taskList.add(effect);
+    }
+
     [GET_BINDING](bind) { return this.#bindings.get(bind); }
 
     [ADD_CHILD](fragment) {

@@ -3,12 +3,12 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { markChanged, processTemplate, update } from "./components.js";
-import { runEffect, createEffectEnv } from "./effects.js";
+import { createEffectEnv } from "./effects.js";
 import { 
     ROOT, ENV, ADD_CHILD, GET_BINDING,
-    SCHEDULE_UPDATE, ATTACH_TEMPLATE,
-    BINDINGS, CHILDREN,
-    UPDATE, MARK_CHANGED
+    SCHEDULE_UPDATE, SCHEDULE_EFFECT,
+    ATTACH_TEMPLATE, BINDINGS, CHILDREN, 
+    TASK_LIST, UPDATE, MARK_CHANGED,
 } from "./symbols.js";
 
 /**
@@ -31,8 +31,8 @@ export class EnsoFragment {
 
     #children = [];         // Child fragments
 
+    #taskList = new Set();  // Set of effects to be run during the next update
     #attached = false;      // Is the fragment currently attached to the DOM?
-    #updateScheduled = false; // Is an update scheduled
 
     constructor(parent, template, placeholder) {
         this.#component = parent.component;
@@ -56,6 +56,7 @@ export class EnsoFragment {
     get isAttached() { return this.#attached; }
 
     //// Accessors - Framework internal
+    get [TASK_LIST]() { return this.#taskList; }
     get [BINDINGS]() { return this.#bindings; }
     get [CHILDREN]() { return this.#children; }
     get [ROOT]() { return this.#root; }
@@ -74,6 +75,10 @@ export class EnsoFragment {
         return this.#bindings.get(bind) || this.#parent[GET_BINDING](bind); 
     }
 
+    [SCHEDULE_EFFECT](effect) {
+        this.#taskList.add(effect);
+    }
+
     //// Fragment Lifecycle
     [ATTACH_TEMPLATE](DOM) {
         this.#root = DOM.firstElementChild;
@@ -84,7 +89,8 @@ export class EnsoFragment {
     }
 
     [SCHEDULE_UPDATE]() {
-        this.#updateScheduled = true;
+
+        console.log("Fragment Dirty");
         this.#component[SCHEDULE_UPDATE]();
     }
 
@@ -103,9 +109,7 @@ export class EnsoFragment {
     [MARK_CHANGED](prop) { markChanged(this, prop); }
 
     [UPDATE]() {
-        if (!this.#updateScheduled || !this.#attached) return;
-
-        this.#updateScheduled = false;
+        if (this.#taskList.size === 0 || !this.#attached) return;
 
         update(this);
     }
