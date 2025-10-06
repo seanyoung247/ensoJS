@@ -9,6 +9,7 @@ import { uuid } from "../utils/uuid.js";
 
 // Watched node definition index
 const ENSO_NODE = 'data-enso-node';
+const ENSO_ROOT = 'data-enso-root';
 
 /**
  * Creates a new mutation definition for a node
@@ -16,7 +17,7 @@ const ENSO_NODE = 'data-enso-node';
  * @param {Node} node - HTML node 
  * @returns {Object} - Mutation definition
  */
-export const createNodeDef = (defs, node) => {
+export const createNodeDef = (defs, node, template) => {
     const el = (node.nodeType === Node.ELEMENT_NODE) ? node : node.parentElement;
     const index = el.getAttribute(ENSO_NODE);
 
@@ -24,7 +25,9 @@ export const createNodeDef = (defs, node) => {
         defs.get(index) :   // Node is already watched, so return it's existing def
         {
             index: uuid(),
-            node: node,         // The actual node
+            node,               // The actual node
+            template,           // Parent template
+
             ref: null,          // Name to use for element reference or null (no reference)
             events: null,       // List of event handlers
             attrs: null,        // Attribute mutations
@@ -121,10 +124,36 @@ export const parser = (() => {
         },
 
         /**
-         * Returns all children elements tagged as watched from given root
-         * @param {HTMLElement} root - Root element
+         * Tags a node as the root of an enso template/fragment
+         * @param {HTMLElement} element - Root node
          */
-        getElements(root) {
+        markRoot(element) {
+            element.setAttribute(ENSO_ROOT, "");
+        },
+
+        /**
+         * 
+         * @param {HTMLElement/DocumentFragment} root 
+         * @returns 
+         */
+        getRoots(root) {
+            return root.querySelectorAll(`[${ENSO_ROOT}]`);
+        },
+
+        /**
+         * Returns whether the nodes beneath root have been parsed already.
+         * @param {HTMLElement} element - Element
+         * @returns {Boolean} 
+         */
+        isParsed(element) {
+            return element.hasAttribute(ENSO_ROOT);
+        },
+
+        /**
+         * Returns all children elements tagged as watched from given root
+         * @param {HTMLElement/DocumentFragment} root - Root element
+         */
+        getWatched(root) {
             return root.querySelector(`[${ENSO_NODE}]`);
         },
 
