@@ -55,7 +55,10 @@ Enso.component( "enso-app", {
 
             <div *if="{{ this.flag }}" class="if-test">
                 Content
-                <div *if="{{ this.showChild === 'show' }}">Child Content</div>
+                <div *if="{{ this.showChild === 'show' }}">
+                    Child Content <br/>
+                    Flag Value = {{ this.flag.toString() }}
+                </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
             <div *if="{{ !this.flag }}">No Content</div>

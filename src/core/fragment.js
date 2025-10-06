@@ -46,7 +46,12 @@ export class EnsoFragment {
 
         // Register with parent
         parent[ADD_CHILD](this);
- 
+
+        // Create initial binding map
+        for (const bind of this.#component[BINDINGS].keys()) {
+            this.#bindings.set(bind, {changed: false, effects: []});
+        }
+
         this[UPDATE] = this[UPDATE].bind(this);
     }
 
@@ -72,7 +77,7 @@ export class EnsoFragment {
     }
 
     [GET_BINDING](bind) {
-        return this.#bindings.get(bind) || this.#parent[GET_BINDING](bind); 
+        return this.#bindings.get(bind); 
     }
 
     [SCHEDULE_EFFECT](effect) {
@@ -89,8 +94,6 @@ export class EnsoFragment {
     }
 
     [SCHEDULE_UPDATE]() {
-
-        console.log("Fragment Dirty");
         this.#component[SCHEDULE_UPDATE]();
     }
 
@@ -109,10 +112,10 @@ export class EnsoFragment {
     [MARK_CHANGED](prop) { markChanged(this, prop); }
 
     [UPDATE]() {
-        if (this.#taskList.size === 0 || !this.#attached) return;
-
-        update(this);
+        if (this.#taskList.size > 0 && this.#attached) 
+            update(this);
     }
+
 
     unmount() {
         this.#root?.remove();
