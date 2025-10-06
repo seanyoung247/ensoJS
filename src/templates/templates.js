@@ -4,6 +4,7 @@
 
 import { createTemplate } from "../utils/dom.js";
 import { parser, createNodeDef } from "./parser.js";
+import { ATTACH_TEMPLATE } from '../core/symbols.js';
 import './parsers/parsers.js';
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
@@ -20,36 +21,59 @@ const getWalker = rootNode =>
 
 
 export default class EnsoTemplate {
-    #template = null;       // The underlying HTML template
-    #watched = new Map();   // The nodes that are referenced or mutated
+    #template = null;   // The underlying HTML template
+    #watched;           // The nodes that are referenced or mutated
 
-    constructor(html) {
+    constructor(html, watched = new Map()) {
         const template = createTemplate(html);
+        this.#watched = watched;
 
         this.#template = this.#parse(template);
+        this.#fragment();
     }
 
     #parse(template) {
+        if (parser.isParsed(template)) return template;
+
         const rootNode = template.content;
         const walker = getWalker(rootNode);
         
         let node;
         while (node = walker.nextNode()) {
-            const def = createNodeDef(this.#watched, node);
+            const def = createNodeDef(this.#watched, node, this);
             const watched = parser.preprocess(def, node);
 
             if (watched) {
                 parser.addWatchedNode(def.node, def, this.#watched);
             }
         }
+        parser.markRoot(template);
 
-        Object.freeze(this.#watched);
+        this.#watched;
         return template;
+    }
+
+    #fragment() {
+        const rootNode = this.#template.content;
+        // Iterate over sub roots, pull them out and place them 
+        // into new templates and attach to placeholder nodes.
+        
+    }
+
+    process(parent) {
+        // Parse and attach template
+        const DOM = this.#template.content.cloneNode(true);
+        // Loop through the elements and process any watched nodes
+        let element;
+        while (element = parser.getWatched(DOM)) {
+            const idx = parser.getNodeIndex(element);
+            parser.process(this.#watched.get(idx), parent, element);
+        }
+    
+        parent[ATTACH_TEMPLATE](DOM);
     }
 
     get watchedNodes() { return this.#watched; }
 
-    clone() {
-        return this.#template.content.cloneNode(true);
-    }
+    split(node) {}
 }

@@ -9,12 +9,11 @@ import { createEffectEnv } from "./core/effects.js";
 import { attachStyleSheets } from "./utils/css.js";
 
 import { 
-    defineWatchedProperty, createComponent, 
-    processTemplate, markChanged, update 
+    defineWatchedProperty, createComponent, markChanged, update 
 } from "./core/components.js";
 
 import { 
-    TEMPLATES, ENV, ROOT, TASK_LIST,
+    ENV, ROOT, TASK_LIST,
     UPDATE, MARK_CHANGED, GET_BINDING, 
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
     ATTACH_TEMPLATE, ADD_CHILD, 
@@ -88,7 +87,6 @@ export default class Enso extends HTMLElement {
     #taskList = new Set();
     #bindings = new Map();
     #children = [];
-    #templates = [];
     #refs = {};
     #env = createEffectEnv(this.expose);
 
@@ -121,7 +119,6 @@ export default class Enso extends HTMLElement {
     get isAttached() { return this.#initialised; }
 
     //// Accessors - Framework internal
-    get [TEMPLATES]() { return this.#templates; }
     get [TASK_LIST]() { return this.#taskList; }
     get [BINDINGS]() { return this.#bindings; }
     get [CHILDREN]() { return this.#children; }
@@ -188,7 +185,7 @@ export default class Enso extends HTMLElement {
         }
 
         // Parse and attach template
-        processTemplate(this, this.template);
+        this.template.process(this, this.template);
 
         if (this.styles) {
             attachStyleSheets(this[ROOT], this.styles);

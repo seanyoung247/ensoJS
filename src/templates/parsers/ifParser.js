@@ -50,10 +50,8 @@ parser.registerNode({
         if (!directive || directive.name !== '*if') return false;
 
         // Create a placeholder to mark the location of the node
-        const placeholder = `enso-${def.index}-${uuid()}`;
-        def.node = createPlaceholder(placeholder);
-
-        // node.replaceWith(def.node);
+        // const placeholder = `enso-${def.index}-${uuid()}`;
+        // def.node = createPlaceholder(placeholder);
 
         // Parse the directive expression
         const binds = new Set();
@@ -63,22 +61,22 @@ parser.registerNode({
             createStringTemplate(directive.value)
         );
 
-        // Create a new template from the node
-        // const fragment = new EnsoTemplate(node);
-
         def.directive = {
-            type: 'if', placeholder, /*fragment,*/ effect, binds
+            type: 'if', template: null, effect, binds
         };
+
+        parser.markRoot(node);
         
         return true;
     },
 
     process(def, parent, element) {
         if (def?.directive?.type === 'if' && element.id === def.directive.placeholder) {
-            const fragment = new IfFragment(
-                parent, def.directive.fragment, element
-            );
-            const effect = {element: null, fragment, action: def.directive.effect};
+            // const fragment = new IfFragment(
+            //     parent, def.directive.template, element
+            // );
+            // const effect = {element: null, template, action: def.directive.effect};
+
             // Attach effect to all bindings
             for (const bind of def.directive.binds) {
                 addBinding(parent, bind, effect);

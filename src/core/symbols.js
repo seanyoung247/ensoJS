@@ -16,7 +16,6 @@ export const UPDATE = Symbol("enso.update");
 // Enso Component internal framework property Symbols
 export const GET_BINDING = Symbol("enso.getBinding");
 export const TASK_LIST = Symbol("enso.taskList");
-export const TEMPLATES = Symbol("enso.templates");
 export const BINDINGS = Symbol("enso.bindings");
 export const CHILDREN = Symbol("enso.children");
 export const ROOT = Symbol("enso.root");

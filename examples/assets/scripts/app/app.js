@@ -32,9 +32,13 @@ Enso.component( "enso-app", {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'center',
                 border: '1px solid white',
                 padding: '10px',
                 margin: '10px',
+                '& div': {
+                    textAlign: 'center'
+                }
             }
         })}`
     ],

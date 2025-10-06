@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { markChanged, processTemplate, update } from "./components.js";
+import { markChanged, update } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
     ROOT, ENV, ADD_CHILD, GET_BINDING,
@@ -101,7 +101,7 @@ export class EnsoFragment {
         if (this.#attached || !this.#parentAttached) return;
 
         if (!this.#root) {
-            processTemplate(this, this.#template);
+            this.#template.process(this);
         } else {
             this.#anchor.after(this.#root);
             this.#attached = true;

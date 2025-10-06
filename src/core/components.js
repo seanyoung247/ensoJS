@@ -7,10 +7,9 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { watch } from "./watcher.js";
-import { parser } from "../templates/parser.js";
 import { 
     UPDATE, MARK_CHANGED, GET_BINDING, TASK_LIST,
-    SCHEDULE_EFFECT, SCHEDULE_UPDATE, ATTACH_TEMPLATE, 
+    SCHEDULE_EFFECT, SCHEDULE_UPDATE, 
     ENSO_INTERNAL, BINDINGS, CHILDREN,
 } from "./symbols.js";
 import { runEffect } from "./effects.js";
@@ -150,21 +149,6 @@ export function defineWatchedProperty(cls, prop, desc) {
     return property;
 }
 
-//// Component template instantiation
-
-export function processTemplate(parent, template) {
-    // Parse and attach template
-    const DOM = template.clone();
-    const watched = template.watchedNodes;
-    // Loop through the elements and process any watched nodes
-    let element;
-    while (element = parser.getElements(DOM)) {
-        const idx = parser.getNodeIndex(element);
-        parser.process(watched.get(idx), parent, element);
-    }
-
-    parent[ATTACH_TEMPLATE](DOM);
-}
 
 //// Component/Fragment lifecycle methods
 export function markChanged(owner, prop) {
