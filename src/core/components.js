@@ -153,15 +153,14 @@ export function defineWatchedProperty(cls, prop, desc) {
 //// Component template instantiation
 
 export function processTemplate(parent, template) {
-
     // Parse and attach template
     const DOM = template.clone();
     const watched = template.watchedNodes;
-    const elements = parser.getElements(DOM);
     // Loop through the elements and process any watched nodes
-    for (const element of elements) {
+    let element;
+    while (element = parser.getElements(DOM)) {
         const idx = parser.getNodeIndex(element);
-        parser.process(watched[idx], parent, element);
+        parser.process(watched.get(idx), parent, element);
     }
 
     parent[ATTACH_TEMPLATE](DOM);

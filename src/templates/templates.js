@@ -21,7 +21,7 @@ const getWalker = rootNode =>
 
 export default class EnsoTemplate {
     #template = null;       // The underlying HTML template
-    #watched = [];          // List of nodes that are referenced or mutated
+    #watched = new Map();   // The nodes that are referenced or mutated
 
     constructor(html) {
         const template = createTemplate(html);

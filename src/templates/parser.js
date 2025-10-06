@@ -5,7 +5,9 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-// Watched node identifier and definition index
+import { uuid } from "../utils/uuid.js";
+
+// Watched node definition index
 const ENSO_NODE = 'data-enso-node';
 
 /**
@@ -15,13 +17,13 @@ const ENSO_NODE = 'data-enso-node';
  * @returns {Object} - Mutation definition
  */
 export const createNodeDef = (defs, node) => {
-    const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
-    const index = parseInt(el.getAttribute(ENSO_NODE));
-    
-    return (index >= 0) ? 
-        defs[index] :   // Node is already watched, so return it's existing def
+    const el = (node.nodeType === Node.ELEMENT_NODE) ? node : node.parentElement;
+    const index = el.getAttribute(ENSO_NODE);
+
+    return (defs.has(index) ?
+        defs.get(index) :   // Node is already watched, so return it's existing def
         {
-            index: defs.length,
+            index: uuid(),
             node: node,         // The actual node
             ref: null,          // Name to use for element reference or null (no reference)
             events: null,       // List of event handlers
@@ -29,7 +31,8 @@ export const createNodeDef = (defs, node) => {
             content: null,      // Content mutations
             directive: null,    // Node mutation
             parsers: [],        // List of required parsers
-        };
+        }
+    );
 };
 
 export const parser = (() => {
@@ -95,7 +98,7 @@ export const parser = (() => {
          * @returns {Number}            - The index of the elements node definition
          */
         getNodeIndex(element) {
-            return parseInt(element.getAttribute(ENSO_NODE));
+            return element.getAttribute(ENSO_NODE);
         },
 
         /**
@@ -111,8 +114,9 @@ export const parser = (() => {
                 node.parentElement : node;
             // Tag the element as watched
             el.setAttribute(ENSO_NODE, def.index);
-            if (def.index >= watched.length) {
-                watched.push(def);
+
+            if (!watched.has(def.ndex)) {
+                watched.set(def.index, def);
             }
         },
 
@@ -121,7 +125,7 @@ export const parser = (() => {
          * @param {HTMLElement} root - Root element
          */
         getElements(root) {
-            return root.querySelectorAll(`[${ENSO_NODE}]`);
+            return root.querySelector(`[${ENSO_NODE}]`);
         },
 
         /**
