@@ -14,7 +14,7 @@ function createTextEffect(code) {
     const fn = createEffect(code);
     return function (env, {element}) {
         const content = fn.call(this, env);
-        if (content) {
+        if (element && content) {
             element.textContent = content;
         }
     };

@@ -34,10 +34,7 @@ export default class EnsoTemplate {
         const walker = getWalker(rootNode);
         
         let node;
-        const nodes = [];
-        while ((node = walker.nextNode())) nodes.push(node);
-
-        for (const node of nodes) {
+        while (node = walker.nextNode()) {
             const def = createNodeDef(this.#watched, node);
             const watched = parser.preprocess(def, node);
 

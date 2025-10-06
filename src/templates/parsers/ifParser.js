@@ -7,7 +7,7 @@ import { uuid } from "../../utils/uuid.js";
 import { createPlaceholder, getDirective, getBindings, addBinding } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
-import EnsoTemplate from "../templates.js";
+// import EnsoTemplate from "../templates.js";
 
 import { ROOT } from "../../core/symbols.js";
 
@@ -52,7 +52,8 @@ parser.registerNode({
         // Create a placeholder to mark the location of the node
         const placeholder = `enso-${def.index}-${uuid()}`;
         def.node = createPlaceholder(placeholder);
-        node.replaceWith(def.node);
+
+        // node.replaceWith(def.node);
 
         // Parse the directive expression
         const binds = new Set();
@@ -63,10 +64,10 @@ parser.registerNode({
         );
 
         // Create a new template from the node
-        const fragment = new EnsoTemplate(node);
+        // const fragment = new EnsoTemplate(node);
 
         def.directive = {
-            type: 'if', placeholder, fragment, effect, binds
+            type: 'if', placeholder, /*fragment,*/ effect, binds
         };
         
         return true;
