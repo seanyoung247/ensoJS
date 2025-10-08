@@ -43,14 +43,18 @@ parser.registerAttr({
     },
 
     preprocess(def, node, attribute) {
-        const event = {
-            name: getName(attribute),
-            func: createEventHandler(attribute.value)
-        };
-        if (!def.events) def.events = [ event ];
-        else def.events.push( event );
-
+        // const event = {
+        //     name: getName(attribute),
+        //     func: createEventHandler(attribute.value)
+        // };
+        // if (!def.events) def.events = [ event ];
+        // else def.events.push( event );
+        def.addEvent(
+            getName(attribute),
+            createEventHandler(attribute.value)
+        )
         node.removeAttribute(attribute.name);
+        def.attachParser(this);
 
         return true;
     },

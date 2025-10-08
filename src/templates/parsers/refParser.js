@@ -19,6 +19,8 @@ parser.registerAttr({
     preprocess(def, node, attribute) {
         def.ref = attribute.value;
         node.removeAttribute(attribute.name);
+        def.attachParser(this);
+
         return true;
     },
 

@@ -11,32 +11,122 @@ import { uuid } from "../utils/uuid.js";
 const ENSO_NODE = 'data-enso-node';
 const ENSO_ROOT = 'data-enso-root';
 
-/**
- * Creates a new mutation definition for a node
- * @param {Object[]} defs - The node mutation definition list
- * @param {Node} node - HTML node 
- * @returns {Object} - Mutation definition
- */
-export const createNodeDef = (defs, node, template) => {
-    const el = (node.nodeType === Node.ELEMENT_NODE) ? node : node.parentElement;
-    const index = el.getAttribute(ENSO_NODE);
+const targetNode = node => (
+    (node.nodeType === Node.TEXT_NODE) ?
+        node.parentElement : node
+);
 
-    return (defs.has(index) ?
-        defs.get(index) :   // Node is already watched, so return it's existing def
-        {
-            index: uuid(),
-            node,               // The actual node
-            template,           // Parent template
+export class NodeDef {
+    #id;
+    #map;
+    #node;
+    // Watched node properties
+    #ref;               // Name to use for element reference or null (no reference)
+    #events = [];       // List of event handlers
+    #attrs = [];        // Attribute mutations
+    #content = [];      // Content mutations
+    #directive;         // Node mutation
+    #parsers = new Set; // List of required parsers
+    
+    constructor(id, node, map) {
+        this.#id = id;
+        this.#map = map;
+        this.#node = node;
+    }
 
-            ref: null,          // Name to use for element reference or null (no reference)
-            events: null,       // List of event handlers
-            attrs: null,        // Attribute mutations
-            content: null,      // Content mutations
-            directive: null,    // Node mutation
-            parsers: [],        // List of required parsers
+    get id() { return this.#id; }
+    set node(val) { this.#node = val; }
+    get node() { return this.#node; }
+
+    // References
+    get ref() { return this.#ref; }
+    set ref(val) { 
+        this.#ref = val; 
+        this.markWatched();
+    }
+
+    // Events
+    addEvent(name, func) {
+        this.#events.push({ name, func });
+        this.markWatched();
+    }
+    get events() { return this.#events; }
+
+    // Attributes
+    addAttribute(name, effect, binds) {
+        this.#attrs.push({ name, effect, binds });
+        this.markWatched();
+    }
+    get attributes() { return this.#attrs; }
+
+    // Content
+    addContent(parent, index, effect, binds) {
+        this.#content.push({ parent, index, effect, binds });
+        this.markWatched();
+    }
+    get content() { return this.#content; }
+
+    // Directive
+    setDirective(type, template, effect, binds) {
+        this.#directive = { type, template, effect, binds };
+        this.markWatched();
+    }
+    get directive() { return this.#directive; }
+
+    // Parsers
+    attachParser(parser) {
+        this.#parsers.add(parser);
+    }
+
+    get parsers() {
+        return this.#parsers;
+    }
+
+    // Node manipulation
+    markRoot() {
+        this.#node.setAttribute(ENSO_ROOT, "");
+    }
+    markWatched() {
+        const el = targetNode(this.#node);
+
+        el.setAttribute(ENSO_NODE, this.#id);
+        this.#map.add(this);
+    }
+}
+
+export class NodeDefMap {
+    #map = new Map();
+
+    add(nodeDef) {
+        if (!this.#map.has(nodeDef.id)) {
+            this.#map.set(nodeDef.id, nodeDef);
         }
-    );
-};
+    }
+
+    get(id) {
+        if (this.#map.has(id)) return this.#map.get(id);
+        return null;
+    }
+    getByNode(node) {
+        if (!node?.hasAttribute(ENSO_NODE)) return null;
+        const id = node.getAttribute(ENSO_NODE);
+        return this.#map.get(id);
+    }
+
+    create(node) {
+        const el = targetNode(node);
+        const index = el.getAttribute(ENSO_NODE);
+
+        return (this.#map.has(index) ?
+            this.#map.get(index) : // Node is already watched, so return it's existing def
+            new NodeDef( uuid(), node, this )
+        );
+    }
+
+    [Symbol.iterator]() {
+        return this.#map.values();
+    }
+}
 
 export const parser = (() => {
     const nodeParsers = [];
@@ -84,46 +174,6 @@ export const parser = (() => {
         },
 
         /**
-         * Attaches the given parser to the node definition
-         * @param {Object} parser   - Parser to attach
-         * @param {Object} def      - Node definition
-         */
-        attachParser(parser, def) { 
-            if (!def.parsers.includes(parser)) {
-                def.parsers.push(parser); 
-            }
-        },
-
-        /**
-         * Returns the node definition index for the given
-         * mutated element.
-         * @param {HTMLElement} element - Watched element
-         * @returns {Number}            - The index of the elements node definition
-         */
-        getNodeIndex(element) {
-            return element.getAttribute(ENSO_NODE);
-        },
-
-        /**
-         * Tags the element as watched and stores it's node 
-         * definition.
-         * @param {HTMLElement} element - Watched element
-         * @param {Object} def          - Node definition object
-         * @param {Object[]} watched    - Array of watched node definition
-         */
-        addWatchedNode(node, def, watched) {
-            // Do we need to attach to the node itself or it's parent?
-            const el = (node.nodeType === Node.TEXT_NODE) ? 
-                node.parentElement : node;
-            // Tag the element as watched
-            el.setAttribute(ENSO_NODE, def.index);
-
-            if (!watched.has(def.ndex)) {
-                watched.set(def.index, def);
-            }
-        },
-
-        /**
          * Tags a node as the root of an enso template/fragment
          * @param {HTMLElement} element - Root node
          */
@@ -166,7 +216,7 @@ export const parser = (() => {
         preprocess(def, node) {
             const nodeParser = this.getNodeParser(node);
             if (nodeParser) {
-                this.attachParser(nodeParser, def);
+                def.attachParser(nodeParser);
                 return nodeParser.preprocess(def, node);
             }
 
@@ -174,7 +224,7 @@ export const parser = (() => {
             for (const attribute of attributes) {
                 const parser = this.getAttrParser(node, attribute);
                 if (parser) {
-                    this.attachParser(parser, def);
+                    def.attachParser(parser);
                     parser.preprocess(def, node, attribute);
                 }
             }

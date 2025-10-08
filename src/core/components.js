@@ -7,12 +7,12 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { watch } from "./watcher.js";
+import { runEffect } from "./effects.js";
 import { 
     UPDATE, MARK_CHANGED, GET_BINDING, TASK_LIST,
     SCHEDULE_EFFECT, SCHEDULE_UPDATE, 
     ENSO_INTERNAL, BINDINGS, CHILDREN,
 } from "./symbols.js";
-import { runEffect } from "./effects.js";
 
 //// Mixins
 

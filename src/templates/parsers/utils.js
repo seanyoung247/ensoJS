@@ -28,9 +28,8 @@ export const isAttr = (attribute, prefix) => (
     attribute?.name?.startsWith(prefix) ?? false
 );
 
-export const createPlaceholder = id => {
+export const createPlaceholder = () => {
     const el = document.createElement("template");
-    el.id = id;
     return el;
 }
 

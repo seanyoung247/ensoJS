@@ -24,7 +24,7 @@ Enso.component( "enso-app", {
                 height: '100vh',
             },
             button: {
-                padding: '10px',
+                padding: '5px 10px',
                 borderRadius: '10px',
                 backgroundColor: '#888',
             },

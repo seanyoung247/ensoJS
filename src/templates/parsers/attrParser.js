@@ -7,6 +7,7 @@ import { getName, getBindings, isAttr, addBinding } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 
 function createAttrEffect(attr, code) {
+    code = createStringTemplate(code);
     const fn = createEffect(code);
     return function (env, { element: el }) {
         const content = fn.call(this, env);
@@ -32,26 +33,22 @@ parser.registerAttr({
 
     preprocess(def, node, attribute) {
         const name = getName(attribute);
-        const effect = createAttrEffect(name, 
-            createStringTemplate(attribute.value)
-        );
-        const attr = {
-            name, effect, binds: new Set()
-        };
+        const effect = createAttrEffect(name, attribute.value);
+        const binds = new Set();
 
-        getBindings(attribute.value, attr.binds);
-
-        if (!def.attrs) def.attrs = [attr];
-        else def.attrs.push(attr);
-
+        getBindings(attribute.value, binds);
+        def.addAttribute(name, effect, binds);
         node.removeAttribute(attribute.name);
-        
+        def.attachParser(this);
+
+        console.log('Attr preprocess', node);
+
         return true;
     },
 
     process(def, parent, element) {
-        if (def.attrs) {
-            for (const attr of def.attrs) {
+        if (def.attributes) {
+            for (const attr of def.attributes) {
                 const effect = {element, action: attr.effect};
                 // Attach effect to all bindings
                 for (const bind of attr.binds) {

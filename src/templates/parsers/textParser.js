@@ -11,6 +11,7 @@ const nodeEx = /({{(.|\n)*}})/;
 
 
 function createTextEffect(code) {
+    code = createStringTemplate(code);
     const fn = createEffect(code);
     return function (env, {element}) {
         const content = fn.call(this, env);
@@ -32,26 +33,19 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        const content = {
-            parent: node.parentNode,
-            index: getChildIndex(node.parentNode, node),
-            effect: createTextEffect(
-                createStringTemplate(node.nodeValue)
-            ),
-            binds: new Set()
-        };
+        const parent = node.parentNode;
+        const index = getChildIndex(node.parentNode, node);
+        const effect = createTextEffect(node.nodeValue);
+        const binds = new Set();
 
-        if (!def.content) def.content = [content];
-        else def.content.push(content);
-        const current = def.content.length - 1;
-
-        getBindings(node.nodeValue, def.content[current].binds);
+        getBindings(node.nodeValue, binds);
+        def.addContent(parent, index, effect, binds);
+        def.attachParser(this);
 
         return true;
     },
 
     process(def, parent, element) {
-        
         if (def.content) {
             for (const content of def.content) {
                 const node = element.childNodes[content.index];
