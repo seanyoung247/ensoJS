@@ -30,7 +30,7 @@ export default class EnsoTemplate {
         this.#watched = watched;
 
         this.#template = this.#parse(template);
-        // this.#fragment();
+        this.#fragment();
     }
 
     #parse(template) {
@@ -41,15 +41,11 @@ export default class EnsoTemplate {
         
         let node;
         while (node = walker.nextNode()) {
-            // const def = createNodeDef(this.#watched, node, this);
             const def = this.#watched.create(node);
-            const watched = parser.preprocess(def, node);
-
-            // if (watched) {
-            //     parser.addWatchedNode(def.node, def, this.#watched);
-            // }
+            parser.preprocess(def, node);
         }
-        parser.markRoot(template);
+        // parser.markRoot(template);
+        template.setAttribute("enso-fragment", "");
 
         this.#watched;
         return template;
@@ -59,21 +55,19 @@ export default class EnsoTemplate {
         const rootNode = this.#template.content;
         // Iterate over sub roots, pull them out and place them 
         // into new templates and attach to placeholder nodes.
-        const roots = parser.getRoots(rootNode);
-        for (const root of roots) {
+        let root;
+        while (root = parser.getRoot(rootNode)) {
 
             // Get node watch parameters and replace with placeholder
-            const id = parser.getNodeIndex(root);
-            const def = this.#watched.get(id);
-            const placeholder = createPlaceholder();
-
-            root.replaceWith();
+            const def = this.#watched.getByRoot(root);
+            def.unRoot();
+            def.replaceNode( createPlaceholder() );
 
             // Construct and append the template.
             const template = createTemplate(root);
-            parser.markRoot(template);
+            template.setAttribute("enso-fragment", "");
 
-            def.directive.template = new EnsoTemplate(template);
+            def.directive.template = new EnsoTemplate(template, this.#watched);
         }
     }
 
@@ -83,13 +77,10 @@ export default class EnsoTemplate {
         // Loop through the elements and process any watched nodes
         let element;
         while (element = parser.getWatched(DOM)) {
-            parser.process(
-                this.#watched.getByNode(element), 
-                parent, element
-            );
+            const def = this.#watched.getByNode(element);
+            parser.process( def, parent, element );
         }
-    
-        parent[ATTACH_TEMPLATE](DOM);
+        return DOM;
     }
 
     get watchedNodes() { return this.#watched; }

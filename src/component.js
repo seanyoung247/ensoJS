@@ -185,7 +185,9 @@ export default class Enso extends HTMLElement {
         }
 
         // Parse and attach template
-        this.template.process(this, this.template);
+        this[ATTACH_TEMPLATE](
+            this.template.process(this, this.template)
+        );
 
         if (this.styles) {
             attachStyleSheets(this[ROOT], this.styles);

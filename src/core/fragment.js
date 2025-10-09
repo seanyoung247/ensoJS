@@ -53,6 +53,7 @@ export class EnsoFragment {
         }
 
         this[UPDATE] = this[UPDATE].bind(this);
+        this.#root = template.process(this).firstElementChild;
     }
 
     //// Accessors - Public
@@ -85,28 +86,12 @@ export class EnsoFragment {
     }
 
     //// Fragment Lifecycle
-    [ATTACH_TEMPLATE](DOM) {
-        this.#root = DOM.firstElementChild;
-        this.#anchor.after(DOM);
-
-        this.#attached = true;
-        this[UPDATE]();
-    }
-
-    [SCHEDULE_UPDATE]() {
-        this.#component[SCHEDULE_UPDATE]();
-    }
-
     mount() {
         if (this.#attached || !this.#parentAttached) return;
 
-        if (!this.#root) {
-            this.#template.process(this);
-        } else {
-            this.#anchor.after(this.#root);
-            this.#attached = true;
-            this[UPDATE]();
-        }
+        this.#anchor.after(this.#root);
+        this.#attached = true;
+        this[UPDATE]();
     }
 
     [MARK_CHANGED](prop) { markChanged(this, prop); }
@@ -115,7 +100,6 @@ export class EnsoFragment {
         if (this.#taskList.size > 0 && this.#attached) 
             update(this);
     }
-
 
     unmount() {
         this.#root?.remove();
