@@ -49,27 +49,24 @@ parser.registerNode({
         const directive = getDirective(node);
         if (!directive || directive.name !== '*if') return false;
 
-        // Parse the directive expression
         const binds = new Set();
-        getBindings(directive.value, binds);
-        // Generate effect
         const effect = createConditionEffect(directive.value);
+        getBindings(directive.value, binds);
 
-        def.directive = {
-            type: 'if', template: null, effect, binds
-        };
-
-        parser.markRoot(node);
+        // Create new nodedef for the if directive.
+        const ifDef = def.map.createRoot(node);
+        ifDef.setDirective({type: 'if', effect, binds});
+        ifDef.attachParser(this);
         
         return true;
     },
 
     process(def, parent, element) {
-        if (def?.directive?.type === 'if' && element.id === def.directive.placeholder) {
-            // const fragment = new IfFragment(
-            //     parent, def.directive.template, element
-            // );
-            // const effect = {element: null, template, action: def.directive.effect};
+        if (def?.directive?.type === 'if') {
+            const fragment = new IfFragment(
+                parent, def.directive.template, element
+            );
+            const effect = {element: null, fragment, action: def.directive.effect};
 
             // Attach effect to all bindings
             for (const bind of def.directive.binds) {

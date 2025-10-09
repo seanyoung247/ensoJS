@@ -22,8 +22,8 @@ export class NodeDef {
     #node;
     // Watched node properties
     #ref;               // Name to use for element reference or null (no reference)
-    #events = [];       // List of event handlers
     #attrs = [];        // Attribute mutations
+    #events = [];       // List of event handlers
     #content = [];      // Content mutations
     #directive;         // Node mutation
     #parsers = new Set; // List of required parsers
@@ -37,6 +37,7 @@ export class NodeDef {
     get id() { return this.#id; }
     set node(val) { this.#node = val; }
     get node() { return this.#node; }
+    get map() { return this.#map; }
 
     // References
     get ref() { return this.#ref; }
@@ -67,9 +68,13 @@ export class NodeDef {
     get content() { return this.#content; }
 
     // Directive
-    setDirective(type, template, effect, binds) {
+    setDirective({
+        type=this.#directive?.type,
+        template=this.#directive?.template, 
+        effect=this.#directive?.effect, 
+        binds=this.#directive?.binds
+    }={}) {
         this.#directive = { type, template, effect, binds };
-        this.markWatched();
     }
     get directive() { return this.#directive; }
 
@@ -83,14 +88,38 @@ export class NodeDef {
     }
 
     // Node manipulation
-    markRoot() {
-        this.#node.setAttribute(ENSO_ROOT, "");
+    markRoot(tag = false) {
+        this.#node?.setAttribute(ENSO_ROOT, tag ? this.#id : "");
     }
-    markWatched() {
+    unRoot() {
+        this.#node?.removeAttribute(ENSO_ROOT);
+    }
+    isRoot() {
+        return this.#node?.hasAttribute(ENSO_ROOT);
+    }
+
+    markWatched(append = true) {
         const el = targetNode(this.#node);
 
-        el.setAttribute(ENSO_NODE, this.#id);
-        this.#map.add(this);
+        if (!el.hasAttribute(ENSO_NODE)) {
+            el.setAttribute(ENSO_NODE, this.#id);
+        }
+        if (append) this.#map.add(this);
+    }
+    unWatch() {
+        const el = targetNode(this.#node);
+        el?.removeAttribute(ENSO_NODE);
+    }
+    isWatched() {
+        return this.#node?.hasAttribute(ENSO_NODE);
+    }
+
+    replaceNode(node) {
+        const original = this.#node;
+        this.#node.replaceWith(node);
+        this.#node = node;
+        this.markWatched(false);
+        return original;
     }
 }
 
@@ -112,6 +141,11 @@ export class NodeDefMap {
         const id = node.getAttribute(ENSO_NODE);
         return this.#map.get(id);
     }
+    getByRoot(node) {
+        if (!node?.hasAttribute(ENSO_ROOT)) return null;
+        const id = node.getAttribute(ENSO_ROOT);
+        return this.#map.get(id);
+    }
 
     create(node) {
         const el = targetNode(node);
@@ -121,6 +155,14 @@ export class NodeDefMap {
             this.#map.get(index) : // Node is already watched, so return it's existing def
             new NodeDef( uuid(), node, this )
         );
+    }
+
+    createRoot(node) {
+        const id = uuid();
+        const def = new NodeDef( id, node, this );
+        def.markRoot(true);
+        this.add(def);
+        return def;
     }
 
     [Symbol.iterator]() {
@@ -186,8 +228,8 @@ export const parser = (() => {
          * @param {HTMLElement/DocumentFragment} root 
          * @returns 
          */
-        getRoots(root) {
-            return root.querySelectorAll(`[${ENSO_ROOT}]`);
+        getRoot(root) {
+            return root.querySelector(`[${ENSO_ROOT}]`);
         },
 
         /**
@@ -216,16 +258,18 @@ export const parser = (() => {
         preprocess(def, node) {
             const nodeParser = this.getNodeParser(node);
             if (nodeParser) {
-                def.attachParser(nodeParser);
+                // def.attachParser(nodeParser);
                 return nodeParser.preprocess(def, node);
             }
 
-            const attributes = [...node.attributes];
-            for (const attribute of attributes) {
-                const parser = this.getAttrParser(node, attribute);
-                if (parser) {
-                    def.attachParser(parser);
-                    parser.preprocess(def, node, attribute);
+            if (node.attributes) {
+                const attributes = [...node.attributes];
+                for (const attribute of attributes) {
+                    const parser = this.getAttrParser(node, attribute);
+                    if (parser) {
+                        // def.attachParser(parser);
+                        parser.preprocess(def, node, attribute);
+                    }
                 }
             }
             return (def.parsers.length > 0);

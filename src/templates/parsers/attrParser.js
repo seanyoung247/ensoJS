@@ -41,8 +41,6 @@ parser.registerAttr({
         node.removeAttribute(attribute.name);
         def.attachParser(this);
 
-        console.log('Attr preprocess', node);
-
         return true;
     },
 
