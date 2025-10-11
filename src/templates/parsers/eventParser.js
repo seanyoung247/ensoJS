@@ -25,7 +25,7 @@ function attachEventListener(component, element, event) {
         handler = handler.bind(component);
     } catch (e) {
         console.error('[Enso] - ',e);
-        handler = () => { console.warn(`Invalid event handler for event '${event.name}'`) };
+        handler = () => { console.warn(`Invalid event handler for event '${event.name}'`); };
         handler = handler.bind(component);
     }
     element.addEventListener( event.name, handler );
@@ -46,7 +46,7 @@ parser.registerAttr({
         def.addEvent(
             getName(attribute),
             createEventHandler(attribute.value)
-        )
+        );
         node.removeAttribute(attribute.name);
         def.attachParser(this);
 

@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { parser } from "../parser.js"
+import { parser } from "../parser.js";
 import { getName, getBindings, isAttr, addBinding } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 

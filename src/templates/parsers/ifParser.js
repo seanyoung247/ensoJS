@@ -29,7 +29,7 @@ function createConditionEffect(code) {
             effect.fragment.unmount();
             effect.element = null;
         }   
-    }
+    };
 }
 
 // *if="<expression>"
