@@ -22,7 +22,7 @@ import {
  */
 export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
-    #template;              // Template for this fragment
+    // #template;              // Template for this fragment
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
@@ -36,7 +36,7 @@ export class EnsoFragment {
 
     constructor(parent, template, placeholder) {
         this.#component = parent.component;
-        this.#template = template;
+        // this.#template = template;
         this.#parent = parent;
         this.#env = parent[ENV];
 

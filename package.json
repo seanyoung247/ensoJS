@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run"
   },
   "repository": {
     "type": "git",

@@ -5,6 +5,7 @@
 import EnsoTemplate from "../templates/templates.js";
 import { createStyleSheet } from "../utils/css.js";
 
+
 // Is valid string value?
 const isValid = v => !(v === true || v === false || v === null || v === undefined);
 
