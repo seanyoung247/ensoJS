@@ -1,0 +1,40 @@
+/* eslint-disable no-undef */
+
+import { JSDOM } from 'jsdom';
+import { vi } from 'vitest';
+
+// If not already created by Vitest:
+if (typeof window === 'undefined') {
+    const { window } = new JSDOM(``);
+    global.window = window;
+    global.document = window.document;
+}
+
+// Add NodeFilter to the global scope (for Enso’s parser)
+    if (typeof global.NodeFilter === 'undefined') {
+    global.NodeFilter = {
+        FILTER_ACCEPT: 1,
+        FILTER_REJECT: 2,
+        SHOW_ELEMENT: 0x1,
+        SHOW_TEXT: 0x4,
+    };
+}
+
+// Mock CSSStyleSheet if not available (for Enso’s css tag)
+class CSSStyleSheet {
+    constructor() {
+        this.cssRules = [];
+    }
+    replaceSync(cssText) {
+        // Simple parsing: split by '}' and filter out empty rules
+        this.cssRules = cssText
+            .split('}')
+            .map(rule => rule.trim())
+            .filter(rule => rule.length > 0)
+            .map(rule => ({ cssText: rule + ' }' }));
+    }
+    get cssText() {
+        return this.cssRules.map(rule => rule.cssText).join(' ');
+    }
+}
+vi.stubGlobal('CSSStyleSheet', CSSStyleSheet);
