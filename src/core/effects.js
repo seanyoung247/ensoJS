@@ -69,5 +69,5 @@ export const createEffect = (() => {
 export const runEffect = (parent, effect) => {
     const context = parent.component;
     const scope = parent[ENV];
-    effect?.action?.call(context, scope, effect)
-}
+    effect?.action?.call(context, scope, effect);
+};

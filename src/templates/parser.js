@@ -158,8 +158,7 @@ export class NodeDefMap {
     }
 
     createRoot(node) {
-        const id = uuid();
-        const def = new NodeDef( id, node, this );
+        const def = new NodeDef( uuid(), node, this );
         def.markRoot(true);
         this.add(def);
         return def;

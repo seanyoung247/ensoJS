@@ -16,9 +16,9 @@ const alphabet = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzri
 export const uuid = (length = 6) => {
     let id = '', i = Math.max(0, Math.trunc(length));
     const al = alphabet.length;
-    while (i--) id += alphabet[Math.trunc(Math.random() * al)]
+    while (i--) id += alphabet[Math.trunc(Math.random() * al)];
     return id;
-}
+};
 
 /**
  * Provides a function that generates a series of unique IDs for a scope.
@@ -32,4 +32,4 @@ export const scopedId = (prefix = "enso", length = 6) => {
     const base = uuid(length);
     let counter = 1;
     return () => `${prefix}-${base}-${counter++}`;
-}
+};

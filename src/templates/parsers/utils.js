@@ -31,7 +31,7 @@ export const isAttr = (attribute, prefix) => (
 export const createPlaceholder = () => {
     const el = document.createElement("template");
     return el;
-}
+};
 
 export const getDirective = (node, prefix='*') => {
     if (!node.attributes) return null;

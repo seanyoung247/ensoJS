@@ -38,25 +38,25 @@ const mutatorWatcher = (onChange, name, trapMethods) => {
                     const result = value.apply(target, args);
                     onChange(name);
                     return result;
-                }
+                };
             }
             return base.get(target, prop, receiver);
         }
-    }
-}
+    };
+};
 
 const typeMap = {
     'Array': new Set(['push','pop','shift','unshift','splice','sort','reverse']),
     'Set': new Set(['add','delete','clear']),
     'Map': new Set(['set','delete','clear']),
-}
+};
 
 const getWatcher = (target, name, onChange) => {
     if (Array.isArray(target)) return mutatorWatcher(onChange, name, typeMap.Array);
     if (target instanceof Set) return mutatorWatcher(onChange, name, typeMap.Set);
     if (target instanceof Map) return mutatorWatcher(onChange, name, typeMap.Map);
     return baseWatcher(onChange, name);
-}
+};
 
 export const watch = (target, name, onChange) => {
     if (typeof target !== 'object' || target === null) return target;
@@ -67,4 +67,4 @@ export const watch = (target, name, onChange) => {
     const proxy = new Proxy(target, watcher);
     proxies.set(target, proxy);
     return proxy;
-}
+};
