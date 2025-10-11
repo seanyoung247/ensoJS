@@ -7,8 +7,8 @@ import { createEffectEnv } from "./effects.js";
 import { 
     ROOT, ENV, ADD_CHILD, GET_BINDING,
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
-    ATTACH_TEMPLATE, BINDINGS, CHILDREN, 
-    TASK_LIST, UPDATE, MARK_CHANGED,
+    BINDINGS, CHILDREN, TASK_LIST,
+    UPDATE, MARK_CHANGED,
 } from "./symbols.js";
 
 /**
@@ -86,6 +86,10 @@ export class EnsoFragment {
     }
 
     //// Fragment Lifecycle
+    [SCHEDULE_UPDATE]() {
+        this.#component[SCHEDULE_UPDATE]();
+    }
+
     mount() {
         if (this.#attached || !this.#parentAttached) return;
 
@@ -100,6 +104,7 @@ export class EnsoFragment {
         if (this.#taskList.size > 0 && this.#attached) 
             update(this);
     }
+
 
     unmount() {
         this.#root?.remove();

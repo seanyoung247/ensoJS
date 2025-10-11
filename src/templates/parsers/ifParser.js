@@ -6,7 +6,6 @@ import { parser } from "../parser.js";
 import { getDirective, getBindings, addBinding } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
-// import EnsoTemplate from "../templates.js";
 
 import { ROOT } from "../../core/symbols.js";
 
