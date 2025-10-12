@@ -44,6 +44,6 @@ describe('css', () => {
 describe('html', () => {
     it('creates an EnsoTemplate from template strings', () => {
         const template = html`<div class="test">Hello, World!</div>`;
-        expect(template).toBeInstanceOf(EnsoTemplate); // Assuming EnsoTemplate is an object
+        expect(template).toBeInstanceOf(EnsoTemplate);
     });
 });
