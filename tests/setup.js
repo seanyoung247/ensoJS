@@ -11,12 +11,14 @@ if (typeof window === 'undefined') {
 }
 
 // Add NodeFilter to the global scope (for Enso’s parser)
-    if (typeof global.NodeFilter === 'undefined') {
-    global.NodeFilter = {
+if (typeof globalThis.NodeFilter === 'undefined') {
+    globalThis.NodeFilter = {
         FILTER_ACCEPT: 1,
         FILTER_REJECT: 2,
-        SHOW_ELEMENT: 0x1,
-        SHOW_TEXT: 0x4,
+        FILTER_SKIP: 3,
+        SHOW_ALL: 0xFFFFFFFF,
+        SHOW_ELEMENT: 1,
+        SHOW_TEXT: 4
     };
 }
 

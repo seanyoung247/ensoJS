@@ -14,8 +14,6 @@ export default defineConfig({
       exclude: [
         'tests/**',
         'src/utils/loaders.js', // Requires network access
-        'src/utils/dom.js',     // Difficult to test DOM manipulation
-        'src/utils/css.js',     // Difficult to test CSS manipulation
       ],
     },
   },
