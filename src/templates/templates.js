@@ -4,7 +4,8 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { createTemplate } from "../utils/dom.js";
-import { parser, NodeDefMap } from "./parser.js";
+import { NodeDefMap } from "./nodedef.js";
+import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
 import './parsers/parsers.js';
 

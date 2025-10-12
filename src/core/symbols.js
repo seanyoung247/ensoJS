@@ -20,3 +20,7 @@ export const BINDINGS = Symbol("enso.bindings");
 export const CHILDREN = Symbol("enso.children");
 export const ROOT = Symbol("enso.root");
 export const ENV = Symbol("enso.env");
+
+// Watched and root node definition attributes
+export const ENSO_NODE = 'data-enso-node';
+export const ENSO_ROOT = 'data-enso-root';
