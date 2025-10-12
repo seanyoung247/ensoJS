@@ -27,6 +27,7 @@ export const createTemplate = html => {
 export const getChildIndex = (parent, node) => 
     Array.prototype.indexOf.call(parent.childNodes, node);
 
-export const createWalker = (rootNode, nodeTypes, acceptNode) => 
-    document.createTreeWalker(rootNode, nodeTypes, { acceptNode });
-
+export const createWalker = (rootNode, nodeTypes, acceptNode) => {
+  const filter = (typeof acceptNode === 'function') ? { acceptNode } : null;
+  return document.createTreeWalker(rootNode, nodeTypes, filter);
+};
