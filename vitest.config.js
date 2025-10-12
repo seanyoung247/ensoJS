@@ -14,6 +14,7 @@ export default defineConfig({
       exclude: [
         'tests/**',
         'src/utils/loaders.js', // Requires network access
+        'src/core/symbols.js',  // No logic to cover
       ],
     },
   },
