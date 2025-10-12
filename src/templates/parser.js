@@ -7,7 +7,6 @@
 
 import { ENSO_NODE, ENSO_ROOT } from "../core/symbols.js";
 
-
 export const parser = (() => {
     const nodeParsers = [];
     const attrParsers = [];
@@ -62,7 +61,7 @@ export const parser = (() => {
         },
 
         /**
-         * 
+         * Gets the first child element tagged as a root
          * @param {HTMLElement/DocumentFragment} root 
          * @returns 
          */
@@ -96,7 +95,6 @@ export const parser = (() => {
         preprocess(def, node) {
             const nodeParser = this.getNodeParser(node);
             if (nodeParser) {
-                // def.attachParser(nodeParser);
                 return nodeParser.preprocess(def, node);
             }
 
@@ -105,12 +103,11 @@ export const parser = (() => {
                 for (const attribute of attributes) {
                     const parser = this.getAttrParser(node, attribute);
                     if (parser) {
-                        // def.attachParser(parser);
                         parser.preprocess(def, node, attribute);
                     }
                 }
             }
-            return (def.parsers.length > 0);
+            return (def.parsers.size > 0);
         },
 
         /**
@@ -130,3 +127,4 @@ export const parser = (() => {
         }
     });
 })();
+
