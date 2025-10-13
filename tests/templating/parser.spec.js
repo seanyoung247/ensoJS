@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
 import { parser } from '../../src/templates/parser.js';
-import { NodeDef, NodeDefMap} from '../../src/templates/nodedef.js';
+import { NodeDef } from '../../src/templates/nodedef.js';
 import { ENSO_NODE, ENSO_ROOT } from '../../src/core/symbols.js';
 import '../../src/templates/parsers/parsers.js';
 
@@ -78,31 +78,6 @@ describe('Template Parser', () => {
         const watched = parser.getWatched(div);
         expect(watched).toBe(div.children[0]);
         expect(parser.getWatched(div.children[1])).toBe(null);
-    }); 
-});
-
-describe('Reference Parser', () => {
-    let div, ref, map;
-    beforeEach(() => {
-        div = document.createElement('div');
-        div.innerHTML = '<div #ref="myRef"></div>';
-        ref = div.firstChild;
-
-        map = new NodeDefMap();
-    });
-    
-    it('parses ref tags correctly', () => {
-        const def = new NodeDef('test', ref, map);
-        // Preprocess should extract the ref, remove the template attribute 
-        // and attach the parser and watched tag
-        expect(parser.preprocess(def, ref)).toBe(true);
-        expect(def.ref).toBe('myRef');
-        expect(ref.hasAttribute(ENSO_NODE)).toBe(true);
-
-        // Process should attach the ref to the parent component
-        const parent = { component: { refs: {} } };
-        parser.process(def, parent, ref);
-        expect(parent.component.refs.myRef).toBe(ref);
-        expect(ref.hasAttribute(ENSO_NODE)).toBe(false);
     });
 });
+

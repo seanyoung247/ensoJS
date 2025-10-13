@@ -14,7 +14,6 @@ function createEventHandler(code) {
 }
 
 function attachEventListener(component, element, event) {
-
     let handler;
     try {
         handler = event.func.call(component, component[ENV]);
