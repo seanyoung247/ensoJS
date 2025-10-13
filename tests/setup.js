@@ -22,7 +22,7 @@ if (typeof globalThis.NodeFilter === 'undefined') {
     };
 }
 
-// Mock CSSStyleSheet if not available (for Enso’s css tag)
+// Mock CSSStyleSheet if not available (for Enso’s css parsing)
 class CSSStyleSheet {
     constructor() {
         this.cssRules = [];

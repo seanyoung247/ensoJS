@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { parser } from '../../src/templates/parser.js';
 import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
 import { ENSO_NODE, GET_BINDING } from '../../src/core/symbols.js';
-import '../../src/templates/parsers/parsers.js';
+import '../../src/templates/parsers/attrParser.js';
 
 describe('Attribute Parser', () => {
     let div, attr, def, parent;
@@ -16,17 +16,6 @@ describe('Attribute Parser', () => {
             </div>`;
         attr = div.firstChild;
         def = new NodeDef('test', attr, new NodeDefMap());
-
-        const map = new Map();
-        map.set('class', {
-            changed: false,
-            effects: ()=>attr.classList.add('test-class')
-        });
-        map.set('isActive', { 
-            changed: false, 
-            effects: ()=>attr.setAttribute('data-active', 'true')
-        });
-        
         parent = {
             [GET_BINDING]() { return null; },
             classList: 'test-class',

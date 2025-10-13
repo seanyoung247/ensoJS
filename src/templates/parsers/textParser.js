@@ -57,5 +57,4 @@ parser.registerNode({
             }
         }
     }
-
 });
