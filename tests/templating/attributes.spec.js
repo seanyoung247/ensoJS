@@ -5,19 +5,32 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { parser } from '../../src/templates/parser.js';
 import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
 import { ENSO_NODE, GET_BINDING } from '../../src/core/symbols.js';
-import '../../src/templates/parsers/attrParser.js';
+import '../../src/templates/parsers/parsers.js';
 
 describe('Attribute Parser', () => {
     let div, attr, def, parent;
     beforeEach(() => {
         div = document.createElement('div');
-        div.innerHTML = '<div :class="this.class" :data-active="this.isActive"></div>';
+        div.innerHTML = 
+            `<div :class="{{ this.classList }}" :data-active="{{ this.isActive }}">
+            </div>`;
         attr = div.firstChild;
-
         def = new NodeDef('test', attr, new NodeDefMap());
 
-        parent = { 
-            [GET_BINDING]() { return null; } 
+        const map = new Map();
+        map.set('class', {
+            changed: false,
+            effects: ()=>attr.classList.add('test-class')
+        });
+        map.set('isActive', { 
+            changed: false, 
+            effects: ()=>attr.setAttribute('data-active', 'true')
+        });
+        
+        parent = {
+            [GET_BINDING]() { return null; },
+            classList: 'test-class',
+            isActive: true,
         };
     });
 
@@ -27,7 +40,7 @@ describe('Attribute Parser', () => {
         expect(parser.preprocess(def, attr)).toBe(true);
         expect(def.attributes.length).toBe(2);
         expect(def.attributes[0].name).toBe('class');
-        expect(def.attributes[0].binds.has('class')).toBe(true);
+        expect(def.attributes[0].binds.has('classList')).toBe(true);
         expect(def.attributes[1].name).toBe('data-active');
         expect(def.attributes[1].binds.has('isActive')).toBe(true);
         expect(attr.hasAttribute(ENSO_NODE)).toBe(true);
