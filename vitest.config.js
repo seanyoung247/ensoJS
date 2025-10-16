@@ -13,8 +13,13 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'tests/**',
+        'vitest.config.js',
+        '.eslintrc.js',
         'src/utils/loaders.js', // Requires network access
         'src/core/symbols.js',  // No logic to cover
+        'src/enso.js',          // No logic to cover
+
+        'examples/**',          // Don't care about examples
       ],
     },
   },
