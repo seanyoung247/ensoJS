@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { parser } from '../../src/templates/parser.js';
 import { NodeDef } from '../../src/templates/nodedef.js';
-import { ENSO_NODE, ENSO_ROOT } from '../../src/core/symbols.js';
+import { ENSO_NODE, ENSO_PARSED, ENSO_ROOT } from '../../src/core/symbols.js';
 import '../../src/templates/parsers/parsers.js';
 
 describe('Template Parser', () => {
@@ -65,7 +65,7 @@ describe('Template Parser', () => {
 
     it('detects parsed elements correctly', () => {
         expect(parser.isParsed(div)).toBe(false);
-        div.setAttribute(ENSO_ROOT, '');
+        div.setAttribute(ENSO_PARSED, '');
         expect(parser.isParsed(div)).toBe(true);
     });
 

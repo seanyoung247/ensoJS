@@ -5,7 +5,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { ENSO_NODE, ENSO_ROOT } from "../core/symbols.js";
+import { ENSO_NODE, ENSO_PARSED, ENSO_ROOT } from "../core/symbols.js";
 
 export const parser = (() => {
     const nodeParsers = [];
@@ -75,7 +75,7 @@ export const parser = (() => {
          * @returns {Boolean} 
          */
         isParsed(element) {
-            return element.hasAttribute(ENSO_ROOT);
+            return element.hasAttribute(ENSO_PARSED);
         },
 
         /**

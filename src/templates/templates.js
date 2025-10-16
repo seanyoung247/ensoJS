@@ -9,6 +9,7 @@ import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
 
 import './parsers/parsers.js';
+import { ENSO_PARSED } from "../core/symbols.js";
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /({{(.|\n)*}})/;
@@ -47,7 +48,7 @@ export default class EnsoTemplate {
             parser.preprocess(def, node);
         }
         // parser.markRoot(template);
-        template.setAttribute("enso-fragment", "");
+        template.setAttribute(ENSO_PARSED, "");
 
         this.#watched;
         return template;
@@ -67,7 +68,7 @@ export default class EnsoTemplate {
 
             // Construct and append the template.
             const template = createTemplate(root);
-            template.setAttribute("enso-fragment", "");
+            template.setAttribute(ENSO_PARSED, "");
 
             def.directive.template = new EnsoTemplate(template, this.#watched);
         }

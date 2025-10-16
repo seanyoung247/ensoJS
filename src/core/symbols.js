@@ -24,3 +24,4 @@ export const ENV = Symbol("enso.env");
 // Watched and root node definition attributes
 export const ENSO_NODE = 'data-enso-node';
 export const ENSO_ROOT = 'data-enso-root';
+export const ENSO_PARSED = 'enso-fragment';
