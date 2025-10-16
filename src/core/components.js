@@ -63,11 +63,10 @@ function createAttrDesc(attr, value, {
     type = String,        // Attribute data type
     force = false,        // Should the attribute be added by default?
 }) {
-    const {toProp, toAttr} = converters.get(type);
-
-    if (!attributeTypes.includes(type)) {
+    if (!converters.has(type) || !attributeTypes.includes(type)) {
         throw new Error(`Component attribute '${attr}' has unsupported type`);
     }
+    const {toProp, toAttr} = converters.get(type);
     // Force makes the attribute always appear whether set or not.
     // This makes no sense if there's no default value or for boolean flags.
     force = (force && (value !== null || type !== Boolean));
