@@ -11,6 +11,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     coverage: {
       reporter: ['text', 'json', 'html'],
+      reportsDirectory: './tests/coverage',
       exclude: [
         'tests/**',
         'vitest.config.js',
