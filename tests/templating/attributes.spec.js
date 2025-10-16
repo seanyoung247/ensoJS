@@ -12,7 +12,7 @@ describe('Attribute Parser', () => {
     beforeEach(() => {
         div = document.createElement('div');
         div.innerHTML = 
-            `<div :class="{{ this.classList }}" :data-active="{{ this.isActive }}">
+            `<div  :class="{{ this.classList }}" :data-active="{{ this.isActive }}">
             </div>`;
         attr = div.firstChild;
         def = new NodeDef('test', attr, new NodeDefMap());

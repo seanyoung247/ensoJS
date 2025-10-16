@@ -34,7 +34,7 @@ export const createPlaceholder = () => {
 };
 
 export const getDirective = (node, prefix='*') => {
-    if (!node.attributes) return null;
+    if (!node?.attributes) return null;
 
     let directive = null;
     for (const attr of [...node.attributes]) {
