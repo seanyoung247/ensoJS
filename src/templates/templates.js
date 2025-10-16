@@ -14,7 +14,7 @@ import './parsers/parsers.js';
 const nodeEx = /({{(.|\n)*}})/;
 const acceptNode = node => 
     // If a node is a text node, it must contain template directives {{}} to be accepted
-    node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
+    node.nodeType !== Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
 
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
@@ -86,4 +86,5 @@ export default class EnsoTemplate {
     }
 
     get watchedNodes() { return this.#watched; }
+    get template() { return this.#template; }
 }

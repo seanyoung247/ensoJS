@@ -95,10 +95,10 @@ export const parser = (() => {
         preprocess(def, node) {
             const nodeParser = this.getNodeParser(node);
             if (nodeParser) {
-                return nodeParser.preprocess(def, node);
+                nodeParser.preprocess(def, node);
             }
 
-            if (node.attributes) {
+            if (node.attributes?.length) {
                 const attributes = [...node.attributes];
                 for (const attribute of attributes) {
                     const parser = this.getAttrParser(node, attribute);

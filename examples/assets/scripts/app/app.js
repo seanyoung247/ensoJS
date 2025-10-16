@@ -7,7 +7,8 @@ Enso.component( "enso-app", {
 
     properties: {
         flag: { value: false },
-        showChild: { value: 'show' }
+        showChild: { value: 'show' },
+        classList: { value: 'if-test' },
     },
 
     expose: { cssObj },
@@ -58,7 +59,7 @@ Enso.component( "enso-app", {
             {{ this.flag ? 'App Enso' : 'Enso App' }}
 
             <div *if="{{ !this.flag }}">No Content</div>
-            <div *if="{{ this.flag }}" class="if-test">
+            <div :class="{{ this.classList }}" *if="{{ this.flag }}">
                 Content
                 <div *if="{{ this.showChild === 'show' }}">
                     Child Content <br/>

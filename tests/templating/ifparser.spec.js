@@ -24,7 +24,7 @@ describe('If Parser', () => {
     it('parses if tags correctly', () => {
         // Preprocess should extract the bindings, remove the template attributes 
         // mark the node as a root point, and create a new NodeDef fragment root
-        expect(parser.preprocess(def, ifNode)).toBe(true);
+        expect(parser.preprocess(def, ifNode)).toBe(false);
         expect(ifNode.hasAttribute(ENSO_ROOT)).toBe(true);
         expect(ifNode.getAttribute(ENSO_ROOT)).not.toBe(def.id);
 
