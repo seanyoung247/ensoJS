@@ -20,6 +20,14 @@ import {
     BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
+
+const defaultSettings = (overrides = {}) => ({
+    useShadow: true,
+    shadowMode: "open",
+
+    ...overrides
+});
+
 /**
  * Enso Web Component base class
  * @abstract
@@ -34,8 +42,8 @@ export default class Enso extends HTMLElement {
      *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
      *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
      *  @param {Object} [props.properties]      - (optional) This component's watched properties
-     *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
      *  @param {Object} [props.script]          - (Optional) Custom component code implementation
+     *  @param {Object} [props.settings]        - (Optional) Settings object
      * @returns {typeof Enso} - The newly constructed component class
      * @static
      */
@@ -44,9 +52,9 @@ export default class Enso extends HTMLElement {
             styles=null, 
             expose={},
             properties={},
-            useShadow=true,
-            script=null
-        }) {
+            script=null,
+            settings={}
+        }) { settings = defaultSettings(settings);
 
         const component = createComponent(Enso, script);
 
@@ -60,13 +68,13 @@ export default class Enso extends HTMLElement {
         if (styles && !Array.isArray(styles)) styles = [styles];
 
         // Type properties
-        Object.defineProperty(component, 'observedAttributes', {
-            get() { return observedAttributes; }
-        });
+        // Object.defineProperty(component, 'observedAttributes', {
+        //     get() { return observedAttributes; }
+        // });
         Object.defineProperties(component.prototype, {
-            'observedAttributesList': { get() { return observedAttributes; } },
+            'observedAttributes': { get() { return observedAttributes; } },
             'properties': { get() { return properties; } },
-            'useShadow': { get() { return useShadow; } },
+            'settings': { get() { return settings; } },
             'template': { get() { return template; } },
             'styles': { get() { return styles; } },
             'expose': { get() { return expose; } }
@@ -91,6 +99,9 @@ export default class Enso extends HTMLElement {
     #env = createEffectEnv(this.expose);
 
     //// Setup
+    #getShadowDom() {
+        return (this.shadowRoot ?? this.attachShadow({ mode: this.settings.shadowMode }));
+    }
 
     constructor(key) {
         super();
@@ -111,6 +122,8 @@ export default class Enso extends HTMLElement {
 
         this.#root = this.useShadow ? 
             this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
+
+        this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
     }
 
     //// Accessors - External
@@ -177,7 +190,7 @@ export default class Enso extends HTMLElement {
 
         // Loops through all properties defined as attributes 
         // and sets their initial value if they're forced.
-        const attributes = this.observedAttributesList;
+        const attributes = this.observedAttributes;
         for (const attr of attributes) {
             if (this.properties[attr].attribute.force) {
                 this.reflectAttribute(attr);
