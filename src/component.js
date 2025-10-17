@@ -68,9 +68,6 @@ export default class Enso extends HTMLElement {
         if (styles && !Array.isArray(styles)) styles = [styles];
 
         // Type properties
-        // Object.defineProperty(component, 'observedAttributes', {
-        //     get() { return observedAttributes; }
-        // });
         Object.defineProperties(component.prototype, {
             'observedAttributes': { get() { return observedAttributes; } },
             'properties': { get() { return properties; } },
@@ -219,7 +216,6 @@ export default class Enso extends HTMLElement {
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-
         const val = this.properties[property].attribute.toProp(newValue);
         if (this[property] !== val) this[property] = val;
     }
