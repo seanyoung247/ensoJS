@@ -43,7 +43,7 @@ export default class Enso extends HTMLElement {
      *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
      *  @param {Object} [props.properties]      - (optional) This component's watched properties
      *  @param {Object} [props.script]          - (Optional) Custom component code implementation
-     *  @param {Object} [props.settings]        - (Optional) Settings object
+     *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
      * @returns {typeof Enso} - The newly constructed component class
      * @static
      */

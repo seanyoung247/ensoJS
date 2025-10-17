@@ -13,38 +13,40 @@ Enso.component( "enso-basic-test", {
                 color: red;
             }
         </style>
-        <div #ref="test">
+        <div #ref="root">
             Hello <span>World!</span>
         </div>
     `
 });
 
 beforeEach(() => {
-    document.body.innerHTML = `<enso-basic-test id="test-component"></enso-basic-test>`;
+    document.body.innerHTML = /*html*/`<enso-basic-test id="test-component"></enso-basic-test>`;
 });
 
-describe('Basic Enso Componet', () => {
+describe('Basic Enso Component', () => {
 
-    it('Parses template and initialises component correctly', () => {
-        const el = document.getElementById("test-component");
-        expect(el).toBeInstanceOf(HTMLElement);
-        expect(el.refs).toBeDefined();
-        expect(el.refs.test).toBeInstanceOf(HTMLDivElement);
+    let el, root, span, styleEl;
+    beforeEach(() => {
+        el = document.getElementById("test-component");
+
+        root = el.shadowRoot;
+        span = root.querySelector("span");
+        styleEl = root.querySelector("style");
     });
 
-    it('Renders static content correctly', () => {
-        const el = document.getElementById("test-component");
+    it('parses the template and initialises component correctly', () => {
+        expect(el).toBeInstanceOf(HTMLElement);
+        expect(el.refs).toBeDefined();
+        expect(el.refs.root).toBeInstanceOf(HTMLDivElement);
+    });
 
-        const root = el.shadowRoot;
-        const span = root.querySelector("span");
-        const styleEl = root.querySelector("style");
-
+    it('renders static content correctly', () => {
         expect(styleEl).toBeTruthy();
         expect(styleEl.textContent).toContain("color: red");
 
         expect(span).toBeTruthy();
         expect(span.textContent).toBe("World!");
-        expect(el.refs.test.textContent.trim()).toBe("Hello World!");
+        expect(el.refs.root.textContent.trim()).toBe("Hello World!");
 
     });
 
