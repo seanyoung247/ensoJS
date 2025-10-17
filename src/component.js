@@ -74,7 +74,8 @@ export default class Enso extends HTMLElement {
             'settings': { get() { return settings; } },
             'template': { get() { return template; } },
             'styles': { get() { return styles; } },
-            'expose': { get() { return expose; } }
+            'expose': { get() { return expose; } },
+            // 'tag': { get() { return tag; } }
         });
 
         // Define the custom element
@@ -116,10 +117,7 @@ export default class Enso extends HTMLElement {
 
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
-
-        this.#root = this.useShadow ? 
-            this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
-
+        
         this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
     }
 
@@ -132,7 +130,7 @@ export default class Enso extends HTMLElement {
     get [TASK_LIST]() { return this.#taskList; }
     get [BINDINGS]() { return this.#bindings; }
     get [CHILDREN]() { return this.#children; }
-    get [ROOT]() { return this.#root; }
+    get [ROOT]() { console.log('Root', this.#root); return this.#root; }
     get [ENV]() { return this.#env; }
 
     [SCHEDULE_EFFECT](effect) {

@@ -40,3 +40,18 @@ class CSSStyleSheet {
     }
 }
 vi.stubGlobal('CSSStyleSheet', CSSStyleSheet);
+
+// Mock adoptedStyleSheets for JSDOM
+for (const proto of [ShadowRoot.prototype, Document.prototype]) {
+
+    Object.defineProperty(proto, 'adoptedStyleSheets', {
+        configurable: true,
+        get() {
+            return this._adopted || [];
+        },
+        set(sheets) {
+            this._adopted = sheets;
+        }
+    });
+
+}
