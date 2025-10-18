@@ -75,7 +75,6 @@ export default class Enso extends HTMLElement {
             'template': { get() { return template; } },
             'styles': { get() { return styles; } },
             'expose': { get() { return expose; } },
-            // 'tag': { get() { return tag; } }
         });
 
         // Define the custom element
@@ -130,7 +129,7 @@ export default class Enso extends HTMLElement {
     get [TASK_LIST]() { return this.#taskList; }
     get [BINDINGS]() { return this.#bindings; }
     get [CHILDREN]() { return this.#children; }
-    get [ROOT]() { console.log('Root', this.#root); return this.#root; }
+    get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
 
     [SCHEDULE_EFFECT](effect) {
