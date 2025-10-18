@@ -8,7 +8,7 @@ import { nextFrame } from '../shared.js';
 
 Enso.component( "enso-events-test", {
 
-    properties: {
+    watched: {
         flag: { value: false }
     },
 

@@ -8,7 +8,7 @@ import { nextFrame } from '../shared.js';
 
 Enso.component( "enso-attr-test", {
 
-    properties: {
+    watched: {
         value: { value: 0, attribute: { type: Number, force: true } }
     },
 

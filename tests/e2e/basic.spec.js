@@ -20,7 +20,8 @@ Enso.component( "enso-basic-test", {
 });
 
 beforeEach(() => {
-    document.body.innerHTML = /*html*/`<enso-basic-test id="test-component"></enso-basic-test>`;
+    document.body.innerHTML = 
+        /*html*/`<enso-basic-test id="test-component"></enso-basic-test>`;
 });
 
 describe('Basic Enso Component', () => {

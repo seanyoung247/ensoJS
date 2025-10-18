@@ -3,23 +3,12 @@
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
 import Enso, { html } from "../../src/enso.js";
-import { ROOT } from '../../src/core/symbols.js';
-import { nextFrame } from '../shared.js';
-
-
-const setup = (component) => {
-    document.body.innerHTML = 
-        `<${component} id="test-component"></${component}>`;
-
-    const el = document.getElementById('test-component');
-    const root = el[ROOT];
-    return [ el, root ];
-};
+import { nextFrame, setup } from '../shared.js';
 
 
 const basicIF = 'enso-if-basic-test';
 Enso.component(basicIF, {
-  properties: { show: { value: true } },
+  watched: { show: { value: true } },
   template: html`
     <div>
       <div id="if-test" *if="{{ this.show }}">Visible</div>
@@ -50,7 +39,7 @@ describe('Basic IF directive', () => {
 
 const multiIF = 'enso-if-multi-test';
 Enso.component(multiIF, {
-    properties: { show: { value: true } },
+    watched: { show: { value: true } },
     template: html`
         <div id="if-test1" *if="{{ this.show }}">Content</div>
         <div id="if-test2" *if="{{ this.show === false }}">No Content</div>
@@ -82,7 +71,7 @@ describe('Multiple IF directives', () => {
 
 const nestedIF = 'enso-if-nested-test';
 Enso.component(nestedIF, {
-    properties: { 
+    watched: { 
         show: { value: true },
         showChild: { value: false },
     },
