@@ -41,7 +41,7 @@ export default class Enso extends HTMLElement {
      *  @param {EnsoTemplate} props.template    - Template defining component HTML
      *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
      *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
-     *  @param {Object} [props.properties]      - (optional) This component's watched properties
+     *  @param {Object} [props.watched]         - (optional) This component's watched properties
      *  @param {Object} [props.script]          - (Optional) Custom component code implementation
      *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
      * @returns {typeof Enso} - The newly constructed component class
@@ -51,7 +51,7 @@ export default class Enso extends HTMLElement {
             template,
             styles=null, 
             expose={},
-            properties={},
+            watched={},
             script=null,
             settings={}
         }) { settings = defaultSettings(settings);
@@ -60,9 +60,9 @@ export default class Enso extends HTMLElement {
 
         // Create observed properties
         const observedAttributes = [];
-        for (const prop in properties) {
-            properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
-            if (properties[prop].attribute) observedAttributes.push(prop);
+        for (const prop in watched) {
+            watched[prop] = defineWatchedProperty(component, prop, watched[prop]);
+            if (watched[prop].attribute) observedAttributes.push(prop);
         }
 
         if (styles && !Array.isArray(styles)) styles = [styles];
@@ -70,9 +70,9 @@ export default class Enso extends HTMLElement {
         // Type properties
         Object.defineProperties(component.prototype, {
             'observedAttributes': { get() { return observedAttributes; } },
-            'properties': { get() { return properties; } },
             'settings': { get() { return settings; } },
             'template': { get() { return template; } },
+            'watched': { get() { return watched; } },
             'styles': { get() { return styles; } },
             'expose': { get() { return expose; } },
         });
@@ -110,7 +110,7 @@ export default class Enso extends HTMLElement {
             );
         }
 
-        for (const prop in this.properties) {
+        for (const prop in this.watched) {
             this.#bindings.set(prop, { changed: false, effects: [] });
         }
 
@@ -186,7 +186,7 @@ export default class Enso extends HTMLElement {
         // and sets their initial value if they're forced.
         const attributes = this.observedAttributes;
         for (const attr of attributes) {
-            if (this.properties[attr].attribute.force) {
+            if (this.watched[attr].attribute.force) {
                 this.reflectAttribute(attr);
             }
         }
@@ -213,7 +213,7 @@ export default class Enso extends HTMLElement {
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-        const val = this.properties[property].attribute.toProp(newValue);
+        const val = this.watched[property].attribute.toProp(newValue);
         if (this[property] !== val) this[property] = val;
     }
 
@@ -224,7 +224,7 @@ export default class Enso extends HTMLElement {
     }
 
     reflectAttribute(attribute) {
-        const attr = this.properties[attribute];
+        const attr = this.watched[attribute];
         const value = attr.attribute.toAttr(this[attribute]);
         
         if (value !== this.getAttribute(attribute)) {
