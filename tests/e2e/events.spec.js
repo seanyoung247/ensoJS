@@ -4,6 +4,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Enso, { html } from "../../src/enso.js";
 import { nextFrame } from '../shared.js';
+import EnsoComponent from '../../src/component.js';
 
 
 Enso.component( "enso-events-test", {
@@ -35,7 +36,7 @@ describe('Enso Events', () => {
     });
 
     it('parses the template and sets default values', () => {
-        expect(el).toBeInstanceOf(Enso);
+        expect(el).toBeInstanceOf(EnsoComponent);
         expect(el).toBeInstanceOf(HTMLElement);
         expect(el.refs).toBeDefined();
         expect(el.refs.root).toBeInstanceOf(HTMLDivElement);

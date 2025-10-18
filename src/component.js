@@ -7,11 +7,7 @@
 
 import { createEffectEnv } from "./core/effects.js";
 import { attachStyleSheets } from "./utils/css.js";
-
-import { 
-    defineWatchedProperty, createComponent, markChanged, update 
-} from "./core/components.js";
-
+import { markChanged, update } from "./core/components.js";
 import { 
     ENV, ROOT, TASK_LIST,
     UPDATE, MARK_CHANGED, GET_BINDING, 
@@ -20,70 +16,12 @@ import {
     BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
-
-const defaultSettings = (overrides = {}) => ({
-    useShadow: true,
-    shadowMode: "open",
-
-    ...overrides
-});
-
 /**
  * Enso Web Component base class
  * @abstract
  */
-export default class Enso extends HTMLElement {
-
-    /**
-     * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {String} tag                      - DOM tag name for this component
-     * @param {Object} props                    - Component properties
-     *  @param {EnsoTemplate} props.template    - Template defining component HTML
-     *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
-     *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
-     *  @param {Object} [props.watched]         - (optional) This component's watched properties
-     *  @param {Object} [props.script]          - (Optional) Custom component code implementation
-     *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
-     * @returns {typeof Enso} - The newly constructed component class
-     * @static
-     */
-    static component(tag, {
-            template,
-            styles=null, 
-            expose={},
-            watched={},
-            script=null,
-            settings={}
-        }) { settings = defaultSettings(settings);
-
-        const component = createComponent(Enso, script);
-
-        // Create observed properties
-        const observedAttributes = [];
-        for (const prop in watched) {
-            watched[prop] = defineWatchedProperty(component, prop, watched[prop]);
-            if (watched[prop].attribute) observedAttributes.push(prop);
-        }
-
-        if (styles && !Array.isArray(styles)) styles = [styles];
-
-        // Type properties
-        Object.defineProperties(component.prototype, {
-            'observedAttributes': { get() { return observedAttributes; } },
-            'settings': { get() { return settings; } },
-            'template': { get() { return template; } },
-            'watched': { get() { return watched; } },
-            'styles': { get() { return styles; } },
-            'expose': { get() { return expose; } },
-        });
-
-        // Define the custom element
-        customElements.define(tag, component);
-        return component;
-    }
-
+export default class EnsoComponent extends HTMLElement {
     //// Instance Fields
-
     #initialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
