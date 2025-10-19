@@ -6,7 +6,7 @@ const cssReset = await load.css('assets/styles/reset.css');
 Enso.component( "enso-app", {
 
     watched: {
-        flag: { value: false },
+        flag: false,
         showChild: { value: 'show' },
         classList: { value: 'if-test' },
     },

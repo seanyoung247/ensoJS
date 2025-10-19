@@ -6,7 +6,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { watch } from "./watcher.js";
+// import { watch } from "./watcher.js";
 import { runEffect } from "./effects.js";
 import { 
     UPDATE, MARK_CHANGED, GET_BINDING, TASK_LIST,
@@ -74,12 +74,16 @@ function createAttrDesc(attr, value, {
     return { type, force, toProp, toAttr };
 }
 
-function createPropDesc(name, {
-    prop = `_${name}`,      // Name of the data property
-    deep = false,           // Should the property have shallow or deep reactivity
-    value = null,           // Default property value
-    attribute = false       // False or attribute properties
-}) {
+function createPropDesc(name, desc) {
+
+    if (desc !== Object(desc)) desc = { value: desc };
+
+    let {
+        deep = false,       // Should the property have shallow or deep reactivity
+        value = null,       // Default property value
+        attribute = false   // False or attribute properties
+    } = desc;
+
     if (attribute) {
         attribute = createAttrDesc(name, value, attribute);
         // To remove an attribute its value is null, so a non-forced attribute
