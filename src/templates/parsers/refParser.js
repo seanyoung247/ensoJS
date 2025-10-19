@@ -3,7 +3,6 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { isAttr } from "./utils.js";
 
 // Reference Attribute (#ref) parser
 parser.registerAttr({
@@ -12,7 +11,7 @@ parser.registerAttr({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            isAttr(attribute, '#')
+            (attribute.name === '#ref' || attribute.name === 'enso-ref')
         );
     },
 

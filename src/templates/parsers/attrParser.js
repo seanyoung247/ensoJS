@@ -26,7 +26,7 @@ parser.registerAttr({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            isAttr(attribute, ':')
+            isAttr(attribute, ':', 'attr')
         );
     },
 

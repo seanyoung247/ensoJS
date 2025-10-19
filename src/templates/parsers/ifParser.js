@@ -40,7 +40,7 @@ parser.registerNode({
     match(node) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            node.hasAttribute('*if')
+            (node.hasAttribute('*if') || node.hasAttribute('enso-if'))
         );
     },
 
