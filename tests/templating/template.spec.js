@@ -7,6 +7,7 @@ import {
     ADD_CHILD, BINDINGS, ENV,
     GET_BINDING, SCHEDULE_EFFECT,
     UPDATE,
+    ADD_BINDING,
 } from '../../src/core/symbols.js';
 import { UUIDRegEx } from '../shared.js';
 
@@ -50,6 +51,7 @@ class MockComponent {
     }
 
     [GET_BINDING](bind) { return this[BINDINGS].get(bind); }
+    [ADD_BINDING](bind, effect) { this[BINDINGS].get(bind).effects.push(effect); }
 
     [SCHEDULE_EFFECT](effect) {
         effect.changed = true;

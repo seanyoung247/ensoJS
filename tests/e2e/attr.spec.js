@@ -64,7 +64,6 @@ describe('Enso Attributes', () => {
         expect(display.getAttribute('data-value')).toBe('6');
 
         el.setAttribute('value', '10');
-        //el.attributeChangedCallback('value', 6, '10'); // JSDOM doesn't call this properly
         await nextFrame();
         expect(el.watched.value).toBe(10);
         expect(el.getAttribute('value')).toBe('10');

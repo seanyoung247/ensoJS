@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { parser } from '../../src/templates/parser.js';
 import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
-import { ENSO_NODE, GET_BINDING } from '../../src/core/symbols.js';
+import { ADD_BINDING, ENSO_NODE, GET_BINDING } from '../../src/core/symbols.js';
 import '../../src/templates/parsers/attrParser.js';
 
 describe('Attribute Parser', () => {
@@ -18,6 +18,7 @@ describe('Attribute Parser', () => {
         def = new NodeDef('test', attr, new NodeDefMap());
         parent = {
             [GET_BINDING]() { return null; },
+            [ADD_BINDING]() {},
             classList: 'test-class',
             isActive: true,
         };

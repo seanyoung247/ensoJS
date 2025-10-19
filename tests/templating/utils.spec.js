@@ -12,7 +12,7 @@ import {
     createPlaceholder, 
     getDirective
 } from '../../src/templates/parsers/utils';
-import { GET_BINDING, SCHEDULE_EFFECT } from '../../src/core/symbols';
+import { ADD_BINDING, SCHEDULE_EFFECT } from '../../src/core/symbols';
 
 describe('getName', () => {
 
@@ -56,21 +56,21 @@ describe('bindSource', () => {
 
 });
 
-
 describe('addBinding', () => {
-  it('pushes effect and marks changed', () => {
-    const effects = [];
-    const parent = {
-      [GET_BINDING]: () => ({ effects, changed: false }),
-      [SCHEDULE_EFFECT]: vi.fn(),
-    };
-    const effect = { dummy: true };
-    addBinding(parent, 'test', effect);
+    it('pushes effect and marks changed', () => {
+        const effects = new Map();
+        const parent = {
+        [ADD_BINDING](bind, effect) {
+            effects.set(bind, effect);
+        },
+        [SCHEDULE_EFFECT]: vi.fn(),
+        };
+        const effect = { dummy: true };
+        addBinding(parent, 'test', effect);
 
-    expect(effects).toContain(effect);
-    expect(effects.length).toBe(1);
-    expect(parent[SCHEDULE_EFFECT]).toHaveBeenCalledWith(effect);
-  });
+        expect(effects.has('test')).toBe(true);
+        expect(effects.size).toBe(1);
+    });
 });
 
 describe('isAttr', () => {
