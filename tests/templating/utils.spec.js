@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { 
     getName, 
     getBindings,
+    bindSource,
     addBinding,
     isAttr,
     createPlaceholder, 
@@ -29,7 +30,7 @@ describe('getBindings', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
-        const source = "{{ this.test === this.prop1 + this.prop2 }}";
+        const source = "{{ this.watched.test === watched.prop1 + watched.prop2 }}";
 
         getBindings(source, bindings);
         expect(bindings.size).toBe(3);
@@ -37,6 +38,24 @@ describe('getBindings', () => {
     });
 
 });
+
+
+describe('bindSource', () => {
+
+    it('returns potential binding names from a text source', () => {
+        const bindings = new Set();
+        const source = "{{ this.watched.test === watched.prop1 + watched.prop2 }}";
+
+        const transformed = bindSource(source, bindings);
+        expect(bindings.size).toBe(3);
+        expect(bindings.has('prop1')).toBe(true);
+        expect(transformed).toBe(
+            '{{ this.watched.test === this.watched.prop1 + this.watched.prop2 }}'
+        );
+    });
+
+});
+
 
 describe('addBinding', () => {
   it('pushes effect and marks changed', () => {

@@ -14,8 +14,8 @@ Enso.component( "enso-attr-test", {
     },
 
     template: html`
-        <button #ref="incBtn" @click="()=>this.value++">Inc</button>
-        <span #ref="display" :data-value="{{ this.value }}">{{ this.count }}</span>
+        <button #ref="incBtn" @click="()=>watched.value++">Inc</button>
+        <span #ref="display" :data-value="{{ watched.value }}">{{ watched.count }}</span>
     `
 
 });
@@ -46,26 +46,27 @@ describe('Enso Attributes', () => {
     });
 
     it('reflects attribute and property changes', async () => {
-        expect(el.value).toBe(0);
+
+        expect(el.watched.value).toBe(0);
         expect(el.getAttribute('value')).toBe('0');
         expect(display.getAttribute('data-value')).toBe('0');
 
-        el.value = 5;
+        el.watched.value = 5;
         await nextFrame();
-        expect(el.value).toBe(5);
+        expect(el.watched.value).toBe(5);
         expect(el.getAttribute('value')).toBe('5');
         expect(display.getAttribute('data-value')).toBe('5');
         
         incBtn.click();
         await nextFrame();
-        expect(el.value).toBe(6);
+        expect(el.watched.value).toBe(6);
         expect(el.getAttribute('value')).toBe('6');
         expect(display.getAttribute('data-value')).toBe('6');
 
         el.setAttribute('value', '10');
-        el.attributeChangedCallback('value', 6, '10'); // JSDOM doesn't call this properly
+        //el.attributeChangedCallback('value', 6, '10'); // JSDOM doesn't call this properly
         await nextFrame();
-        expect(el.value).toBe(10);
+        expect(el.watched.value).toBe(10);
         expect(el.getAttribute('value')).toBe('10');
         expect(display.getAttribute('data-value')).toBe('10');
     });

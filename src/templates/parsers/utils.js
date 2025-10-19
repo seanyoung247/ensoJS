@@ -5,7 +5,7 @@
 import { GET_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
 
 // Matches object property dependencies, i.e. this.<property>:
-const bindEx = /(?:this\.)(\w+|\d*)/gi;
+const bindEx = /(?:this\.)?watched\.(\w+)/gi;
 
 export const getName = (attr, prefixLen = 1) => attr.name.slice(prefixLen).toLowerCase();
 export const getBindings = (source, set) => {
@@ -13,6 +13,12 @@ export const getBindings = (source, set) => {
     while ((bind = bindEx.exec(source)) !== null) {
         set.add(bind[1]);
     }
+};
+export const bindSource = (source, set = null) => {
+    return source.replace(bindEx, (_match, prop) => {
+        if (set) set.add(prop);         // collect the binding
+        return `this.watched.${prop}`;  // rewrite reference
+    });
 };
 
 export const addBinding = (parent, bind, effect) => {

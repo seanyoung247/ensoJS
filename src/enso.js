@@ -6,7 +6,7 @@
  */
 
 import EnsoComponent from "./component.js";
-import { defineWatchedProperty, createComponent } from "./core/components.js";
+import { createComponent, Watched } from "./core/components.js";
 const Enso = (()=>{
     const defaultSettings = (overrides = {}) => ({
         useShadow: true,
@@ -29,6 +29,15 @@ const Enso = (()=>{
          *  @param {Object} [props.script]          - (Optional) Custom component code implementation
          *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
          * @returns {typeof Enso} - The newly constructed component class
+         * 
+         * @example
+         * const MyCounter = Enso.component('my-counter', {
+         *   template: html`<button @click="this.increment">{{ watched.count }}</button>`,
+         *   watched: { count: 0 },
+         *   script: {
+         *     increment() { this.watched.count++; }
+         *   }
+         * });
          * @static
          */
         component(tag, {
@@ -42,21 +51,20 @@ const Enso = (()=>{
 
             const component = createComponent(EnsoComponent, script);
 
-            // Create observed properties
-            const observedAttributes = [];
-            for (const prop in watched) {
-                watched[prop] = defineWatchedProperty(component, prop, watched[prop]);
-                if (watched[prop].attribute) observedAttributes.push(prop);
-            }
+            // Create observed and watched properties
+            const [WatchedClass, observedAttributes] = Watched.define(watched);
 
             if (styles && !Array.isArray(styles)) styles = [styles];
-
+            // Static properties
+            Object.defineProperties(component, {
+                'observedAttributes': { get() { return observedAttributes; } },
+                'WatchedClass': { get() { return WatchedClass; } }
+            });
             // Type properties
             Object.defineProperties(component.prototype, {
                 'observedAttributes': { get() { return observedAttributes; } },
                 'settings': { get() { return settings; } },
                 'template': { get() { return template; } },
-                'watched': { get() { return watched; } },
                 'styles': { get() { return styles; } },
                 'expose': { get() { return expose; } },
             });
@@ -76,4 +84,7 @@ export { load } from './utils/loaders.js';
 export { css, html } from './core/tags.js';
 // Template helpers
 export * from './utils/helpers.js';
+// Watched properties
+export { getWatched, setWatched } from './core/components.js';
+// Component creator and global settings
 export default Enso;

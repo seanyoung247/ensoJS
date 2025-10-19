@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { getBindings, addBinding } from "./utils.js";
+import { addBinding, bindSource } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 
@@ -33,13 +33,14 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        const parent = node.parentNode;
-        const index = getChildIndex(node.parentNode, node);
-        const effect = createTextEffect(node.nodeValue);
         const binds = new Set();
-
-        getBindings(node.nodeValue, binds);
-        def.addContent(parent, index, effect, binds);
+        const source = bindSource(node.nodeValue, binds);
+        def.addContent(
+            node.parentNode,
+            getChildIndex(node.parentNode, node),
+            createTextEffect(source),
+            binds
+        );
         def.attachParser(this);
 
         return true;

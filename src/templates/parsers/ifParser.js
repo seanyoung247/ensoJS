@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { getDirective, getBindings, addBinding } from "./utils.js";
+import { getDirective, addBinding, bindSource } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
 
@@ -19,9 +19,10 @@ class IfFragment extends EnsoFragment {
 function createConditionEffect(code) {
     code = createStringTemplate(code);
     const fn = createEffect(code);
-    return function (env, effect) {
-        const show = fn.call(this, env);
 
+    return function (env, effect) {
+        let show;
+        show = fn.call(this, env);
         if (show) {
             effect.fragment.mount();
             effect.element = effect.fragment[ROOT];
@@ -49,8 +50,8 @@ parser.registerNode({
         if (!directive || directive.name !== '*if') return false;
 
         const binds = new Set();
+        directive.value = bindSource(directive.value, binds);
         const effect = createConditionEffect(directive.value);
-        getBindings(directive.value, binds);
 
         // Create new nodedef for the if directive.
         const ifDef = def.map.createRoot(node);

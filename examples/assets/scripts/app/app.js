@@ -1,5 +1,5 @@
 
-import Enso, { html, css, load, cssObj } from "enso";
+import Enso, { html, css, load, cssObj, getWatched, setWatched } from "enso";
 
 const cssReset = await load.css('assets/styles/reset.css');
 
@@ -48,33 +48,35 @@ Enso.component( "enso-app", {
         <style>
             ${ cssObj({
                 div: {
-                    backgroundColor: "{{ this.flag ? 'red' : 'green' }}",
+                    backgroundColor: "{{ watched.flag ? 'red' : 'green' }}",
                     color: 'white',
                 }
             }) }
         </style>
         <div id="app-root"
-            :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
-            <button @click="()=>{ this.flag = !this.flag; }">Toggle Flag</button>
-            {{ this.flag ? 'App Enso' : 'Enso App' }}
+            :style="{{ cssObj({fontWeight: watched.flag && 'bold'}) }}">
+            <button @click="()=>{ watched.flag = !watched.flag; }">Toggle Flag</button>
+            {{ watched.flag ? 'App Enso' : 'Enso App' }}
 
-            <div *if="{{ !this.flag }}">No Content</div>
-            <div :class="{{ this.classList }}" *if="{{ this.flag }}">
+            <div *if="{{ !watched.flag }}">No Content</div>
+            <div :class="{{ watched.classList }}" *if="{{ watched.flag }}">
                 Content
-                <div *if="{{ this.showChild === 'show' }}">
+                <div *if="{{ watched.showChild === 'show' }}">
                     Child Content <br/>
-                    Flag Value = {{ this.flag.toString() }}
+                    Flag Value = {{ watched.flag.toString() }}
                 </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
 
-            Hello {{ this.flag ? 'You' : 'World' }}
+            Hello {{ watched.flag ? 'You' : 'World' }}
         </div>
     `,
 
     script: {
         childHide() {
-            this.showChild = (this.showChild === 'hide') ? 'show' : 'hide';
+            let { showChild } = getWatched(this);
+            showChild = (showChild === 'hide') ? 'show' : 'hide';
+            setWatched(this, {showChild});
         }
     }
 });

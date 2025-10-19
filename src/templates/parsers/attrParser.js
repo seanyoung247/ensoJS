@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { parser } from "../parser.js";
-import { getName, getBindings, isAttr, addBinding } from "./utils.js";
+import { getName, isAttr, addBinding, bindSource } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
 
 function createAttrEffect(attr, code) {
@@ -32,11 +32,13 @@ parser.registerAttr({
 
     preprocess(def, node, attribute) {
         const name = getName(attribute);
-        const effect = createAttrEffect(name, attribute.value);
         const binds = new Set();
-
-        getBindings(attribute.value, binds);
-        def.addAttribute(name, effect, binds);
+        const source = bindSource(attribute.value, binds);
+        def.addAttribute(
+            name,
+            createAttrEffect(name, source),
+            binds
+        );
         node.removeAttribute(attribute.name);
         def.attachParser(this);
 

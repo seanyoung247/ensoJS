@@ -76,8 +76,8 @@ describe("defineWatchedProperty", () => {
     it("defines shallow reactive property", () => {
         defineWatchedProperty(cls, "foo", { value: 10 });
         const inst = new cls();
-        inst.foo = 20;
-        expect(inst._foo).toBe(20);
+        inst.watched.foo = 20;
+        expect(inst.watched._foo).toBe(20);
         expect(inst[MARK_CHANGED]).toHaveBeenCalledWith("foo");
         expect(inst.onPropertyChange).toHaveBeenCalledWith("foo", 20);
     });
@@ -86,9 +86,9 @@ describe("defineWatchedProperty", () => {
         defineWatchedProperty(cls, "deep", { deep: true, value: { a: 1 } });
         const inst = new cls();
         // eslint-disable-next-line no-unused-vars
-        const val = inst.deep; // triggers getter + watch
+        const val = inst.watched.deep; // triggers getter + watch
         expect(watch).toHaveBeenCalled();
-        inst.deep = { a: 2 };
+        inst.watched.deep = { a: 2 };
         expect(inst[MARK_CHANGED]).toHaveBeenCalledWith("deep");
     });
 
@@ -98,7 +98,7 @@ describe("defineWatchedProperty", () => {
             value: "x",
         });
         const inst = new cls();
-        inst.name = "y";
+        inst.watched.name = "y";
         expect(inst.reflectAttribute).toHaveBeenCalledWith("name");
     });
 
@@ -114,7 +114,7 @@ describe("defineWatchedProperty", () => {
         };
         defineWatchedProperty(cls, "bar", {});
         const inst = new cls();
-        inst.bar = 42;
+        inst.watched.bar = 42;
         expect(inst.calledWith).toBe(42);
     });
 });

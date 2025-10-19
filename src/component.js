@@ -30,6 +30,7 @@ export default class EnsoComponent extends HTMLElement {
     #taskList = new Set();
     #bindings = new Map();
     #children = [];
+    #watched;
     #refs = {};
     #env = createEffectEnv(this.expose);
 
@@ -48,7 +49,8 @@ export default class EnsoComponent extends HTMLElement {
             );
         }
 
-        for (const prop in this.watched) {
+        this.#watched = new this.constructor.WatchedClass(this);
+        for (const prop in this.#watched.defs) {
             this.#bindings.set(prop, { changed: false, effects: [] });
         }
 
@@ -62,6 +64,7 @@ export default class EnsoComponent extends HTMLElement {
     get refs() { return this.#refs; }
     get component() { return this; }
     get isAttached() { return this.#initialised; }
+    get watched() { return this.#watched; }
 
     //// Accessors - Framework internal
     get [TASK_LIST]() { return this.#taskList; }
@@ -124,7 +127,7 @@ export default class EnsoComponent extends HTMLElement {
         // and sets their initial value if they're forced.
         const attributes = this.observedAttributes;
         for (const attr of attributes) {
-            if (this.watched[attr].attribute.force) {
+            if (this.watched.defs[attr].attribute.force) {
                 this.reflectAttribute(attr);
             }
         }
@@ -151,8 +154,8 @@ export default class EnsoComponent extends HTMLElement {
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-        const val = this.watched[property].attribute.toProp(newValue);
-        if (this[property] !== val) this[property] = val;
+        const val = this.watched.defs[property].attribute.toProp(newValue);
+        if (this.watched[property] !== val) this.watched[property] = val;
     }
 
     //// Lifecycle
@@ -162,12 +165,12 @@ export default class EnsoComponent extends HTMLElement {
     }
 
     reflectAttribute(attribute) {
-        const attr = this.watched[attribute];
-        const value = attr.attribute.toAttr(this[attribute]);
+        const attr = this.#watched.defs[attribute];
+        const value = attr.attribute.toAttr(this.watched[attribute]);
         
-        if (value !== this.getAttribute(attribute)) {
-            if (value === null) this.removeAttribute(attribute);
-            else this.setAttribute(attribute, value);
+        if (value !== this.getAttribute(attribute.name)) {
+            if (value === null) this.removeAttribute(attribute.name);
+            else this.setAttribute(attribute.name, value);
         }
     }
 
@@ -178,7 +181,9 @@ export default class EnsoComponent extends HTMLElement {
         }
     }
 
-    [MARK_CHANGED](prop) { markChanged(this, prop); }
+    [MARK_CHANGED](prop) {
+        markChanged(this, prop); 
+    }
 
     [UPDATE]() {
         this.preUpdate();

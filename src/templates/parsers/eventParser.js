@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { getName, isAttr } from "./utils.js";
+import { bindSource, getName, isAttr } from "./utils.js";
 import { createEffect } from "../../core/effects.js";
 
 import { ENV } from "../../core/symbols.js";
@@ -42,9 +42,10 @@ parser.registerAttr({
     },
 
     preprocess(def, node, attribute) {
+        const source = bindSource(attribute.value);
         def.addEvent(
             getName(attribute),
-            createEventHandler(attribute.value)
+            createEventHandler(source)
         );
         node.removeAttribute(attribute.name);
         def.attachParser(this);

@@ -57,7 +57,13 @@ export const createEffect = (() => {
     return (...args) => {
         const key = args.join('&');
         const body = createFunctionBody(args.pop());
-        return cache[key] ?? (cache[key] = new Function('env', ...args, body));
+        let fn;
+        try {
+            fn = cache[key] ?? (cache[key] = new Function('env', ...args, body));
+        } catch(e) {
+            console.error("Error in effect: ", e, '\n', fn.toString());
+        }
+        return fn;
     };
 })();
 
@@ -69,5 +75,6 @@ export const createEffect = (() => {
 export const runEffect = (parent, effect) => {
     const context = parent.component;
     const scope = parent[ENV];
+    
     effect?.action?.call(context, scope, effect);
 };
