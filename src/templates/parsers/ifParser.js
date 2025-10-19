@@ -40,24 +40,26 @@ parser.registerNode({
     match(node) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            (node.hasAttribute('*if') || node.hasAttribute('enso-if'))
+            (node.hasAttribute('*if') || 
+                node.hasAttribute('enso-if'))
         );
     },
 
     preprocess(def, node) {
         // Ensuire only one directive per node, and ensure directive matches parser
-        const directive = getDirective(node);
-        if (!directive || directive.name !== '*if') return false;
+        let directive = getDirective(node, '*if', 'enso-if');
+        if (!directive || def.directive) return false;
 
         const binds = new Set();
-        directive.value = bindSource(directive.value, binds);
-        const effect = createConditionEffect(directive.value);
+
+        directive = bindSource(directive, binds);
+        const effect = createConditionEffect(directive);
 
         // Create new nodedef for the if directive.
         const ifDef = def.map.createRoot(node);
         ifDef.setDirective({type: 'if', effect, binds});
         ifDef.attachParser(this);
-        
+
         return true;
     },
 

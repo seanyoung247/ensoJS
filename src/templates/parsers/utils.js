@@ -70,18 +70,10 @@ export const createPlaceholder = () => {
     return el;
 };
 
-export const getDirective = (node, prefix='*') => {
-    if (!node?.attributes) return null;
-
-    let directive = null;
-    for (const attr of [...node.attributes]) {
-        if (attr.name.startsWith(prefix)) {
-            // Only one directive per node is supported
-            if (!directive) directive = attr;
-            node.removeAttribute(attr.name);
-        }
+export const getDirective = (node, short, long) => {
+    const directive = node.getAttributeNode(short) ?? node.getAttributeNode(long);
+    if (directive) {
+        node.removeAttribute(directive.name);
     }
-
-    return directive;
+    return directive?.value;
 };
-

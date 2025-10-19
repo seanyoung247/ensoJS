@@ -11,7 +11,8 @@ parser.registerAttr({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            (attribute.name === '#ref' || attribute.name === 'enso-ref')
+            (attribute.name === '#ref' || 
+                attribute.name === 'enso-ref')
         );
     },
 
