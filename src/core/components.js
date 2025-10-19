@@ -86,9 +86,9 @@ function createPropDesc(name, desc) {
 
     if (attribute) {
         attribute = createAttrDesc(name, value, attribute);
-        // To remove an attribute its value is null, so a non-forced attribute
-        // must have a default value of null
-        if (!attribute.force) value = null;
+        // Non-forced attributes must have a null default value. If a default
+        // value is provided, the attribute MUST be forced.
+        if (value !== null) attribute.force = true;
         // No point having deep reactivity on an attribute that can only be a
         // simple data type
         deep = false;
@@ -134,6 +134,7 @@ export class Watched {
                     return this._getProp(prop);
                 },
                 set(val) {
+                    console.log(prop, val);
                     this._setProp(prop, val);
                 }
             });
