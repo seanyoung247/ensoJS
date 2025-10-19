@@ -6,7 +6,9 @@
  */
 
 import EnsoComponent from "./component.js";
-import { createComponent, Watched } from "./core/components.js";
+import { createComponent } from "./core/components.js";
+import { Watched } from "./core/watched.js";
+
 const Enso = (()=>{
     const defaultSettings = (overrides = {}) => ({
         useShadow: true,
@@ -85,6 +87,6 @@ export { css, html } from './core/tags.js';
 // Template helpers
 export * from './utils/helpers.js';
 // Watched properties
-export { getWatched, setWatched } from './core/components.js';
+export { getWatched, setWatched } from './core/watched.js';
 // Component creator and global settings
 export default Enso;
