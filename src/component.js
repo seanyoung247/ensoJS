@@ -168,9 +168,9 @@ export default class EnsoComponent extends HTMLElement {
         const attr = this.#watched.defs[attribute];
         const value = attr.attribute.toAttr(this.watched[attribute]);
         
-        if (value !== this.getAttribute(attribute.name)) {
-            if (value === null) this.removeAttribute(attribute.name);
-            else this.setAttribute(attribute.name, value);
+        if (value !== this.getAttribute(attr.name)) {
+            if (value === null) this.removeAttribute(attr.name);
+            else this.setAttribute(attr.name, value);
         }
     }
 

@@ -126,7 +126,7 @@ export class Watched {
         this.#values[prop.name] = value;
         this.#component[MARK_CHANGED](prop.name);
 
-        if (prop.attribute) this.#component.reflectAttribute(prop);
+        if (prop.attribute) this.#component.reflectAttribute(prop.name);
         this.#component.onPropertyChange(prop.name, value);
     }
 
