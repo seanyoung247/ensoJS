@@ -15,7 +15,7 @@ Enso.component( "enso-attr-test", {
 
     template: html`
         <button #ref="incBtn" @click="()=>watched.value++">Inc</button>
-        <span #ref="display" :data-value="{{ watched.value }}">{{ watched.count }}</span>
+        <span #ref="display" :data-value="{{ watched.value }}">{{ watched.value }}</span>
     `
 
 });
@@ -24,7 +24,6 @@ Enso.component( "enso-attr-test", {
 beforeEach(() => {
     document.body.innerHTML = 
         /*html*/`<enso-attr-test id="test-component"></enso-attr-test>`;
-
 });
 
 describe('Enso Attributes', () => {
@@ -48,6 +47,7 @@ describe('Enso Attributes', () => {
     it('reflects attribute and property changes', async () => {
 
         expect(el.watched.value).toBe(0);
+        expect(el.hasAttribute('value')).toBe(true);
         expect(el.getAttribute('value')).toBe('0');
         expect(display.getAttribute('data-value')).toBe('0');
 

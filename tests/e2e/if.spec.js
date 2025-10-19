@@ -11,7 +11,7 @@ Enso.component(basicIF, {
   watched: { show: { value: true } },
   template: html`
     <div>
-      <div id="if-test" *if="{{ this.show }}">Visible</div>
+      <div id="if-test" *if="{{ watched.show }}">Visible</div>
     </div>
   `
 });
@@ -29,7 +29,7 @@ describe('Basic IF directive', () => {
     });
 
     it('removes content when condition is false', async () => {
-        el.show = false;
+        el.watched.show = false;
         await nextFrame();
         expect(root.querySelector('#if-test')).toBeNull();
     });
@@ -41,8 +41,8 @@ const multiIF = 'enso-if-multi-test';
 Enso.component(multiIF, {
     watched: { show: { value: true } },
     template: html`
-        <div id="if-test1" *if="{{ this.show }}">Content</div>
-        <div id="if-test2" *if="{{ this.show === false }}">No Content</div>
+        <div id="if-test1" *if="{{ watched.show }}">Content</div>
+        <div id="if-test2" *if="{{ watched.show === false }}">No Content</div>
     `
 });
 
@@ -60,7 +60,7 @@ describe('Multiple IF directives', () => {
     });
 
     it('removes content when condition is false', async () => {
-        el.show = false;
+        el.watched.show = false;
         await nextFrame();
         expect(root.querySelector('#if-test1')).toBeNull();
         expect(root.querySelector('#if-test2')).toBeTruthy();
@@ -76,10 +76,10 @@ Enso.component(nestedIF, {
         showChild: { value: false },
     },
     template: html`
-        <div id="if-test-parent" *if="{{ this.show }}">
+        <div id="if-test-parent" *if="{{ watched.show }}">
             Parent Div
-            <div id="never-shown" *if="{{ !this.show }}">Never Shown</div>
-            <div id="if-test-child" *if="{{ this.showChild }}">Child Content</div>
+            <div id="never-shown" *if="{{ !watched.show }}">Never Shown</div>
+            <div id="if-test-child" *if="{{ watched.showChild }}">Child Content</div>
         </div>
     `
 });
@@ -95,13 +95,13 @@ describe('Nested IF directives', () => {
         expect(root.querySelector('#if-test-parent')).toBeTruthy();
         expect(root.querySelector('#if-test-child')).toBeNull();
         expect(root.querySelector('#never-shown')).toBeNull();
-        el.showChild = true;
+        el.watched.showChild = true;
         await nextFrame();
         expect(root.querySelector('#if-test-child')).toBeTruthy();
     });
 
     it('removes content when condition is false', async () => {
-        el.show = false;
+        el.watched.show = false;
         await nextFrame();
         expect(root.querySelector('#if-test-parent')).toBeNull();
         expect(root.querySelector('#if-test-child')).toBeNull();

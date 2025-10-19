@@ -15,8 +15,8 @@ Enso.component( "enso-events-test", {
 
     template: html`
         <div #ref="root">
-            <div id="bound">{{ this.flag ? 'True' : 'False' }}</div>
-            <button @click="()=>this.flag = !this.flag">Test Me!</button>
+            <div id="bound">{{ watched.flag ? 'True' : 'False' }}</div>
+            <button @click="()=>watched.flag = !watched.flag">Test Me!</button>
         </div>
     `
 });

@@ -16,7 +16,7 @@ describe('Event Parser', () => {
         div.innerHTML = 
             `<button
                 @click="this.doSomething" 
-                @keydown="(e) => { this.keydown = true; this.event = e; }">
+                @keydown="(e) => { watched.keydown = true; watched.event = e; }">
             </button>`;
         button = div.firstChild;
 
@@ -24,10 +24,12 @@ describe('Event Parser', () => {
 
         component = new class {
             [ENV] = {};
-            doSomething() { this.clicked = true; }
-            clicked = false;
-            keydown = false;
-            event = null;
+            doSomething() { this.watched.clicked = true; }
+            watched = {
+                clicked: false,
+                keydown: false,
+                event: null
+            };
         };
     });
     
@@ -47,11 +49,11 @@ describe('Event Parser', () => {
 
         // Simulate events to test handlers
         button.click();
-        expect(component.clicked).toBe(true);
+        expect(component.watched.clicked).toBe(true);
 
         const keydownevent = new Event('keydown');
         button.dispatchEvent(keydownevent);
-        expect(component.keydown).toBe(true);
-        expect(component.event).toBe(keydownevent);
+        expect(component.watched.keydown).toBe(true);
+        expect(component.watched.event).toBe(keydownevent);
     });
 });

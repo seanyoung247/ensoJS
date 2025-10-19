@@ -22,10 +22,12 @@ const getWatchedNodeElement = node => (
 
 class MockComponent {
     // Watched props mocks
-    isVisible = true;
-    childIsVisible = false;
-    isActive = true;
-    name = 'World';
+    watched = {
+        isVisible: true,
+        childIsVisible: false,
+        isActive: true,
+        name: 'World'
+    };
     // Component Prop mocks
     children = [];
     refs = {};
@@ -74,20 +76,20 @@ describe('Template System', () => {
 
     let template, component, html;
     beforeAll(() => {
-        html = 
-            `<div id="if-parent" *if="{{ this.isVisible === true}}">
-                Hello {{ this.name }}!
+        html = /*html*/ 
+            `<div id="if-parent" *if="{{ watched.isVisible === true}}">
+                Hello {{ watched.name }}!
                 <span id="ref" #ref="myRef"></span>
-                <div id="if-child" #ref="anotherRef" *if="{{ this.childIsVisible }}">
+                <div id="if-child" #ref="anotherRef" *if="{{ watched.childIsVisible }}">
                     Child Content
                 </div>
                 <div id="unwatched-1">No Template Directives</div>
             </div>
-            <button id="test-btn" @click="()=>this.childIsVisible = !this.childIsVisible">
+            <button id="test-btn" @click="()=>watched.childIsVisible = !watched.childIsVisible">
                 Test Button
             </button>
-            <div id="active" :class="{{ this.name }}" :data-active="{{ this.isActive ? 'True' : 'False' }}">
-                Active Content: {{ this.isActive ? 'True' : 'False' }}
+            <div id="active" :class="{{ watched.name }}" :data-active="{{ watched.isActive ? 'True' : 'False' }}">
+                Active Content: {{ watched.isActive ? 'True' : 'False' }}
                 <div id="unwatched-2">No Template Directives</div>
             </div>
             <div id="unwatched-3">No Template Directives</div>`;
@@ -164,9 +166,9 @@ describe('Template System', () => {
 
         // Have event handlers been attached
         const button = component.root.getElementById("test-btn");
-        expect(component.childIsVisible).toBe(false);
+        expect(component.watched.childIsVisible).toBe(false);
         button.click();
-        expect(component.childIsVisible).toBe(true);
+        expect(component.watched.childIsVisible).toBe(true);
 
         // Have references been setup
         expect(component.refs.myRef).toBeDefined();
