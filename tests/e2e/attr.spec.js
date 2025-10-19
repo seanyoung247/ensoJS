@@ -15,7 +15,13 @@ Enso.component( "enso-attr-test", {
 
     template: html`
         <button #ref="incBtn" @click="()=>watched.value++">Inc</button>
-        <span #ref="display" :data-value="{{ watched.value }}">{{ watched.value }}</span>
+        <span 
+            #ref="display" 
+            enso-attr:style="color:{{ (watched.value > 5) ? 'red' : 'green' }};"
+            :data-value="{{ watched.value }}"
+        >
+            {{ watched.value }}
+        </span>
     `
 
 });
@@ -50,24 +56,28 @@ describe('Enso Attributes', () => {
         expect(el.hasAttribute('value')).toBe(true);
         expect(el.getAttribute('value')).toBe('0');
         expect(display.getAttribute('data-value')).toBe('0');
+        expect(display.getAttribute('style')).toContain('green');
 
         el.watched.value = 5;
         await nextFrame();
         expect(el.watched.value).toBe(5);
         expect(el.getAttribute('value')).toBe('5');
         expect(display.getAttribute('data-value')).toBe('5');
+        expect(display.getAttribute('style')).toContain('green');
         
         incBtn.click();
         await nextFrame();
         expect(el.watched.value).toBe(6);
         expect(el.getAttribute('value')).toBe('6');
         expect(display.getAttribute('data-value')).toBe('6');
+        expect(display.getAttribute('style')).toContain('red');
 
         el.setAttribute('value', '10');
         await nextFrame();
         expect(el.watched.value).toBe(10);
         expect(el.getAttribute('value')).toBe('10');
         expect(display.getAttribute('data-value')).toBe('10');
+        expect(display.getAttribute('style')).toContain('red');
     });
 
 });

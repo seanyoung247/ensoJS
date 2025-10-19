@@ -42,7 +42,7 @@ Enso.component(multiIF, {
     watched: { show: { value: true } },
     template: html`
         <div id="if-test1" *if="{{ watched.show }}">Content</div>
-        <div id="if-test2" *if="{{ watched.show === false }}">No Content</div>
+        <div id="if-test2" enso-if="{{ watched.show === false }}">No Content</div>
     `
 });
 

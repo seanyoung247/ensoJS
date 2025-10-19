@@ -12,7 +12,11 @@ describe('Attribute Parser', () => {
     beforeEach(() => {
         div = document.createElement('div');
         div.innerHTML = 
-            `<div  :class="{{ watched.classList }}" :data-active="{{ watched.isActive }}">
+            `<div 
+                :class="{{ watched.classList }}" 
+                :data-active="{{ watched.isActive }}"
+                enso-attr:id="{{ this.id }}"
+            >
             </div>`;
         attr = div.firstChild;
         def = new NodeDef('test', attr, new NodeDefMap());
@@ -20,8 +24,12 @@ describe('Attribute Parser', () => {
             [SCHEDULE_EFFECT]() {},
             [GET_BINDING]() { return null; },
             [ADD_BINDING]() {},
-            classList: 'test-class',
-            isActive: true,
+
+            id: 'attr-test',
+            watched: {
+                classList: 'test-class',
+                isActive: true,
+            }
         };
     });
 
@@ -29,7 +37,7 @@ describe('Attribute Parser', () => {
         // Preprocess should extract the bindings, remove the template attributes 
         // and attach the parser and watched tags
         expect(parser.preprocess(def, attr)).toBe(true);
-        expect(def.attributes.length).toBe(2);
+        expect(def.attributes.length).toBe(3);
         expect(def.attributes[0].name).toBe('class');
         expect(def.attributes[0].binds.has('classList')).toBe(true);
         expect(def.attributes[1].name).toBe('data-active');
@@ -37,6 +45,7 @@ describe('Attribute Parser', () => {
         expect(attr.hasAttribute(ENSO_NODE)).toBe(true);
         expect(attr.hasAttribute(':title')).toBe(false);
         expect(attr.hasAttribute(':data-active')).toBe(false);
+        expect(attr.hasAttribute('enso-attr:id')).toBe(false);
 
         // Process should attach the effects to the parent component
         parser.process(def, parent, attr);
