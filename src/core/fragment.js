@@ -8,7 +8,7 @@ import {
     ROOT, ENV, ADD_CHILD, GET_BINDING,
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
     BINDINGS, CHILDREN, TASK_LIST,
-    UPDATE, MARK_CHANGED,
+    UPDATE, MARK_CHANGED, ADD_BINDING
 } from "./symbols.js";
 
 /**
@@ -79,6 +79,13 @@ export class EnsoFragment {
 
     [GET_BINDING](bind) {
         return this.#bindings.get(bind); 
+    }
+    [ADD_BINDING](bind, effect) {
+        const binding = this[GET_BINDING](bind);
+        if (binding) {
+            binding.effects.push(effect);
+            binding.changed = true;
+        }
     }
 
     [SCHEDULE_EFFECT](effect) {

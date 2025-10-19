@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { GET_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
+import { ADD_BINDING, SCHEDULE_EFFECT, SETUP } from "../../core/symbols.js";
 
 // Matches object property dependencies, i.e. this.<property>:
 const bindEx = /(?:this\.)?watched\.(\w+)/gi;
@@ -13,21 +13,21 @@ export const getBindings = (source, set) => {
     while ((bind = bindEx.exec(source)) !== null) {
         set.add(bind[1]);
     }
+    if (set.size() === 0) set.add(SETUP);
 };
 export const bindSource = (source, set = null) => {
-    return source.replace(bindEx, (_match, prop) => {
+    const ret = source.replace(bindEx, (_match, prop) => {
         if (set) set.add(prop);         // collect the binding
         return `this.watched.${prop}`;  // rewrite reference
     });
+    if (set && set.size === 0) set.add(SETUP);
+    return ret;
 };
 
 export const addBinding = (parent, bind, effect) => {
-    const binding = parent[GET_BINDING](bind);
-    if (binding) {
-        binding.effects.push(effect);
-        binding.changed = true;
-        parent[SCHEDULE_EFFECT](effect);
-    }
+    parent[ADD_BINDING](bind, effect);
+    // Schedule initial render
+    parent[SCHEDULE_EFFECT](effect);
 };
 
 export const isAttr = (attribute, prefix) => (

@@ -9,10 +9,10 @@ import { createEffectEnv } from "./core/effects.js";
 import { attachStyleSheets } from "./utils/css.js";
 import { markChanged, update } from "./core/components.js";
 import { 
-    ENV, ROOT, TASK_LIST,
+    ENV, ROOT, TASK_LIST, ADD_BINDING,
     UPDATE, MARK_CHANGED, GET_BINDING, 
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
-    ATTACH_TEMPLATE, ADD_CHILD, 
+    ATTACH_TEMPLATE, ADD_CHILD, SETUP,
     BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
@@ -53,6 +53,7 @@ export default class EnsoComponent extends HTMLElement {
         for (const prop in this.#watched.defs) {
             this.#bindings.set(prop, { changed: false, effects: [] });
         }
+        this.#bindings.set(SETUP, { changed: false, effects: [] });
 
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
@@ -78,6 +79,13 @@ export default class EnsoComponent extends HTMLElement {
     }
 
     [GET_BINDING](bind) { return this.#bindings.get(bind); }
+    [ADD_BINDING](bind, effect) {
+        const binding = this[GET_BINDING](bind);
+        if (binding) {
+            binding.effects.push(effect);
+            binding.changed = true;
+        }
+    }
 
     [ADD_CHILD](fragment) {
         this.#children.push(fragment);
@@ -142,6 +150,7 @@ export default class EnsoComponent extends HTMLElement {
         }
 
         this.#initialised = true;
+
         // Initial render
         this[UPDATE]();
     }
