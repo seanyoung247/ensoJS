@@ -35,8 +35,9 @@ export const isAttr = (attribute, prefix, type = null) => {
 };
 //// BINDINGS
 
-// Matches object property dependencies, i.e. this.<property>:
-const bindEx = /(?:this\.)?watched\.(\w+)/gi;
+// Matches object property dependencies, i.e:
+//    this.watched.property, watched.property, or watched:property (prefered form).
+const bindEx = /(?:this\.)?watched[.:]([A-Za-z_$][\w$]*)/g;
 
 export const getBindings = (source, set) => {
     let bind;
