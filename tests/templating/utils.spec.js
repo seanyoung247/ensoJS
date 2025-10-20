@@ -30,7 +30,7 @@ describe('getBindings', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
-        const source = "{{ this.watched.test === watched.prop1 + watched.prop2 }}";
+        const source = "{{ this.watched.test === watched:prop1 + watched.prop2 }}";
 
         getBindings(source, bindings);
         expect(bindings.size).toBe(3);
@@ -44,7 +44,7 @@ describe('bindSource', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
-        const source = "{{ this.watched.test === watched.prop1 + watched.prop2 }}";
+        const source = "{{ this.watched.test === watched:prop1 + watched.prop2 }}";
 
         const transformed = bindSource(source, bindings);
         expect(bindings.size).toBe(3);
@@ -105,43 +105,37 @@ describe('getDirective', () => {
         const div = document.createElement('DIV');
         div.innerHTML = '<div></div>';
         noDir = div.firstElementChild;
-        div.innerHTML = '<div *if="{{ this.test }}"></div>';
+        div.innerHTML = '<div *if="{{ watched.test }}"></div>';
         single = div.firstElementChild;
         div.innerHTML = `
             <div 
-                *if="{{ this.test }}"
+                *if="{{ watched.test }}"
                 *for="{{ item of list }}"
-                *of="{{ this.test2 }}"
+                enso-if="{{ watched.test2 }}"
             >
             </div>`;
         multi = div.firstElementChild;
     });
 
     it('handles no directives', () => {
-        expect(getDirective(noDir)).toBeNull();
+        expect(getDirective(noDir),'*if','enso-if').toBeNull();
         expect(getDirective(null)).toBeNull();
     });
 
     it('Handles single directives', () => {
-        const dir = getDirective(single);
+        const dir = getDirective(single,'*if','enso-if');
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
-        expect(dir.name).toBe('*if');
-        expect(dir.value).toBe('{{ this.test }}');
-        // Directive removed from attributes
-        expect(single.attributes.length).toBe(0);
+        expect(dir).toBe('{{ watched.test }}');
     });
 
     it('handles multiple directives', () => {
-        const dir = getDirective(multi);
+        const dir = getDirective(multi,'*if','enso-if');
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
-        expect(dir.name).toBe('*if');
-        expect(dir.value).toBe('{{ this.test }}');
-        // Directive removed from attributes
-        expect(multi.attributes.length).toBe(0);
+        expect(dir).toBe('{{ watched.test }}');
     });
 
 });
