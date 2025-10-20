@@ -72,9 +72,11 @@ export const createPlaceholder = () => {
 };
 
 export const getDirective = (node, short, long) => {
+    if (!node) return null;
+
     const directive = node.getAttributeNode(short) ?? node.getAttributeNode(long);
     if (directive) {
         node.removeAttribute(directive.name);
     }
-    return directive?.value;
+    return directive?.value ?? null;
 };
