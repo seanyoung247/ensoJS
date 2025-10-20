@@ -1,4 +1,5 @@
 
+import { watch } from "./watcher.js";
 import { MARK_CHANGED } from "./symbols.js";
 
 //// Watched Properties
@@ -111,8 +112,15 @@ export class Watched {
 
     constructor(component) {
         this.#component = component;
-        for (const def in this.defs) {
-            this.#values[def] = this.defs[def].value;
+        for (const defName in this.defs) {
+            const prop = this.defs[defName];
+            let value = prop.value;
+
+            if (prop.deep && typeof value === 'object' && value !== null) {
+                value = watch(value, prop.name, component[MARK_CHANGED]);
+            }
+
+            this.#values[defName] = value;
         }
     }
 
@@ -123,6 +131,10 @@ export class Watched {
         return this.#values[prop.name] ?? prop.value;
     }
     _setProp(prop, value) {
+        if (prop.deep && typeof value === 'object' && value !== null) {
+            value = watch(value, prop.name, this.#component[MARK_CHANGED]);
+        }
+
         this.#values[prop.name] = value;
         this.#component[MARK_CHANGED](prop.name);
 
