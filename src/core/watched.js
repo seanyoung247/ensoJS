@@ -82,13 +82,17 @@ export function setWatched(component, values) {
 
 export class Watched {
 
-    static define(properties) {
+    // Builds a subclass of Watched tailored to the properties passed
+    static define(properties, watchers={}) {
         const cls = class extends Watched {};
-        const attr = [];
-        cls.defs = {};
+        cls.attr = [];
+        cls.defs = Object.create(null);
 
+        // For each watched property
         for (const [name, property] of Object.entries(properties)) {
-            const prop = createPropDesc(name, property);
+            // Construct property description
+            const prop = createPropDesc(name, property, watchers[name]);
+            // Add accessors for the property
             Object.defineProperty(cls.prototype, prop.name, {
                 configurable: true,
                 enumerable: true,
@@ -99,43 +103,54 @@ export class Watched {
                     this._setProp(prop, val);
                 }
             });
+            // Insert definitions and observed attributes
             cls.defs[prop.name] = prop;
-            if (prop.attribute) attr.push(prop.name);
+            if (prop.attribute) cls.attr.push(prop.name);
         }
         Object.freeze(cls.defs);
-        Object.freeze(attr);
-        return [cls, attr];
+        Object.freeze(cls.attr);
+        return cls;
     }
 
-    #values = {};
-    #component;
+    #component;             // Component owner
+    #values = new Map();    // Holds the actual property values
+    #bindings = new Map();  // Bindings for the watched properties
 
     constructor(component) {
         this.#component = component;
+        // Property and binding setup
         for (const defName in this.defs) {
             const prop = this.defs[defName];
             let value = prop.value;
-
+            // Wrap value in proxy if deep reactivity requested
             if (prop.deep && typeof value === 'object' && value !== null) {
                 value = watch(value, prop.name, component[MARK_CHANGED]);
             }
-
-            this.#values[defName] = value;
+            // Add to values map
+            this.#values.set(defName, value);
+            // create binding
+            this.#bindings.set(defName, {
+                changed: false,             // Has value changed?
+                watchers: prop.watchers,    // List of functions to notify of changes
+                effects: [],                // List of effects to schedule on change
+            });
         }
+        this.#bindings.set(SETUP, {changed: false, watchers: [], effects: []});
     }
 
-    get [VALUES]() { return this.#values; }
+    get [BINDINGS]() { return this.#bindings; }
+    get [VALUES]() { return Object.fromEntries(this.#values); }
     get defs() { return this.constructor.defs; }
 
     _getProp(prop) {
-        return this.#values[prop.name] ?? prop.value;
+        return this.#values.get(prop.name);
     }
     _setProp(prop, value) {
         if (prop.deep && typeof value === 'object' && value !== null) {
             value = watch(value, prop.name, this.#component[MARK_CHANGED]);
         }
 
-        this.#values[prop.name] = value;
+        this.#values.set(prop.name, value);
         this.#component[MARK_CHANGED](prop.name);
 
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
@@ -144,7 +159,7 @@ export class Watched {
 
     update(values) {
         for (const val in values) {
-            if (values[val] !== this.#values[val]) {
+            if (values[val] !== this.#values.get(val)) {
                 this._setProp(this.defs[val], values[val]);
             }
         }

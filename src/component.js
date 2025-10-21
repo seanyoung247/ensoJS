@@ -12,7 +12,7 @@ import {
     ENV, ROOT, TASK_LIST, ADD_BINDING,
     UPDATE, MARK_CHANGED, GET_BINDING, 
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
-    ATTACH_TEMPLATE, ADD_CHILD, SETUP,
+    ATTACH_TEMPLATE, ADD_CHILD, //SETUP,
     BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
@@ -28,10 +28,10 @@ export default class EnsoComponent extends HTMLElement {
     // Reactivity properties
     #updateScheduled = false;
     #taskList = new Set();
-    #bindings = new Map();
+    #bindings;
     #children = [];
     #watched;
-    #refs = {};
+    #refs = Object.create(null);
     #env = createEffectEnv(this.expose);
 
     //// Setup
@@ -50,10 +50,7 @@ export default class EnsoComponent extends HTMLElement {
         }
 
         this.#watched = new this.constructor.WatchedClass(this);
-        for (const prop in this.#watched.defs) {
-            this.#bindings.set(prop, { changed: false, effects: [] });
-        }
-        this.#bindings.set(SETUP, { changed: false, effects: [] });
+        this.#bindings = this.#watched[BINDINGS];
 
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
