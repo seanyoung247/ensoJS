@@ -18,9 +18,9 @@ import {
 
 
 export const lifecycles = [
-    'mount',
-    'update',
-    'unmount',
+    'lifecycle:mount',
+    'lifecycle:update',
+    'lifecycle:unmount',
 ];
 
 /**
@@ -125,7 +125,7 @@ export default class EnsoComponent extends HTMLElement {
     }
 
     disconnectedCallback() {
-        this.#watched._notify('unmount');
+        this.#watched._notify('lifecycle:unmount');
     }
       
     // adoptedCallback() {} -- Not Yet Supported
@@ -139,7 +139,7 @@ export default class EnsoComponent extends HTMLElement {
     //// Lifecycle
     [ATTACH_TEMPLATE](DOM) { 
         this[ROOT].append(DOM);
-        this.#watched._notify('mount');
+        this.#watched._notify('lifecycle:mount');
     }
 
     reflectAttribute(attribute) {
@@ -168,6 +168,6 @@ export default class EnsoComponent extends HTMLElement {
 
         update(this);
 
-        this.#watched._notify('update');
+        this.#watched._notify('lifecycle:update');
     }
 }

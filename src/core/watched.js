@@ -142,6 +142,14 @@ export class Watched {
             cls.defs[prop.name] = prop;
             if (prop.attribute) cls.attr.push(prop.name);
         }
+        for (const lifecycle of lifecycles) {
+            cls.defs[lifecycle] = { 
+                name: lifecycle, 
+                value: false,
+                attribute: false,
+                watchers: watchers[lifecycle] ?? [],
+            };
+        }
         Object.freeze(cls.defs);
         Object.freeze(cls.attr);
         return cls;
@@ -169,10 +177,6 @@ export class Watched {
                 watchers: prop.watchers,    // List of functions to notify of changes
                 effects: [],                // List of effects to schedule on change
             });
-        }
-        // Add lifecycle bindings
-        for (const lifecycle of lifecycles) {
-            this.#bindings.set(lifecycle, {changed: false, watchers: [], effects: []});
         }
     }
 
