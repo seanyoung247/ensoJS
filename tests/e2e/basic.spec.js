@@ -1,8 +1,10 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import Enso, { html } from "../../src/enso.js";
+
+import { ATTACH_TEMPLATE } from '../../src/core/symbols.js';
 
 
 Enso.component( "enso-basic-test", {
@@ -49,6 +51,12 @@ describe('Basic Enso Component', () => {
         expect(span.textContent).toBe("World!");
         expect(el.refs.root.textContent.trim()).toBe("Hello World!");
 
+    });
+
+    it("doesn't allow multiple connection", () => {
+        const attachSpy = vi.spyOn(el, ATTACH_TEMPLATE);
+        el.connectedCallback();
+        expect(attachSpy).not.toHaveBeenCalled();
     });
 
 });

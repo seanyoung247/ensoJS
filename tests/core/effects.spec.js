@@ -67,6 +67,24 @@ describe("createEffect", () => {
         const res = fn({}, 4);
         expect(res).toBe(8);
     });
+
+    it('logs an error when new Function throws', () => {
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        // Cause invalid function syntax — `args.pop()` is the body string, so make it invalid JS.
+        const badBody = 'return something that is not valid js }';
+        
+        // args before body simulate effect arguments
+        createEffect('a', 'b', badBody);
+
+        expect(spy.mock.calls[0][0]).toContain('Error in effect:');
+        expect(spy.mock.calls[0][1]).toBeInstanceOf(SyntaxError);
+
+        spy.mockRestore();
+
+        const fn = createEffect('a', 'b', "x + 1");
+        expect(fn).toThrow();
+    });
 });
 
 describe("runEffect", () => {

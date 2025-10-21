@@ -10,7 +10,8 @@ import EnsoComponent from '../../src/component.js';
 Enso.component( "enso-attr-test", {
 
     watched: {
-        value: { value: 0, attribute: { type: Number, force: true } }
+        value: { value: 0, attribute: { type: Number, force: true } },
+        str: { value: 'test', attribute: { type: String } }
     },
 
     template: html`
@@ -73,11 +74,17 @@ describe('Enso Attributes', () => {
         expect(display.getAttribute('style')).toContain('red');
 
         el.setAttribute('value', '10');
+        el.setAttribute('value', '10'); // Cheating a bit for full coverage
         await nextFrame();
         expect(el.watched.value).toBe(10);
         expect(el.getAttribute('value')).toBe('10');
         expect(display.getAttribute('data-value')).toBe('10');
         expect(display.getAttribute('style')).toContain('red');
+
+        el.setAttribute('str', 'show');
+        expect(el.hasAttribute('str')).toBe(true);
+        el.watched.str = null;
+        expect(el.hasAttribute('str')).toBe(false);
     });
 
 });

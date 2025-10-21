@@ -125,7 +125,6 @@ Enso.component(scriptAccess, {
         }, [ 'message', 'counter' ]),
 
         greet(msg) {
-            console.log(msg);
             return `This is the message ${msg}`;
         },
 
