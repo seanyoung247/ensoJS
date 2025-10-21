@@ -5,9 +5,6 @@
 // Framework internal key
 export const ENSO_INTERNAL = Symbol("enso.internal");
 
-// Lifecycle Symbols
-export const SETUP = Symbol("enso.setup");
-
 // Enso Component internal framework method Symbols
 export const SCHEDULE_UPDATE = Symbol("enso.scheduleUpdate");
 export const SCHEDULE_EFFECT = Symbol("enso.scheduleEffect");

@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { ADD_BINDING, SCHEDULE_EFFECT, SETUP } from "../../core/symbols.js";
+import { ADD_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
 
 //// ATTRIBUTES
 
@@ -45,7 +45,7 @@ export const getBindings = (source, set) => {
         set.add(bind[1]);
     }
     // If no bindings found, bind as a startup effect.
-    if (set.size === 0) set.add(SETUP);
+    if (set.size === 0) set.add('mount');
 };
 export const bindSource = (source, set = null) => {
     const ret = source.replace(bindEx, (_match, prop) => {
@@ -53,7 +53,7 @@ export const bindSource = (source, set = null) => {
         return `this.watched.${prop}`;  // rewrite reference
     });
     // If no bindings found, bind as a startup effect.
-    if (set && set.size === 0) set.add(SETUP);
+    if (set && set.size === 0) set.add('mount');
     return ret;
 };
 

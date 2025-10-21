@@ -1,6 +1,7 @@
 
 import { watch } from "./watcher.js";
-import { BINDINGS, MARK_CHANGED, SETUP } from "./symbols.js";
+import { lifecycles } from "../component.js";
+import { BINDINGS, MARK_CHANGED } from "./symbols.js";
 
 //// Watched Properties
 export const attributeTypes = Object.freeze([
@@ -169,7 +170,10 @@ export class Watched {
                 effects: [],                // List of effects to schedule on change
             });
         }
-        this.#bindings.set(SETUP, {changed: false, watchers: [], effects: []});
+        // Add lifecycle bindings
+        for (const lifecycle of lifecycles) {
+            this.#bindings.set(lifecycle, {changed: false, watchers: [], effects: []});
+        }
     }
 
     get [BINDINGS]() { return this.#bindings; }
@@ -201,7 +205,6 @@ export class Watched {
         this.#component[MARK_CHANGED](prop.name);
 
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
-        this.#component.onPropertyChange(prop.name, value);
         this._notify(prop.name);
     }
 

@@ -12,9 +12,16 @@ import {
     ENV, ROOT, TASK_LIST, ADD_BINDING,
     UPDATE, MARK_CHANGED, GET_BINDING, 
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
-    ATTACH_TEMPLATE, ADD_CHILD, //SETUP,
+    ATTACH_TEMPLATE, ADD_CHILD,
     BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
+
+
+export const lifecycles = [
+    'mount',
+    'update',
+    'unmount',
+];
 
 /**
  * Enso Web Component base class
@@ -88,41 +95,6 @@ export default class EnsoComponent extends HTMLElement {
         this.#children.push(fragment);
     }
 
-    //// LifeCycle hooks
-
-    /**
-     * Called after the component has been mounted and started on the page.
-     * @abstract
-     */
-    onStart() {}
-
-    /**
-     * Called after a property value changes.
-     * @param {String} prop - String name of the property
-     * @param {*} value - The new property value
-     * @abstract
-     */
-    onPropertyChange() {}
-
-    /**
-     * Called before the component updates the DOM in response to property changes.
-     * @abstract
-     */
-    preUpdate() {}
-    /**
-     * Called after the component updates the DOM in response to property changes.
-     * @abstract
-     */
-    postUpdate() {}
-
-    /**
-     * Called before the component is removed from the page. Component cleanup
-     * should be done here.
-     * @abstract
-     */
-    onRemoved() {}
-
-
     //// Web Component API
 
     connectedCallback() {
@@ -153,7 +125,7 @@ export default class EnsoComponent extends HTMLElement {
     }
 
     disconnectedCallback() {
-        this.onRemoved();
+        this.#watched._notify('unmount');
     }
       
     // adoptedCallback() {} -- Not Yet Supported
@@ -167,7 +139,7 @@ export default class EnsoComponent extends HTMLElement {
     //// Lifecycle
     [ATTACH_TEMPLATE](DOM) { 
         this[ROOT].append(DOM);
-        this.onStart();
+        this.#watched._notify('mount');
     }
 
     reflectAttribute(attribute) {
@@ -192,11 +164,10 @@ export default class EnsoComponent extends HTMLElement {
     }
 
     [UPDATE]() {
-        this.preUpdate();
         this.#updateScheduled = false;
 
         update(this);
 
-        this.postUpdate();
+        this.#watched._notify('update');
     }
 }
