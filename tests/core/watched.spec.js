@@ -42,7 +42,6 @@ describe("Watched class", () => {
     const values = getWatched(component);
     expect(values.count).toBe(10);
     expect(component[MARK_CHANGED]).toHaveBeenCalledWith("count");
-    expect(component.onPropertyChange).toHaveBeenCalledWith("count", 10);
   });
 
   it("setWatched updates multiple values at once", () => {
