@@ -8,12 +8,12 @@ describe("Watched class", () => {
 
   beforeEach(() => {
     // Define the watched class properly
-    const [MyWatched, attr] = Watched.define({
+    const MyWatched = Watched.define({
       count: 5,
       show: { value: true },
       attr: { value: 'test', attribute: { force: true } }
     });
-    observedAttributes = attr;
+    observedAttributes = MyWatched.attr;
 
     // Mock component hosting the Watched instance
     class MockComponent {
