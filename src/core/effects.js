@@ -41,7 +41,10 @@ const createFunctionBody = code => (
     `with (env) {
         return (() => {
             "use strict";
-            return ${code};
+            try { return ${code}; } catch(e) {
+                console.error('Runtime error in effect:', e);
+                return undefined;
+            }
         })();
     }`
 );
@@ -61,7 +64,7 @@ export const createEffect = (() => {
         try {
             fn = cache[key] ?? (cache[key] = new Function('env', ...args, body));
         } catch(e) {
-            console.error("Error in effect: ", e, '\n', fn.toString());
+            console.error("Error in effect: ", e, '\n', body);
         }
         return fn;
     };
