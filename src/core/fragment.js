@@ -48,9 +48,12 @@ export class EnsoFragment {
         parent[ADD_CHILD](this);
 
         // Create initial binding map
-        for (const bind of this.#component[BINDINGS].keys()) {
-            this.#bindings.set(bind, {changed: false, effects: []});
+        for (const [prop, bind] of this.#component[BINDINGS]) {
+            this.#bindings.set(prop, {
+                changed: false, watchers: bind.watchers, effects: []
+            });
         }
+
 
         this[UPDATE] = this[UPDATE].bind(this);
         this.#root = template.process(this).firstElementChild;

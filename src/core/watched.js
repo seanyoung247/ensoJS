@@ -1,6 +1,6 @@
 
 import { watch } from "./watcher.js";
-import { MARK_CHANGED } from "./symbols.js";
+import { BINDINGS, MARK_CHANGED, SETUP } from "./symbols.js";
 
 //// Watched Properties
 export const attributeTypes = Object.freeze([
@@ -40,7 +40,7 @@ function createAttrDesc(attr, value, options = {}) {
     return { type, force, toProp, toAttr };
 }
 
-function createPropDesc(name, desc) {
+function createPropDesc(name, desc, watchers = []) {
     // Support shorthand: count: 0
     if (desc !== Object(desc)) desc = { value: desc };
 
@@ -56,7 +56,7 @@ function createPropDesc(name, desc) {
         deep = false;
     }
 
-    return { name, deep, value, attribute };
+    return { name, deep, value, attribute, watchers };
 }
 
 const VALUES = Symbol('enso.watched.values');
@@ -78,6 +78,40 @@ export function getWatched(component) {
  */
 export function setWatched(component, values) {
     component.watched.update(values);
+}
+
+/**
+ * Tags a script method to be notified when watched properties change
+ * @param {Function} fn     - The function to call
+ * @param {[String]} props  - List of watched properties to watch
+ * @returns {Function} The watcher function
+ */
+export function watches(fn, props, keep=false) {
+    if (typeof fn === 'function') {
+        fn.__watches = { props, keep };
+    }
+    return fn;
+}
+
+/**
+ * Scans through the given script and collects any methods
+ * that should be called when properties change.
+ * @param {Object} script - The component's script object
+ * @returns {Object} - Property keys with watching methods.
+ */
+export function parseScript(script) {
+    const watchers = Object.create(null);
+    if (!script) return watchers;
+
+    for (const [key, fn] of Object.entries(script)) {
+        if (fn?.__watches) {
+            for (const prop of fn.__watches.props) {
+                (watchers[prop] ||= []).push(fn);
+            }
+            if (!fn.__watches.keep) delete script[key];
+        }
+    }
+    return watchers;
 }
 
 export class Watched {
@@ -142,6 +176,19 @@ export class Watched {
     get [VALUES]() { return Object.fromEntries(this.#values); }
     get defs() { return this.constructor.defs; }
 
+    _notify(prop) {
+        if (this.#bindings.has(prop)) {
+            const { watchers } = this.#bindings.get(prop);
+            const value = this.#values.get(prop);
+
+            for (const watcher of watchers) {
+                watcher.call(
+                    this.#component, prop, value
+                );
+            }
+        }
+    }
+
     _getProp(prop) {
         return this.#values.get(prop.name);
     }
@@ -155,6 +202,7 @@ export class Watched {
 
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
         this.#component.onPropertyChange(prop.name, value);
+        this._notify(prop.name);
     }
 
     update(values) {

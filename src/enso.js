@@ -7,6 +7,7 @@
 
 import EnsoComponent from "./component.js";
 import { createComponent } from "./core/components.js";
+import { parseScript } from "./core/watched.js";
 import { Watched } from "./core/watched.js";
 
 const Enso = (()=>{
@@ -51,20 +52,21 @@ const Enso = (()=>{
                 settings={}
             }) { settings = defaultSettings(settings);
 
+            const watchers = parseScript(script);
             const component = createComponent(EnsoComponent, script);
 
             // Create observed and watched properties
-            const [WatchedClass, observedAttributes] = Watched.define(watched);
-
+            const WatchedClass = Watched.define(watched, watchers);
+            
             if (styles && !Array.isArray(styles)) styles = [styles];
             // Static properties
             Object.defineProperties(component, {
-                'observedAttributes': { get() { return observedAttributes; } },
+                'observedAttributes': { get() { return WatchedClass.attr; } },
                 'WatchedClass': { get() { return WatchedClass; } }
             });
             // Type properties
             Object.defineProperties(component.prototype, {
-                'observedAttributes': { get() { return observedAttributes; } },
+                'observedAttributes': { get() { return WatchedClass.attr; } },
                 'settings': { get() { return settings; } },
                 'template': { get() { return template; } },
                 'styles': { get() { return styles; } },
@@ -87,6 +89,6 @@ export { css, html } from './core/tags.js';
 // Template helpers
 export * from './utils/helpers.js';
 // Watched properties
-export { getWatched, setWatched } from './core/watched.js';
+export { watches, getWatched, setWatched } from './core/watched.js';
 // Component creator and global settings
 export default Enso;
