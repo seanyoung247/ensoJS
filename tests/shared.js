@@ -17,3 +17,6 @@ export const setup = (component) => {
     return [ el, root ];
 };
 
+export const clearDOM = () => {
+    document.body.innerHTML = '';
+};

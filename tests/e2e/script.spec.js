@@ -1,9 +1,12 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest';
-import Enso, { html, watches } from "../../src/enso.js";
-import { nextFrame, setup } from '../shared.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import Enso, { 
+    html, watches, getWatched, setWatched 
+} from "../../src/enso.js";
+
+import { nextFrame, setup, clearDOM } from '../shared.js';
 
 
 const scriptBasic = 'enso-script-basic-test';
@@ -36,84 +39,55 @@ describe('Basic custom code script', () => {
 });
 
 
-// Lifecycle hooks
-// const scriptHooks = 'enso-script-hooks-test';
-// describe('Script lifecycle hooks', () => {
-
-//     let el;
-//     const script = {
-//         onStart: vi.fn(),
-//         onPropertyChange: vi.fn(),
-//         preUpdate: vi.fn(),
-//         postUpdate: vi.fn(),
-//         onRemoved: vi.fn(),
-//     };
-//     beforeAll(() => {
-//         Enso.component(scriptHooks, {
-//             watched: { message: 'hello!' },
-//             template: html`<div #ref="div">{{ watched:message }}</div>`,
-//             script,
-//         });
-//     });
-//     beforeEach(() => { vi.clearAllMocks(); });
-
-//     it('calls onStart after mount', async () => {
-//         expect(script.onStart).not.toHaveBeenCalled();
-//         [el] = setup(scriptHooks);
-//         await nextFrame();
-//         expect(script.onStart).toHaveBeenCalled();
-//     });
-
-//     it('calls onPropertyChange when a property changes', () => {
-//         el.watched.message = 'world';
-//         expect(script.onPropertyChange).toHaveBeenCalledWith('message', 'world');
-//     });
-
-//     it('calls pre and post update hooks', async () => {
-//         el.watched.message = 'Updated!';
-//         await nextFrame();
-//         expect(script.preUpdate).toHaveBeenCalled();
-//         expect(script.postUpdate).toHaveBeenCalled();
-//         expect(el.refs.div.textContent.trim()).toBe('Updated!');
-//     });
-
-//     it('calls onRemoved when component is unmounted', () => {
-//         el.remove();
-//         expect(script.onRemoved).toHaveBeenCalled();
-//     });
-// });
-
-
-// Watched property callbacks
+// State callbacks (watchers)
 const scriptCallbacks = 'enso-script-callback-test';
-const mockMessage = vi.fn();
-const mockCounter = vi.fn();
+const mocks = {
+    message: vi.fn(),
+    counter: vi.fn(),
+    mount: vi.fn(),
+    update: vi.fn(),
+    unMount: vi.fn(),
+};
 Enso.component(scriptCallbacks, {
     watched: { message: 'hello', counter: 0 },
     template: html`<div #ref='div'>{{ watched:message }}</div>`,
     script: {
         onMessageChange: watches((prop, value) => {
-            mockMessage(prop, value);
+            mocks.message(prop, value);
         }, ['message']),
+
         onCounterChange: watches((prop, value) => {
-            mockCounter(prop, value);
+            mocks.counter(prop, value);
         }, ['counter'], true),
+
+        mount: watches(() => {
+            mocks.mount();
+        }, ['lifecycle:mount']),
+
+        update: watches(() => {
+            mocks.update();
+        }, ['lifecycle:update']),
+
+        unmount: watches(() => {
+            mocks.unMount();
+        }, ['lifecycle:unmount']),
     }
 });
 
-describe('Script property changed callbacks', () => {
+describe('Script state callbacks', () => {
 
     let el;
     beforeEach(() => {
         vi.clearAllMocks(); // reset mock call history
         [el] = setup(scriptCallbacks);
     });
+    afterEach(() => clearDOM());
 
     it('calls watchers on watched property change', () => {
         // 1. Should trigger the "message" watcher only
         el.watched.message = 'World';
-        expect(mockMessage).toHaveBeenCalledWith('message', 'World');
-        expect(mockCounter).not.toHaveBeenCalled();
+        expect(mocks.message).toHaveBeenCalledWith('message', 'World');
+        expect(mocks.counter).not.toHaveBeenCalled();
 
         // 2. "keep" behavior
         expect(el.onMessageChange).toBeUndefined();
@@ -121,11 +95,17 @@ describe('Script property changed callbacks', () => {
 
         // 3. Changing counter should trigger its watcher
         el.watched.counter++;
-        expect(mockCounter).toHaveBeenCalledWith('counter', 1);
+        expect(mocks.counter).toHaveBeenCalledWith('counter', 1);
 
         // 4. Manually calling the kept watcher should also invoke it
         el.onCounterChange('counter', el.watched.counter);
-        expect(mockCounter).toHaveBeenCalledTimes(2);
+        expect(mocks.counter).toHaveBeenCalledTimes(2);
+    });
+
+    it('calls watchers on lifecycle changes', () => {
+        expect(mocks.mount).toHaveBeenCalled();
+        expect(mocks.unMount).not.toHaveBeenCalled();
+        vi.clearAllMocks();
     });
 });
 
@@ -133,10 +113,10 @@ describe('Script property changed callbacks', () => {
 const scriptAccess = 'enso-script-access-test';
 const mockFn = vi.fn();
 Enso.component(scriptAccess, {
-    watched: { message: 'hello', counter: 0 },
+    watched: { message: 'Hello', counter: 0 },
     template: html`
         <div #ref="div">
-            {{ this.greet(watched:message) }} = {{ watched:counter }}
+            {{ this.greet( watched:message ) }}
         </div>`,
 
     script: {
@@ -145,11 +125,52 @@ Enso.component(scriptAccess, {
         }, [ 'message', 'counter' ]),
 
         greet(msg) {
+            console.log(msg);
             return `This is the message ${msg}`;
         },
 
-        values() {
+        updateValues() {
+            let { message, counter } = getWatched(this);
 
+            message = 'updated';
+            counter++;
+
+            setWatched(this, { message, counter });
+        },
+
+        getValues() {
+            return [
+                this.watched.message, 
+                this.watched.counter
+            ];
         }
     }
+});
+
+describe('Script custom methods access', () => {
+   
+    let el;
+    beforeEach(() => {
+        vi.clearAllMocks(); // reset mock call history
+        [el] = setup(scriptAccess);
+    });
+
+    it('can access and alter watched properties with helpers', () => {
+        el.updateValues();
+        expect(el.watched.counter).toBe(1);
+        expect(mockFn).toBeCalledTimes(2);
+    });
+
+    it('can access watched properties directly', () => {
+        const [message, counter] = el.getValues();
+        expect(message).toBe('Hello');
+        expect(counter).toBe(0);
+    });
+
+    it('can interact with templates', async () => {
+        el.watched.message = 'World';
+        expect(mockFn).toHaveBeenCalledWith('message', 'World');
+        await nextFrame();
+        expect(el.refs.div.textContent.trim()).toBe('This is the message World');
+    });
 });
