@@ -3,20 +3,19 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { getBindings } from "./utils.js";
+import { addBinding, bindSource } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
-
-import { GET_BINDING } from "../../core/symbols.js";
 
 const nodeEx = /({{(.|\n)*}})/;
 
 
 function createTextEffect(code) {
+    code = createStringTemplate(code);
     const fn = createEffect(code);
     return function (env, {element}) {
         const content = fn.call(this, env);
-        if (content) {
+        if (element && content) {
             element.textContent = content;
         }
     };
@@ -34,40 +33,29 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        const content = {
-            parent: node.parentNode,
-            index: getChildIndex(node.parentNode, node),
-            effect: createTextEffect(
-                createStringTemplate(node.nodeValue)
-            ),
-            binds: new Set()
-        };
-
-        if (!def.content) def.content = [content];
-        else def.content.push(content);
-        const current = def.content.length - 1;
-
-        getBindings(node.nodeValue, def.content[current].binds);
+        const binds = new Set();
+        const source = bindSource(node.nodeValue, binds);
+        def.addContent(
+            node.parentNode,
+            getChildIndex(node.parentNode, node),
+            createTextEffect(source),
+            binds
+        );
+        def.attachParser(this);
 
         return true;
     },
 
     process(def, parent, element) {
-        
         if (def.content) {
             for (const content of def.content) {
                 const node = element.childNodes[content.index];
                 const effect = {element: node, action: content.effect};
                 // Attach effect to all bindings
                 for (const bind of content.binds) {
-                    const binding = parent[GET_BINDING](bind);
-                    if (binding) {
-                        binding.effects.push(effect);
-                        binding.changed = true;
-                    }
+                    addBinding(parent, bind, effect);
                 }
             }
         }
     }
-
 });

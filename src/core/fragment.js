@@ -2,11 +2,13 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { processTemplate } from "./components.js";
-import { runEffect, createEffectEnv } from "./effects.js";
+import { markChanged, update } from "./components.js";
+import { createEffectEnv } from "./effects.js";
 import { 
     ROOT, ENV, ADD_CHILD, GET_BINDING,
-    SCHEDULE_UPDATE, ATTACH_TEMPLATE
+    SCHEDULE_UPDATE, SCHEDULE_EFFECT,
+    BINDINGS, CHILDREN, TASK_LIST,
+    UPDATE, MARK_CHANGED, ADD_BINDING
 } from "./symbols.js";
 
 /**
@@ -20,21 +22,21 @@ import {
  */
 export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
-    #template;              // Template for this fragment
+    // #template;              // Template for this fragment
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
-    #root = null;           // Mounted fragment root node
+    #root = null;           // Fragment root node
     #env;                   // Effect environment
 
     #children = [];         // Child fragments
 
+    #taskList = new Set();  // Set of effects to be run during the next update
     #attached = false;      // Is the fragment currently attached to the DOM?
-    #updateScheduled = false; // Is an update scheduled
 
     constructor(parent, template, placeholder) {
         this.#component = parent.component;
-        this.#template = template;
+        // this.#template = template;
         this.#parent = parent;
         this.#env = parent[ENV];
 
@@ -44,14 +46,28 @@ export class EnsoFragment {
 
         // Register with parent
         parent[ADD_CHILD](this);
- 
-        this.update = this.update.bind(this);
+
+        // Create initial binding map
+        for (const [prop, bind] of this.#component[BINDINGS]) {
+            this.#bindings.set(prop, {
+                changed: false, watchers: bind.watchers, effects: []
+            });
+        }
+
+
+        this[UPDATE] = this[UPDATE].bind(this);
+        this.#root = template.process(this).firstElementChild;
     }
 
+    //// Accessors - Public
     get tag() { return "enso:fragment"; }
     get component() { return this.#component; }
     get isAttached() { return this.#attached; }
 
+    //// Accessors - Framework internal
+    get [TASK_LIST]() { return this.#taskList; }
+    get [BINDINGS]() { return this.#bindings; }
+    get [CHILDREN]() { return this.#children; }
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
@@ -65,62 +81,40 @@ export class EnsoFragment {
     }
 
     [GET_BINDING](bind) {
-        return this.#bindings.get(bind) || this.#parent[GET_BINDING](bind); 
+        return this.#bindings.get(bind); 
+    }
+    [ADD_BINDING](bind, effect) {
+        const binding = this[GET_BINDING](bind);
+        if (binding) {
+            binding.effects.push(effect);
+            binding.changed = true;
+        }
+    }
+
+    [SCHEDULE_EFFECT](effect) {
+        this.#taskList.add(effect);
     }
 
     //// Fragment Lifecycle
-    [ATTACH_TEMPLATE](DOM) {
-        this.#root = DOM.firstElementChild;
-        this.#anchor.after(DOM);
-
-        this.#attached = true;
-        this.update();
-    }
-
     [SCHEDULE_UPDATE]() {
-        this.#updateScheduled = true;
         this.#component[SCHEDULE_UPDATE]();
     }
 
     mount() {
         if (this.#attached || !this.#parentAttached) return;
 
-        if (!this.#root) {
-            processTemplate(this, this.#template);
-        } else {
-            this.#anchor.after(this.#root);
-            this.#attached = true;
-            this.update();
-        }
+        this.#anchor.after(this.#root);
+        this.#attached = true;
+        this[UPDATE]();
     }
 
-    markChanged(prop) {
-        const bind = this.#bindings.get(prop);
-        if (bind) {
-            bind.changed = true;
-            this[SCHEDULE_UPDATE]();
-        }
-        for (const child of this.#children) {
-            child.markChanged(prop);
-        }
+    [MARK_CHANGED](prop) { markChanged(this, prop); }
+
+    [UPDATE]() {
+        if (this.#taskList.size > 0 && this.#attached) 
+            update(this);
     }
 
-    update() {
-        if (!this.#updateScheduled || !this.#attached) return;
-
-        this.#updateScheduled = false;
-        for (const bind of this.#bindings.values()) {
-            if (bind.changed) {
-                for (const effect of bind.effects) {
-                    runEffect(this, effect);
-                }
-                bind.changed = false;
-            }
-        }
-        for (const child of this.#children) {
-            child.update();
-        }
-    }
 
     unmount() {
         this.#root?.remove();

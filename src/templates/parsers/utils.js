@@ -2,38 +2,93 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-// Matches object property dependencies, i.e. this.<property>:
-const bindEx = /(?:this\.)(\w+|\d*)/gi;
+import { ADD_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
 
-export const getName = attr => attr.name.slice(1).toLowerCase();
-export const getBindings = (source, set) => {
-    let bind;
-    while ((bind = bindEx.exec(source)) !== null) {
-        set.add(bind[1]);
+//// ATTRIBUTES
+
+export const getName = (attr, prefixLen = 1) => {
+    const name = attr.name;
+
+    if (name.startsWith('enso-')) {
+        // Longform, e.g. enso-evt:click
+        const idx = name.indexOf(':');
+        if (idx > -1) return name.slice(idx + 1).toLowerCase();
     }
+
+    // Default shorthand behaviour
+    return name.slice(prefixLen).toLowerCase();
 };
 
-export const isAttr = (attribute, prefix) => (
-    attribute?.name?.startsWith(prefix) ?? false
-);
+export const isAttr = (attribute, prefix, type = null) => {
+    if (!attribute?.name) return false;
+    const name = attribute.name;
 
-export const createPlaceholder = id => {
-    const el = document.createElement("template");
-    el.id = id;
-    return el;
-}
+    // Shorthand check
+    if (name.startsWith(prefix)) return true;
 
-export const getDirective = (node, prefix='*') => {
-    if (!node.attributes) return null;
-
-    let directive = null;
-    for (const attr of [...node.attributes]) {
-        if (attr.name.startsWith(prefix)) {
-            // Only one directive per node is supported
-            if (!directive) directive = attr;
-            node.removeAttribute(attr.name);
-        }
+    // Longform check, e.g. enso-evt:click
+    if (type) {
+        return name.startsWith(`enso-${type}:`);
     }
 
-    return directive;
+    return false;
+};
+//// BINDINGS
+
+// Matches object property dependencies, i.e:
+// this.watched.property (true path), 
+// watched:property (namespaced) or
+// @:property (shorthand)
+const bindEx = /(?:this\.watched\.|watched:|@:)([A-Za-z_$][\w$]*)/g;
+/**
+ * Collects bindings from a source string
+ * @param {string} source 
+ * @param {Set} set 
+ */
+export const getBindings = (source, set) => {
+    let match;
+    while ((match = bindEx.exec(source)) !== null) {
+        set.add(match[1]);
+    }
+    if (set.size === 0) set.add('lifecycle:mount');
+};
+
+/**
+ * Collects bindings, and rewrites watched references to 
+ * explicit: this.watched.prop access
+ * @param {string} source 
+ * @param {Set} set 
+ * @returns {string}
+ */
+export const bindSource = (source, set = null) => {
+    const ret = source.replace(bindEx, (_match, prop) => {
+        if (set) set.add(prop);
+        return `this.watched.${prop}`;
+    });
+    if (set && set.size === 0) set.add('lifecycle:mount');
+    return ret;
+};
+
+export const addBinding = (parent, bind, effect) => {
+    parent[ADD_BINDING](bind, effect);
+    // Schedule initial render
+    parent[SCHEDULE_EFFECT](effect);
+};
+
+
+//// DIRECTIVES
+
+export const createPlaceholder = () => {
+    const el = document.createElement("template");
+    return el;
+};
+
+export const getDirective = (node, short, long) => {
+    if (!node) return null;
+
+    const directive = node.getAttributeNode(short) ?? node.getAttributeNode(long);
+    if (directive) {
+        node.removeAttribute(directive.name);
+    }
+    return directive?.value ?? null;
 };

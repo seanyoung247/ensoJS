@@ -5,89 +5,46 @@
  * Licensed under the MIT License
  */
 
-import { runEffect, createEffectEnv } from "./core/effects.js";
-import { defineWatchedProperty, createComponent, processTemplate } from "./core/components.js";
+import { createEffectEnv } from "./core/effects.js";
 import { attachStyleSheets } from "./utils/css.js";
-
+import { markChanged, update } from "./core/components.js";
 import { 
-    TEMPLATES, ENV, ROOT,
+    ENV, ROOT, TASK_LIST, ADD_BINDING,
     UPDATE, MARK_CHANGED, GET_BINDING, 
-    SCHEDULE_UPDATE, ATTACH_TEMPLATE,
-    ADD_CHILD,
-    ENSO_INTERNAL 
+    SCHEDULE_UPDATE, SCHEDULE_EFFECT,
+    ATTACH_TEMPLATE, ADD_CHILD,
+    BINDINGS, CHILDREN, ENSO_INTERNAL,
 } from "./core/symbols.js";
+
+
+export const lifecycles = [
+    'lifecycle:mount',
+    'lifecycle:update',
+    'lifecycle:unmount',
+];
 
 /**
  * Enso Web Component base class
  * @abstract
  */
-export default class Enso extends HTMLElement {
-
-    /**
-     * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {String} tag                      - DOM tag name for this component
-     * @param {Object} props                    - Component properties
-     *  @param {EnsoTemplate} props.template    - Template defining component HTML
-     *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
-     *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
-     *  @param {Object} [props.properties]      - (optional) This component's watched properties
-     *  @param {Boolean} [props.useShadow=true] - (Optional) Should the component use shadow dom 
-     *  @param {Object} [props.script]          - (Optional) Custom component code implementation
-     * @returns {typeof Enso} - The newly constructed component class
-     * @static
-     */
-    static component(tag, {
-            template,
-            styles=null, 
-            expose={},
-            properties={},
-            useShadow=true,
-            script=null
-        }) {
-
-        const component = createComponent(Enso, script);
-
-        // Create observed properties
-        const observedAttributes = [];
-        for (const prop in properties) {
-            properties[prop] = defineWatchedProperty(component, prop, properties[prop]);
-            if (properties[prop].attribute) observedAttributes.push(prop);
-        }
-
-        if (styles && !Array.isArray(styles)) styles = [styles];
-
-        // Type properties
-        Object.defineProperty(component, 'observedAttributes', {
-            get() { return observedAttributes; }
-        });
-        Object.defineProperties(component.prototype, {
-            'observedAttributesList': { get() { return observedAttributes; } },
-            'properties': { get() { return properties; } },
-            'useShadow': { get() { return useShadow; } },
-            'template': { get() { return template; } },
-            'styles': { get() { return styles; } },
-            'expose': { get() { return expose; } }
-        });
-
-        // Define the custom element
-        customElements.define(tag, component);
-        return component;
-    }
-
+export default class EnsoComponent extends HTMLElement {
     //// Instance Fields
-
     #initialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
     // Reactivity properties
     #updateScheduled = false;
-    #bindings = new Map();
+    #taskList = new Set();
+    #bindings;
     #children = [];
-    #templates = [];
-    #refs = {};
+    #watched;
+    #refs = Object.create(null);
     #env = createEffectEnv(this.expose);
 
     //// Setup
+    #getShadowDom() {
+        return (this.shadowRoot ?? this.attachShadow({ mode: this.settings.shadowMode }));
+    }
 
     constructor(key) {
         super();
@@ -99,65 +56,44 @@ export default class Enso extends HTMLElement {
             );
         }
 
-        for (const prop in this.properties) {
-            this.#bindings.set(prop, { changed: false, effects: [] });
-        }
+        this.#watched = new this.constructor.WatchedClass(this);
+        this.#bindings = this.#watched[BINDINGS];
 
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
-
-        this.#root = this.useShadow ? 
-            this.shadowRoot ?? this.attachShadow({mode: 'open'}) : this;
-    }
-    
-    [ADD_CHILD](fragment) {
-        this.#children.push(fragment);
+        
+        this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
     }
 
-    //// Accessors - Framework internal
-    [GET_BINDING](bind) { return this.#bindings.get(bind); }
-    get [ROOT]() { return this.#root; }
-    get [TEMPLATES]() { return this.#templates; }
-    get [ENV]() { return this.#env; }
     //// Accessors - External
     get refs() { return this.#refs; }
     get component() { return this; }
     get isAttached() { return this.#initialised; }
+    get watched() { return this.#watched; }
 
-    //// LifeCycle hooks
+    //// Accessors - Framework internal
+    get [TASK_LIST]() { return this.#taskList; }
+    get [BINDINGS]() { return this.#bindings; }
+    get [CHILDREN]() { return this.#children; }
+    get [ROOT]() { return this.#root; }
+    get [ENV]() { return this.#env; }
 
-    /**
-     * Called after the component has been mounted and started on the page.
-     * @abstract
-     */
-    onStart() {}
+    [SCHEDULE_EFFECT](effect) {
+        this.#taskList.add(effect);
+    }
 
-    /**
-     * Called after a property value changes.
-     * @param {String} prop - String name of the property
-     * @param {*} value - The new property value
-     * @abstract
-     */
-    onPropertyChange() {}
+    [GET_BINDING](bind) { return this.#bindings.get(bind); }
+    [ADD_BINDING](bind, effect) {
+        const binding = this[GET_BINDING](bind);
+        if (binding) {
+            binding.effects.push(effect);
+            binding.changed = true;
+        }
+    }
 
-    /**
-     * Called before the component updates the DOM in response to property changes.
-     * @abstract
-     */
-    preUpdate() {}
-    /**
-     * Called after the component updates the DOM in response to property changes.
-     * @abstract
-     */
-    postUpdate() {}
-
-    /**
-     * Called before the component is removed from the page. Component cleanup
-     * should be done here.
-     * @abstract
-     */
-    onRemoved() {}
-
+    [ADD_CHILD](fragment) {
+        this.#children.push(fragment);
+    }
 
     //// Web Component API
 
@@ -166,51 +102,53 @@ export default class Enso extends HTMLElement {
 
         // Loops through all properties defined as attributes 
         // and sets their initial value if they're forced.
-        const attributes = this.observedAttributesList;
+        const attributes = this.observedAttributes;
         for (const attr of attributes) {
-            if (this.properties[attr].attribute.force) {
+            if (this.watched.defs[attr].attribute.force) {
                 this.reflectAttribute(attr);
             }
         }
 
         // Parse and attach template
-        processTemplate(this, this.template);
+        this[ATTACH_TEMPLATE](
+            this.template.process(this, this.template)
+        );
 
         if (this.styles) {
             attachStyleSheets(this[ROOT], this.styles);
         }
 
         this.#initialised = true;
+
         // Initial render
         this[UPDATE]();
     }
 
     disconnectedCallback() {
-        this.onRemoved();
+        this.#watched._notify('lifecycle:unmount');
     }
       
     // adoptedCallback() {} -- Not Yet Supported
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-
-        const val = this.properties[property].attribute.toProp(newValue);
-        if (this[property] !== val) this[property] = val;
+        const val = this.watched.defs[property].attribute.toProp(newValue);
+        if (this.watched[property] !== val) this.watched[property] = val;
     }
 
     //// Lifecycle
     [ATTACH_TEMPLATE](DOM) { 
         this[ROOT].append(DOM);
-        this.onStart();
+        this.#watched._notify('lifecycle:mount');
     }
 
     reflectAttribute(attribute) {
-        const attr = this.properties[attribute];
-        const value = attr.attribute.toAttr(this[attribute]);
+        const attr = this.#watched.defs[attribute];
+        const value = attr.attribute.toAttr(this.watched[attribute]);
         
-        if (value !== this.getAttribute(attribute)) {
-            if (value === null) this.removeAttribute(attribute);
-            else this.setAttribute(attribute, value);
+        if (value !== this.getAttribute(attr.name)) {
+            if (value === null) this.removeAttribute(attr.name);
+            else this.setAttribute(attr.name, value);
         }
     }
 
@@ -222,30 +160,14 @@ export default class Enso extends HTMLElement {
     }
 
     [MARK_CHANGED](prop) {
-        const bind = this.#bindings.get(prop);
-        if (bind) {
-            bind.changed = true;
-            this[SCHEDULE_UPDATE]();
-        }
-        for (const child of this.#children) {
-            child.markChanged(prop);
-        }
+        markChanged(this, prop); 
     }
 
     [UPDATE]() {
-        this.preUpdate();
         this.#updateScheduled = false;
-        for (const bind of this.#bindings.values()) {
-            if (bind.changed) {
-                for (const effect of bind.effects) {
-                    runEffect(this, this.#env, effect);
-                }
-                bind.changed = false;
-            }
-        }
-        for (const child of this.#children) {
-            child.update();
-        }
-        this.postUpdate();
+
+        update(this);
+
+        this.#watched._notify('lifecycle:update');
     }
 }

@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { getName, isAttr } from "./utils.js";
+import { bindSource, getName, isAttr } from "./utils.js";
 import { createEffect } from "../../core/effects.js";
 
 import { ENV } from "../../core/symbols.js";
@@ -14,7 +14,6 @@ function createEventHandler(code) {
 }
 
 function attachEventListener(component, element, event) {
-
     let handler;
     try {
         handler = event.func.call(component, component[ENV]);
@@ -25,7 +24,7 @@ function attachEventListener(component, element, event) {
         handler = handler.bind(component);
     } catch (e) {
         console.error('[Enso] - ',e);
-        handler = () => { console.warn(`Invalid event handler for event '${event.name}'`) };
+        handler = () => { console.warn(`Invalid event handler for event '${event.name}'`); };
         handler = handler.bind(component);
     }
     element.addEventListener( event.name, handler );
@@ -38,19 +37,18 @@ parser.registerAttr({
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            isAttr(attribute, '@')
+            isAttr(attribute, '@', 'evt')
         );
     },
 
     preprocess(def, node, attribute) {
-        const event = {
-            name: getName(attribute),
-            func: createEventHandler(attribute.value)
-        };
-        if (!def.events) def.events = [ event ];
-        else def.events.push( event );
-
+        const source = bindSource(attribute.value);
+        def.addEvent(
+            getName(attribute),
+            createEventHandler(source)
+        );
         node.removeAttribute(attribute.name);
+        def.attachParser(this);
 
         return true;
     },

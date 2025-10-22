@@ -1,16 +1,21 @@
+/* eslint-disable no-cond-assign */
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { createTemplate } from "../utils/dom.js";
-import { parser, createNodeDef } from "./parser.js";
+import { NodeDefMap } from "./nodedef.js";
+import { parser } from "./parser.js";
+import { createPlaceholder } from "./parsers/utils.js";
+
 import './parsers/parsers.js';
+import { ENSO_PARSED } from "../core/symbols.js";
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /({{(.|\n)*}})/;
 const acceptNode = node => 
     // If a node is a text node, it must contain template directives {{}} to be accepted
-    node.nodeType != Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
+    node.nodeType !== Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
 
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
@@ -20,39 +25,67 @@ const getWalker = rootNode =>
 
 
 export default class EnsoTemplate {
-    #template = null;       // The underlying HTML template
-    #watched = [];          // List of nodes that are referenced or mutated
+    #template = null;   // The underlying HTML template
+    #watched;           // The nodes that are referenced or mutated
 
-    constructor(html) {
+    constructor(html, watched = new NodeDefMap()) {
         const template = createTemplate(html);
+        this.#watched = watched;
 
         this.#template = this.#parse(template);
+        this.#fragment();
     }
 
     #parse(template) {
+        if (parser.isParsed(template)) return template;
+
         const rootNode = template.content;
         const walker = getWalker(rootNode);
         
         let node;
-        const nodes = [];
-        while ((node = walker.nextNode())) nodes.push(node);
-
-        for (const node of nodes) {
-            const def = createNodeDef(this.#watched, node);
-            const watched = parser.preprocess(def, node);
-
-            if (watched) {
-                parser.addWatchedNode(def.node, def, this.#watched);
-            }
+        while (node = walker.nextNode()) {
+            const def = this.#watched.create(node);
+            parser.preprocess(def, node);
         }
+        // parser.markRoot(template);
+        template.setAttribute(ENSO_PARSED, "");
 
-        Object.freeze(this.#watched);
+        this.#watched;
         return template;
     }
 
-    get watchedNodes() { return this.#watched; }
+    #fragment() {
+        const rootNode = this.#template.content;
+        // Iterate over sub roots, pull them out and place them 
+        // into new templates and attach to placeholder nodes.
+        let root;
+        while (root = parser.getRoot(rootNode)) {
 
-    clone() {
-        return this.#template.content.cloneNode(true);
+            // Get node watch parameters and replace with placeholder
+            const def = this.#watched.getByRoot(root);
+            def.unRoot();
+            def.replaceNode( createPlaceholder() );
+
+            // Construct and append the template.
+            const template = createTemplate(root);
+            template.setAttribute(ENSO_PARSED, "");
+
+            def.directive.template = new EnsoTemplate(template, this.#watched);
+        }
     }
+
+    process(parent) {
+        // Parse and attach template
+        const DOM = this.#template.content.cloneNode(true);
+        // Loop through the elements and process any watched nodes
+        let element;
+        while (element = parser.getWatched(DOM)) {
+            const def = this.#watched.getByNode(element);
+            parser.process( def, parent, element );
+        }
+        return DOM;
+    }
+
+    get watchedNodes() { return this.#watched; }
+    get template() { return this.#template; }
 }

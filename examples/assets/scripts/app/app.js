@@ -1,13 +1,14 @@
 
-import Enso, { html, css, load, cssObj } from "enso";
+import Enso, { html, css, load, cssObj, getWatched, setWatched } from "enso";
 
 const cssReset = await load.css('assets/styles/reset.css');
 
 Enso.component( "enso-app", {
 
-    properties: {
-        flag: { value: false },
-        showChild: { value: 'show' }
+    watched: {
+        flag: false,
+        showChild: { value: 'show' },
+        classList: { value: 'if-test' },
     },
 
     expose: { cssObj },
@@ -23,13 +24,22 @@ Enso.component( "enso-app", {
                 border: '1px solid black',
                 height: '100vh',
             },
+            button: {
+                padding: '5px 10px',
+                borderRadius: '10px',
+                backgroundColor: '#888',
+            },
             ".if-test": {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'center',
                 border: '1px solid white',
                 padding: '10px',
                 margin: '10px',
+                '& div': {
+                    textAlign: 'center'
+                }
             }
         })}`
     ],
@@ -38,30 +48,35 @@ Enso.component( "enso-app", {
         <style>
             ${ cssObj({
                 div: {
-                    backgroundColor: "{{ this.flag ? 'red' : 'green' }}",
+                    backgroundColor: "{{ watched.flag ? 'red' : 'green' }}",
                     color: 'white',
                 }
             }) }
         </style>
         <div id="app-root"
-            :style="{{ cssObj({fontWeight:this.flag && 'bold'}) }}">
-            <button @click="()=>{ this.flag = !this.flag; }">Toggle Flag</button>
-            {{ this.flag ? 'App Enso' : 'Enso App' }}
+            :style="{{ cssObj({fontWeight: watched.flag && 'bold'}) }}">
+            <button @click="()=>{ watched.flag = !watched.flag; }">Toggle Flag</button>
+            {{ watched.flag ? 'App Enso' : 'Enso App' }}
 
-            <div *if="{{ this.flag }}" class="if-test">
+            <div *if="{{ !watched.flag }}">No Content</div>
+            <div :class="{{ watched.classList }}" *if="{{ watched.flag }}">
                 Content
-                <div *if="{{ this.showChild === 'show' }}">Child Content</div>
+                <div *if="{{ watched.showChild === 'show' }}">
+                    Child Content <br/>
+                    Flag Value = {{ watched.flag.toString() }}
+                </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
-            <div *if="{{ !this.flag }}">No Content</div>
 
-            Hello {{ this.flag ? 'You' : 'World' }}
+            Hello {{ watched.flag ? 'You' : 'World' }}
         </div>
     `,
 
     script: {
         childHide() {
-            this.showChild = (this.showChild === 'hide') ? 'show' : 'hide';
+            let { showChild } = getWatched(this);
+            showChild = (showChild === 'hide') ? 'show' : 'hide';
+            setWatched(this, {showChild});
         }
     }
 });

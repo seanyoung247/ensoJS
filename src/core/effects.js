@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parse } from "./tags.js";
-
+import { ENV } from "./symbols.js";
 
 const objectMasks = Object.freeze({
     Window: {}, Document: {}, eval: null, Function: null, setTimeout:null
@@ -41,7 +41,10 @@ const createFunctionBody = code => (
     `with (env) {
         return (() => {
             "use strict";
-            return ${code};
+            try { return ${code}; } catch(e) {
+                console.error('Runtime error in effect:', e);
+                return undefined;
+            }
         })();
     }`
 );
@@ -57,16 +60,24 @@ export const createEffect = (() => {
     return (...args) => {
         const key = args.join('&');
         const body = createFunctionBody(args.pop());
-        return cache[key] ?? (cache[key] = new Function('env', ...args, body));
+        let fn;
+        try {
+            fn = cache[key] ?? (cache[key] = new Function('env', ...args, body));
+        } catch(e) {
+            console.error("Error in effect: ", e, '\n', body);
+        }
+        return fn;
     };
 })();
 
 /**
  * Runs an effect created with createEffect
- * @param {typeof Enso} context - Effect component 
- * @param {Object} scope        - Effect runtime environment
+ * @param {typeof Enso} parent  - Effect parent 
  * @param {Object} effect       - Effect definition object
  */
-export const runEffect = (context, scope, effect) => (
-    effect?.action?.call(context, scope, effect)
-)
+export const runEffect = (parent, effect) => {
+    const context = parent.component;
+    const scope = parent[ENV];
+    
+    effect?.action?.call(context, scope, effect);
+};
