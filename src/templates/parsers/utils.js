@@ -36,23 +36,35 @@ export const isAttr = (attribute, prefix, type = null) => {
 //// BINDINGS
 
 // Matches object property dependencies, i.e:
-//    this.watched.property, watched.property, or watched:property (prefered form).
-const bindEx = /(?:this\.)?watched[.:]([A-Za-z_$][\w$]*)/g;
-
+// this.watched.property (true path), 
+// watched:property (namespaced) or
+// @:property (shorthand)
+const bindEx = /(?:this\.watched\.|watched:|@:)([A-Za-z_$][\w$]*)/g;
+/**
+ * Collects bindings from a source string
+ * @param {string} source 
+ * @param {Set} set 
+ */
 export const getBindings = (source, set) => {
-    let bind;
-    while ((bind = bindEx.exec(source)) !== null) {
-        set.add(bind[1]);
+    let match;
+    while ((match = bindEx.exec(source)) !== null) {
+        set.add(match[1]);
     }
-    // If no bindings found, bind as a startup effect.
     if (set.size === 0) set.add('lifecycle:mount');
 };
+
+/**
+ * Collects bindings, and rewrites watched references to 
+ * explicit: this.watched.prop access
+ * @param {string} source 
+ * @param {Set} set 
+ * @returns {string}
+ */
 export const bindSource = (source, set = null) => {
     const ret = source.replace(bindEx, (_match, prop) => {
-        if (set) set.add(prop);         // collect the binding
-        return `this.watched.${prop}`;  // rewrite reference
+        if (set) set.add(prop);
+        return `this.watched.${prop}`;
     });
-    // If no bindings found, bind as a startup effect.
     if (set && set.size === 0) set.add('lifecycle:mount');
     return ret;
 };
