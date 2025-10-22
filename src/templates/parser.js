@@ -93,9 +93,10 @@ export const parser = (() => {
          * @returns {Boolean} - True if node was processed, otherwise false
          */
         preprocess(def, node) {
+            let parsed = false;
             const nodeParser = this.getNodeParser(node);
             if (nodeParser) {
-                nodeParser.preprocess(def, node);
+                parsed = nodeParser.preprocess(def, node);
             }
 
             if (node.attributes?.length) {
@@ -103,11 +104,11 @@ export const parser = (() => {
                 for (const attribute of attributes) {
                     const parser = this.getAttrParser(node, attribute);
                     if (parser) {
-                        parser.preprocess(def, node, attribute);
+                        parsed = parser.preprocess(def, node, attribute) || parsed;
                     }
                 }
             }
-            return (def.parsers.size > 0);
+            return parsed;
         },
 
         /**

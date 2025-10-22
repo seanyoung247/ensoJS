@@ -48,7 +48,7 @@ parser.registerNode({
     preprocess(def, node) {
         // Ensuire only one directive per node, and ensure directive matches parser
         let directive = getDirective(node, '*if', 'enso-if');
-        if (!directive || def.directive) return false;
+        if (def.directive) return false;
 
         const binds = new Set();
 
