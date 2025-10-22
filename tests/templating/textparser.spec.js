@@ -11,7 +11,7 @@ describe('Text Parser', () => {
     let div, textNode, parentNode, def, parent;
     beforeEach(() => {
         div = document.createElement('div');
-        div.innerHTML = '<div>Hello {{ watched.name }}!</div>';
+        div.innerHTML = '<div>Hello {{ watched:name }}!</div>';
         parentNode = div.firstChild;
         textNode = parentNode.firstChild;
         def = new NodeDef('test', textNode, new NodeDefMap());

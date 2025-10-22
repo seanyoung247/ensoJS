@@ -11,7 +11,7 @@ Enso.component(basicIF, {
   watched: { show: { value: true } },
   template: html`
     <div>
-      <div id="if-test" *if="{{ watched.show }}">Visible</div>
+      <div id="if-test" *if="{{ watched:show }}">Visible</div>
     </div>
   `
 });
@@ -41,8 +41,8 @@ const multiIF = 'enso-if-multi-test';
 Enso.component(multiIF, {
     watched: { show: { value: true } },
     template: html`
-        <div id="if-test1" *if="{{ watched.show }}">Content</div>
-        <div id="if-test2" enso-if="{{ watched.show === false }}">No Content</div>
+        <div id="if-test1" *if="{{ watched:show }}">Content</div>
+        <div id="if-test2" enso-if="{{ watched:show === false }}">No Content</div>
     `
 });
 
@@ -76,10 +76,10 @@ Enso.component(nestedIF, {
         showChild: { value: false },
     },
     template: html`
-        <div id="if-test-parent" *if="{{ watched.show }}">
+        <div id="if-test-parent" *if="{{ watched:show }}">
             Parent Div
-            <div id="never-shown" *if="{{ !watched.show }}">Never Shown</div>
-            <div id="if-test-child" *if="{{ watched.showChild }}">Child Content</div>
+            <div id="never-shown" *if="{{ !watched:show }}">Never Shown</div>
+            <div id="if-test-child" *if="{{ watched:showChild }}">Child Content</div>
         </div>
     `
 });

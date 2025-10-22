@@ -15,11 +15,11 @@ Enso.component( "enso-attr-test", {
     },
 
     template: html`
-        <button #ref="incBtn" @click="()=>watched.value++">Inc</button>
+        <button #ref="incBtn" @click="()=>watched:value++">Inc</button>
         <span 
             #ref="display" 
-            enso-attr:style="color:{{ (watched.value > 5) ? 'red' : 'green' }};"
-            :data-value="{{ watched.value }}"
+            enso-attr:style="color:{{ (watched:value > 5) ? 'red' : 'green' }};"
+            :data-value="{{ watched:value }}"
         >
             {{ watched.value }}
         </span>

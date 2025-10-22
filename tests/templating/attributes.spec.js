@@ -13,8 +13,8 @@ describe('Attribute Parser', () => {
         div = document.createElement('div');
         div.innerHTML = 
             `<div 
-                :class="{{ watched.classList }}" 
-                :data-active="{{ watched.isActive }}"
+                :class="{{ watched:classList }}" 
+                :data-active="{{ watched:isActive }}"
                 enso-attr:id="{{ this.id }}"
             >
             </div>`;

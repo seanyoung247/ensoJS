@@ -30,11 +30,21 @@ describe('getBindings', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
-        const source = "{{ this.watched.test === watched:prop1 + watched.prop2 }}";
+        const source = "{{ this.watched.test === watched:prop1 + @:prop2 }}";
 
         getBindings(source, bindings);
         expect(bindings.size).toBe(3);
         expect(bindings.has('prop1')).toBe(true);
+
+    });
+
+    it('uses default binding if no binding in text source', () => {
+        const bindings = new Set();
+        const source = "{{ this.method() }}";
+
+        getBindings(source, bindings);
+        expect(bindings.size).toBe(1);
+        expect(bindings.has('lifecycle:mount')).toBe(true);
     });
 
 });
@@ -44,7 +54,7 @@ describe('bindSource', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
-        const source = "{{ this.watched.test === watched:prop1 + watched.prop2 }}";
+        const source = "{{ this.watched.test === watched:prop1 + @:prop2 }}";
 
         const transformed = bindSource(source, bindings);
         expect(bindings.size).toBe(3);
@@ -105,13 +115,13 @@ describe('getDirective', () => {
         const div = document.createElement('DIV');
         div.innerHTML = '<div></div>';
         noDir = div.firstElementChild;
-        div.innerHTML = '<div *if="{{ watched.test }}"></div>';
+        div.innerHTML = '<div *if="{{ watched:test }}"></div>';
         single = div.firstElementChild;
         div.innerHTML = `
             <div 
-                *if="{{ watched.test }}"
+                *if="{{ watched:test }}"
                 *for="{{ item of list }}"
-                enso-if="{{ watched.test2 }}"
+                enso-if="{{ watched:test2 }}"
             >
             </div>`;
         multi = div.firstElementChild;
@@ -127,7 +137,7 @@ describe('getDirective', () => {
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
-        expect(dir).toBe('{{ watched.test }}');
+        expect(dir).toBe('{{ watched:test }}');
     });
 
     it('handles multiple directives', () => {
@@ -135,7 +145,7 @@ describe('getDirective', () => {
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
-        expect(dir).toBe('{{ watched.test }}');
+        expect(dir).toBe('{{ watched:test }}');
     });
 
 });

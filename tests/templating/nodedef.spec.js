@@ -64,6 +64,14 @@ describe('NodeDef', () => {
         expect(def.directive.binds.has('bind1')).toBe(true);
         expect(node.hasAttribute(ENSO_NODE)).toBe(false);
         expect(node.hasAttribute(ENSO_ROOT)).toBe(false);
+        
+        def.setDirective({
+            type:'if', template:null, binds:new Set(['bind1'])
+        });
+        expect(def.directive.type).toBe('if');
+        expect(def.directive.binds.has('bind1')).toBe(true);
+        expect(node.hasAttribute(ENSO_NODE)).toBe(false);
+        expect(node.hasAttribute(ENSO_ROOT)).toBe(false);
     });
 
     it('accepts partial directives', () => {

@@ -16,7 +16,7 @@ describe('Event Parser', () => {
         div.innerHTML = 
             `<button
                 @click="this.doSomething" 
-                enso-evt:keydown="(e) => { watched.keydown = true; watched.event = e; }">
+                enso-evt:keydown="(e) => { watched:keydown = true; watched:event = e; }">
             </button>`;
         button = div.firstChild;
 
