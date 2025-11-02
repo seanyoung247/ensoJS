@@ -1,7 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-
 import { parser } from "../parser.js";
 import { getDirective, addBinding, bindSource } from "./utils.js";
 import { createEffect, createStringTemplate } from "../../core/effects.js";
@@ -46,10 +45,9 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        // Ensuire only one directive per node, and ensure directive matches parser
-        let directive = getDirective(node, '*if', 'enso-if');
         if (def.directive) return false;
-
+        // get and ensure directive matches parser
+        let directive = getDirective(node, '*if', 'enso-if');
         const binds = new Set();
 
         directive = bindSource(directive, binds);

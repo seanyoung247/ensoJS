@@ -11,7 +11,7 @@ const objectMasks = Object.freeze({
 const rootEnv = Object.freeze({parse, ...objectMasks});
 
 /**
- * 
+ * Constructs an environment ENV object
  * @param {Object} args     - (Optional) Object containing environment 
  * @param {Object} baseEnv  - (Optional) Base environment to extend
  * @returns {Object} - New effect environment
@@ -38,6 +38,7 @@ export const createStringTemplate = value => (
 
 // Encapsulates effect body code in wrapper code
 const createFunctionBody = code => (
+    /*js*/
     `with (env) {
         return (() => {
             "use strict";
@@ -55,6 +56,7 @@ const createFunctionBody = code => (
  * @returns {Function} - Compiled function
  */
 export const createEffect = (() => {
+    
     const cache = {};
 
     return (...args) => {

@@ -22,7 +22,6 @@ import {
  */
 export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
-    // #template;              // Template for this fragment
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
@@ -41,8 +40,10 @@ export class EnsoFragment {
         this.#env = parent[ENV];
 
         // Remove the searchable placeholder node and replace with a comment anchor
-        this.#anchor = document.createComment(this.tag);
-        placeholder.replaceWith(this.#anchor);
+        if (placeholder) {
+            this.#anchor = document.createComment(this.tag);
+            placeholder.replaceWith(this.#anchor);
+        }
 
         // Register with parent
         parent[ADD_CHILD](this);
