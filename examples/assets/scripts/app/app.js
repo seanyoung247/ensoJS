@@ -7,6 +7,7 @@ Enso.component( "enso-app", {
 
     watched: {
         flag: false,
+        list: { value: [1,2,3] },
         showChild: { value: 'show' },
         classList: { value: 'if-test' },
     },
@@ -48,27 +49,29 @@ Enso.component( "enso-app", {
         <style>
             ${ cssObj({
                 div: {
-                    backgroundColor: "{{ watched.flag ? 'red' : 'green' }}",
+                    backgroundColor: "{{ watched:flag ? 'red' : 'green' }}",
                     color: 'white',
                 }
             }) }
         </style>
         <div id="app-root"
-            :style="{{ cssObj({fontWeight: watched.flag && 'bold'}) }}">
-            <button @click="()=>{ watched.flag = !watched.flag; }">Toggle Flag</button>
-            {{ watched.flag ? 'App Enso' : 'Enso App' }}
+            :style="{{ cssObj({fontWeight: watched:flag && 'bold'}) }}">
+            <button @click="()=>{ watched:flag = !watched:flag; }">Toggle Flag</button>
+            {{ watched:flag ? 'App Enso' : 'Enso App' }}
 
-            <div *if="{{ !watched.flag }}">No Content</div>
-            <div :class="{{ watched.classList }}" *if="{{ watched.flag }}">
+            <div *if="{{ !watched:flag }}">No Content</div>
+            <div :class="{{ watched:classList }}" *if="{{ watched:flag }}">
                 Content
-                <div *if="{{ watched.showChild === 'show' }}">
+                <div *if="{{ watched:showChild === 'show' }}">
                     Child Content <br/>
-                    Flag Value = {{ watched.flag.toString() }}
+                    Flag Value = {{ watched:flag.toString() }}
                 </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
+            
+            <div *for="item of @:list">item</div>
 
-            Hello {{ watched.flag ? 'You' : 'World' }}
+            Hello {{ watched:flag ? 'You' : 'World' }}
         </div>
     `,
 
