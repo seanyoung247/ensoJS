@@ -94,6 +94,7 @@ export function watches(fn, props, keep=false) {
     return fn;
 }
 
+const objEntries = obj => Object.entries(Object.getOwnPropertyDescriptors(obj))
 /**
  * Scans through the given script and collects any methods
  * that should be called when properties change.
@@ -104,7 +105,8 @@ export function parseScript(script) {
     const watchers = Object.create(null);
     if (!script) return watchers;
 
-    for (const [key, fn] of Object.entries(script)) {
+    for (const [key, descriptor] of objEntries(script)) {
+        const fn = descriptor.value;
         if (fn?.__watches) {
             for (const prop of fn.__watches.props) {
                 (watchers[prop] ||= []).push(fn);
