@@ -55,7 +55,6 @@ export class EnsoFragment {
             });
         }
 
-
         this[UPDATE] = this[UPDATE].bind(this);
         this.#root = template.process(this).firstElementChild;
     }

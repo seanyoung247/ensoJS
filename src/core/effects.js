@@ -30,10 +30,10 @@ export const createEffectEnv = (args = {}, baseEnv = rootEnv) => (
  * @returns {String} - Formatted expression
  */
 export const createStringTemplate = value => (
-    `parse\`${value
+    `(()=>parse\`${value
         .replaceAll('{{', '${')
         .replaceAll('}}', '}')
-        .trim()}\``
+        .trim()}\`)`
 );
 
 // Encapsulates effect body code in wrapper code
@@ -67,6 +67,7 @@ export const createEffect = (() => {
             fn = cache[key] ?? (cache[key] = new Function('env', ...args, body));
         } catch(e) {
             console.error("Error in effect: ", e, '\n', body);
+            fn = () => { /* no-op on error */ };
         }
         return fn;
     };
@@ -83,3 +84,42 @@ export const runEffect = (parent, effect) => {
     
     effect?.action?.call(context, scope, effect);
 };
+
+
+export const createAction = code => {
+    const body = createFunctionBody(code);
+    try {
+        return new Function('env', body);
+    } catch(e) {
+        console.error("Error in effect: ", e, '\n', body);
+        return () => () => {/* no-op on error */};
+    }
+};
+
+export class Effect {
+    #element;
+    #action;
+    constructor(parent, element, action) {
+        this.#element = element;
+        const { component, [ENV]: env } = parent;
+
+        try {
+            this.#action = action.call(component, env);
+        } catch (e) {
+            console.error("Error instantiating effect:", e, action);
+            this.#action = () => {};
+        }
+    }
+
+    get element() { return this.#element; }
+    get action() { return this.#action; }
+
+    run() {
+        try {
+            return this.#action?.();
+        } catch (e) {
+            console.error("Error running effect:", e);
+            return undefined;
+        }
+    }
+}

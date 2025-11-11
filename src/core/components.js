@@ -58,7 +58,8 @@ export function update(owner) {
 
     // run all effects once
     for (const effect of owner[TASK_LIST]) {
-        runEffect(owner, effect);
+        // runEffect(owner, effect);
+        effect.run();
     }
     owner[TASK_LIST].clear();
 
