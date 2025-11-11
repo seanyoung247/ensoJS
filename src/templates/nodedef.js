@@ -66,10 +66,10 @@ export class NodeDef {
     setDirective({
         type=this.#directive?.type,
         template=this.#directive?.template, 
-        effect=this.#directive?.effect, 
+        action=this.#directive?.effect, 
         binds=this.#directive?.binds
     }={}) {
-        this.#directive = { type, template, effect, binds };
+        this.#directive = { type, template, action, binds };
     }
     get directive() { return this.#directive; }
 
