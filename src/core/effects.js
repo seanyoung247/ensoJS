@@ -1,9 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-console.log('Loading', import.meta.url);
-
-// import { parse } from "./tags.js";
 import { ENV } from "./symbols.js";
 
 const isValid = v => !(v === true || v === false || v === null || v === undefined);
@@ -78,7 +75,6 @@ export class Effect {
     #action;
     constructor(parent, element, action) {
         this.#element = element;
-        console.log(action);
 
         try {
             this.#action = action.createFunc(parent.component);
@@ -115,7 +111,6 @@ export class Action {
     get code() { return this.#code; }
 
     createEffect(parent, element) {
-        console.log(this);
         return ( new this.#Effect(
             parent, element, this
         ));

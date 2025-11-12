@@ -1,7 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-console.log('Loading', import.meta.url);
 
 import { parser } from "../parser.js";
 import { getDirective, addBinding, bindSource } from "./utils.js";

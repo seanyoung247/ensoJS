@@ -1,11 +1,9 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-console.log('Loading', import.meta.url);
-
 import { parser } from "../parser.js";
 import { getName, isAttr, addBinding, bindSource } from "./utils.js";
-import { Effect, Action, compileValue} from "../../core/effects.js";
+import { Effect, Action, compileValue } from "../../core/effects.js";
 
 
 class AttrEffect extends Effect {
@@ -58,12 +56,10 @@ parser.registerAttr({
     process(def, parent, element) {
         if (def.attributes) {
             for (const attr of def.attributes) { 
-                //CREATE EFFECT
-                // const action = {element, action: attr.action};
                 const effect = attr.action.createEffect(parent, element);
                 // Attach effect to all bindings
                 for (const bind of attr.binds) {
-                    addBinding(parent, bind, effect); //<-- EFFECT CLASS HERE
+                    addBinding(parent, bind, effect);
                 }
             }
         }

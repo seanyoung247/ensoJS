@@ -1,8 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-console.log('Loading', import.meta.url);
-
 import { parser } from "../parser.js";
 import { bindSource, getName, isAttr } from "./utils.js";
 import { Action } from "../../core/effects.js";
