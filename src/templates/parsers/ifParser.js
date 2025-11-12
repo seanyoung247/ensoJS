@@ -1,17 +1,20 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
+console.log('Loading', import.meta.url);
+
 import { parser } from "../parser.js";
 import { getDirective, addBinding, bindSource } from "./utils.js";
-import { createAction, createStringTemplate, Effect } from "../../core/effects.js";
+import { compileValue, Action } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
+import { ROOT } from "../../core/symbols.js";
 
 
 class IfFragment extends EnsoFragment {
     #effect;
     constructor(parent, template, placeholder, action) {
         super(parent, template, placeholder);
-        this.#effect = new Effect(parent, null, action);
+        this.#effect = action.createEffect(parent, this[ROOT]);
     }
 
     get tag() { return "enso:if"; }
@@ -26,12 +29,7 @@ class IfFragment extends EnsoFragment {
     }
 }
 
-function createConditionAction(code) {
-    code = createStringTemplate(code);
-    return createAction(code);
-}
-
-// *if="<expression>"
+// *if="{{ <expression> }}"
 parser.registerNode({
     type: 'if',
 
@@ -50,8 +48,10 @@ parser.registerNode({
         const binds = new Set();
 
         directive = bindSource(directive, binds);
-        // const effect = createConditionEffect(directive);
-        const action = createConditionAction(directive);
+        // const action = createAction(
+        //     createStringTemplate(directive)
+        // );
+        const action = new Action(compileValue(directive));
 
         // Create new nodedef for the if directive.
         const ifDef = def.map.createRoot(node);
@@ -63,11 +63,9 @@ parser.registerNode({
 
     process(def, parent, element) {
         if (def?.directive?.type === 'if') {
-            console.log("Processing if directive", def.directive);
             const fragment = new IfFragment(
                 parent, def.directive.template, element, def.directive.action
             );
-            // const effect = {element: null, fragment, action: def.directive.effect};
 
             // Attach effect to all bindings
             for (const bind of def.directive.binds) {
