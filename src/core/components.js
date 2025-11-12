@@ -5,8 +5,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-
-import { runEffect } from "./effects.js";
 import { 
     UPDATE, MARK_CHANGED, GET_BINDING, TASK_LIST,
     SCHEDULE_EFFECT, SCHEDULE_UPDATE, 
@@ -58,7 +56,6 @@ export function update(owner) {
 
     // run all effects once
     for (const effect of owner[TASK_LIST]) {
-        // runEffect(owner, effect);
         effect.run();
     }
     owner[TASK_LIST].clear();
