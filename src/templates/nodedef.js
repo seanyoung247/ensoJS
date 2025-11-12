@@ -42,22 +42,22 @@ export class NodeDef {
     }
 
     // Events
-    addEvent(name, func) {
-        this.#events.push({ name, func });
+    addEvent(name, action) {
+        this.#events.push({ name, action });
         this.markWatched();
     }
     get events() { return this.#events; }
 
     // Attributes
-    addAttribute(name, effect, binds) {
-        this.#attrs.push({ name, effect, binds });
+    addAttribute(name, action, binds) {
+        this.#attrs.push({ name, action, binds });
         this.markWatched();
     }
     get attributes() { return this.#attrs; }
 
     // Content
-    addContent(parent, index, effect, binds) {
-        this.#content.push({ parent, index, effect, binds });
+    addContent(parent, index, action, binds) {
+        this.#content.push({ parent, index, action, binds });
         this.markWatched();
     }
     get content() { return this.#content; }

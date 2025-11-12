@@ -7,9 +7,9 @@ import { createTemplate } from "../utils/dom.js";
 import { NodeDefMap } from "./nodedef.js";
 import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
-
-import './parsers/parsers.js';
 import { ENSO_PARSED } from "../core/symbols.js";
+import './parsers/parsers.js';
+
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /({{(.|\n)*}})/;
