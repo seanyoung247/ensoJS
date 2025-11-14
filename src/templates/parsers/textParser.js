@@ -12,7 +12,6 @@ const nodeEx = /({{(.|\n)*}})/;
 class TextEffect extends Effect {
     run() {
         const content = super.run();
-        console.log(this.element, content);
         if (this.element && content) {
             this.element.textContent = content;
         }
@@ -47,7 +46,6 @@ parser.registerNode({
     },
 
     process(def, parent, element) {
-        console.log('Processing text node', def, parent, element);
         if (def.content) {
             for (const content of def.content) {
                 const node = element.childNodes[content.index];

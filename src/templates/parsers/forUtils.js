@@ -44,16 +44,20 @@ const getIdentifiers = source => {
 // Parses a For Value, i.e. (item of list, member in object etc)
 // and returns the list and item identifier.
 export const parseFor = source => {
-    const [item, list] = source.split(/\b(?:of|in)\b(?!.*\b(of|in)\b)/).filter(Boolean);
+    const [item, ] = source.split(/\b(?:of|in)\b(?!.*\b(of|in)\b)/).filter(Boolean);
     const identifiers = getIdentifiers(item);
-    return [identifiers, list];
+    return identifiers;
 };
 
 // Returns a function that iterates using the for code value
-export const createForFunction = (code, identifiers) => (
-    `(callback) => {
+export const createForFunction = (code, ids) => (
+    `(function* () {
         try {
-            for (const ${code}) callback({ ${identifiers.join(',')} });
-        } catch (e) { console.error( 'loop failed: ', e ); }
-    }`
+            for (const ${ code }) {
+                yield { ${ ids.join(', ')} };
+            }
+        } catch(e) {
+            console.error('Runtime error in for loop:', e);
+        }
+    }).bind(this);`
 );
