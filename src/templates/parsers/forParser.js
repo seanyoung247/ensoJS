@@ -5,15 +5,24 @@ import { parser } from "../parser.js";
 import { EnsoFragment } from "../../core/fragment.js";
 import { addBinding, bindSource, getDirective } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
-import { createEffect } from "../../core/effects.js";
-// import { ENV } from "../../core/symbols.js";
+import { Action } from "../../core/effects.js";
+import { ROOT } from "../../core/symbols.js";
 
 
 class ForFragment extends EnsoFragment {
-    constructor(parent, template, placeholder) {
+    #effect;
+    constructor(parent, template, placeholder, action) {
         super(parent, template, placeholder);
+        this.#effect = action.createEffect(parent, this[ROOT]);
     }
     get tag() { return "enso:for"; }
+
+    run() {
+        const iterator = this.#effect.run();
+        for (const item of iterator) {
+            console.log(item);
+        }
+    }
 }
 
 // class ItemFragments extends EnsoFragment {
@@ -22,15 +31,15 @@ class ForFragment extends EnsoFragment {
 //     }
 // }
 
-function createForEffect(parent, generator) {
-    const test = item => {
-        console.log(item);
-    };
-    const fn = generator.call(parent, {});
-    return () => fn(test);
-}
+// function createForEffect(parent, generator) {
+//     const test = item => {
+//         console.log(item);
+//     };
+//     const fn = generator.call(parent, {});
+//     return () => fn(test);
+// }
 
-// *for="{{ item in items }}"
+// *for="item in items"
 parser.registerNode({
     type: 'for',
 
@@ -50,16 +59,14 @@ parser.registerNode({
             getDirective(node, '*for', 'enso-for'),
             binds
         );
-        // Get identifiers
         const identifiers = parseFor(source);
-        // Create effect
-        const effect = createEffect(
-            createForFunction(source, identifiers[0])
+        const action = new Action(
+            createForFunction(source, identifiers),
         );
 
         // Create new nodedef for the for directive.
         const forDef = def.map.createRoot(node);
-        forDef.setDirective({type: 'for', effect, binds});
+        forDef.setDirective({type: 'for', action, binds});
         forDef.attachParser(this);
         
         return true;
@@ -68,17 +75,11 @@ parser.registerNode({
     process(def, parent, element) {
         if (def?.directive?.type === 'for') {
             const fragment = new ForFragment(
-                parent, def.directive.template, element
+                parent, def.directive.template, element, def.directive.action
             );
- 
-            const effect = { 
-                element: null, 
-                fragment, 
-                action: createForEffect(parent, def.directive.effect)
-            };
 
             for (const bind of def.directive.binds) {
-                addBinding(parent, bind, effect);
+                addBinding(parent, bind, fragment);
             }
         }
     },

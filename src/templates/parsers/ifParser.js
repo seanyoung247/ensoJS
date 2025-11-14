@@ -47,9 +47,6 @@ parser.registerNode({
         const binds = new Set();
 
         directive = bindSource(directive, binds);
-        // const action = createAction(
-        //     createStringTemplate(directive)
-        // );
         const action = new Action(compileValue(directive));
 
         // Create new nodedef for the if directive.
