@@ -7,7 +7,6 @@ import EnsoTemplate from "../templates/templates.js";
 import { createStyleSheet } from "../utils/css.js";
 
 
-// Is valid string value?
 const combine = (strings, ...values) => (
     strings.reduce((a,c,i) => a + c + (values[i] || ''), '')
 );
