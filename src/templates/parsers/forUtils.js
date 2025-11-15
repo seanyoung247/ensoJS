@@ -51,6 +51,7 @@ export const parseFor = source => {
 
 // Returns a function that iterates using the for code value
 export const createForFunction = (code, ids) => (
+    /*js*/
     `(function* () {
         try {
             for (const ${ code }) {
@@ -59,5 +60,5 @@ export const createForFunction = (code, ids) => (
         } catch(e) {
             console.error('Runtime error in for loop:', e);
         }
-    }).bind(this);`
+    }).bind(this);/*js*/`
 );

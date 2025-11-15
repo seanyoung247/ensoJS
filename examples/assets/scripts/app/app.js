@@ -69,7 +69,7 @@ Enso.component( "enso-app", {
                 <button @click="this.childHide">Toggle Child</button>
             </div>
             
-            <div *for="item of @:list">item</div>
+            <div *for="item of @:list">{{ item }}</div>
 
             Hello {{ watched:flag ? 'You' : 'World' }}
         </div>

@@ -16,7 +16,7 @@ const parse = (strings, ...values) => {
 
 
 const objectMasks = Object.freeze({
-    Window: {}, Document: {}, eval: null, Function: null, setTimeout:null
+    Window: {}, Document: {}, eval: null, Function: null, setTimeout: null
 });
 const rootEnv = Object.freeze({parse, ...objectMasks});
 
@@ -40,6 +40,7 @@ export const createEffectEnv = (args = {}, baseEnv = rootEnv) => (
  * @returns {String} - Formatted expression
  */
 export const compileValue = value => (
+    /*js*/
     `(()=>parse\`${value
         .replaceAll('{{', '${')
         .replaceAll('}}', '}')
