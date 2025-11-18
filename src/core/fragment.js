@@ -8,7 +8,8 @@ import {
     ROOT, ENV, ADD_CHILD, GET_BINDING,
     SCHEDULE_UPDATE, SCHEDULE_EFFECT,
     BINDINGS, CHILDREN, TASK_LIST,
-    UPDATE, MARK_CHANGED, ADD_BINDING
+    UPDATE, MARK_CHANGED, ADD_BINDING,
+    ANCHOR
 } from "./symbols.js";
 
 /**
@@ -56,6 +57,9 @@ export class EnsoFragment {
         }
 
         this[UPDATE] = this[UPDATE].bind(this);
+        this._processTemplate(template);
+    }
+    _processTemplate(template) {
         this.#root = template.process(this).firstElementChild;
     }
 
@@ -65,6 +69,7 @@ export class EnsoFragment {
     get isAttached() { return this.#attached; }
 
     //// Accessors - Framework internal
+    get [ANCHOR]() { return this.#anchor; }
     get [TASK_LIST]() { return this.#taskList; }
     get [BINDINGS]() { return this.#bindings; }
     get [CHILDREN]() { return this.#children; }

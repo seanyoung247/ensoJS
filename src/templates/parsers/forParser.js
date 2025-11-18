@@ -6,30 +6,51 @@ import { EnsoFragment } from "../../core/fragment.js";
 import { addBinding, bindSource, getDirective } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
 import { Action } from "../../core/effects.js";
-import { ROOT } from "../../core/symbols.js";
+import { ROOT, CHILDREN, ADD_CHILD, ANCHOR } from "../../core/symbols.js";
 
+
+class ItemFragment extends EnsoFragment {
+    constructor(parent, template) {
+        super(parent, template, null);
+    }
+
+    mount(anchor) {
+        // Mount BEFORE Anchor
+    }
+}
 
 class ForFragment extends EnsoFragment {
     #effect;
+    #template;
     constructor(parent, template, placeholder, action) {
         super(parent, template, placeholder);
         this.#effect = action.createEffect(parent, this[ROOT]);
     }
+    _processTemplate(template) { this.#template = template; }
     get tag() { return "enso:for"; }
 
     run() {
         const iterator = this.#effect.run();
+        // Clear children list
+        let child;
+        while (child = this[CHILDREN].pop()) {
+            child.unmount(); child = null;
+        }
+
         for (const item of iterator) {
             console.log(item);
+            // FOR EACH LIST ITEM
+            // Copy template to a new ItemFragment
+            const child = new ItemFragment(
+                this, this.#template.cloneNode(true)
+            );
+            // Mount
+            child.mount(this[ANCHOR]);
         }
     }
 }
 
-// class ItemFragments extends EnsoFragment {
-//     constructor(parent, template, placeholder) {
-//         super(parent, template, placeholder);
-//     }
-// }
+
 
 // function createForEffect(parent, generator) {
 //     const test = item => {
