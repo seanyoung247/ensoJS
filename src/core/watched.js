@@ -94,7 +94,7 @@ export function watches(fn, props, keep=false) {
     return fn;
 }
 
-const objEntries = obj => Object.entries(Object.getOwnPropertyDescriptors(obj))
+const objEntries = obj => Object.entries(Object.getOwnPropertyDescriptors(obj));
 /**
  * Scans through the given script and collects any methods
  * that should be called when properties change.

@@ -56,11 +56,11 @@ export default class EnsoComponent extends HTMLElement {
             );
         }
 
-        this.#watched = new this.constructor.WatchedClass(this);
-        this.#bindings = this.#watched[BINDINGS];
-
         this[UPDATE] = this[UPDATE].bind(this);
         this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
+
+        this.#watched = new this.constructor.WatchedClass(this);
+        this.#bindings = this.#watched[BINDINGS];
         
         this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
     }
