@@ -31,4 +31,3 @@
         testCounter2.setAttribute('count', newVal);
     });
 })();
-

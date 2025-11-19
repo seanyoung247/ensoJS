@@ -7,7 +7,7 @@ Enso.component( "enso-app", {
 
     watched: {
         flag: false,
-        list: { value: [1,2,3] },
+        list: { value: [1,2,3], deep: true },
         showChild: { value: 'show' },
         classList: { value: 'if-test' },
     },
@@ -68,8 +68,7 @@ Enso.component( "enso-app", {
                 </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
-            
-            <div *for="item of @:list">{{ item }}</div>
+            <div *for="item of @:list">For Item = {{ item }}</div>
 
             Hello {{ watched:flag ? 'You' : 'World' }}
         </div>
