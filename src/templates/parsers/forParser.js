@@ -6,16 +6,20 @@ import { EnsoFragment } from "../../core/fragment.js";
 import { addBinding, bindSource, getDirective } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
 import { Action } from "../../core/effects.js";
-import { ROOT, CHILDREN, ADD_CHILD, ANCHOR } from "../../core/symbols.js";
+import { ROOT, CHILDREN, ANCHOR, ENV } from "../../core/symbols.js";
 
 
 class ItemFragment extends EnsoFragment {
-    constructor(parent, template) {
-        super(parent, template, null);
+    constructor(parent, template, item) {
+        super(parent);
+        this[ENV] = item;
+        this._processTemplate(template);
     }
-
     mount(anchor) {
-        // Mount BEFORE Anchor
+        if (anchor) {
+            anchor.before(this[ROOT]);
+        }
+        super.mount(false);
     }
 }
 
@@ -23,42 +27,33 @@ class ForFragment extends EnsoFragment {
     #effect;
     #template;
     constructor(parent, template, placeholder, action) {
-        super(parent, template, placeholder);
+        super(parent, null, placeholder);
         this.#effect = action.createEffect(parent, this[ROOT]);
+        this.#template = template;
     }
-    _processTemplate(template) { this.#template = template; }
     get tag() { return "enso:for"; }
+
+    isAttached() { return this[CHILDREN].length > 0; }
 
     run() {
         const iterator = this.#effect.run();
         // Clear children list
-        let child;
-        while (child = this[CHILDREN].pop()) {
-            child.unmount(); child = null;
+        let child = this[CHILDREN].pop();
+        while (child) {
+            child.unmount();
+            child = this[CHILDREN].pop();
         }
 
         for (const item of iterator) {
-            console.log(item);
-            // FOR EACH LIST ITEM
             // Copy template to a new ItemFragment
             const child = new ItemFragment(
-                this, this.#template.cloneNode(true)
+                this, this.#template, item
             );
             // Mount
             child.mount(this[ANCHOR]);
         }
     }
 }
-
-
-
-// function createForEffect(parent, generator) {
-//     const test = item => {
-//         console.log(item);
-//     };
-//     const fn = generator.call(parent, {});
-//     return () => fn(test);
-// }
 
 // *for="item in items"
 parser.registerNode({

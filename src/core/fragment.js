@@ -24,6 +24,7 @@ import {
 export class EnsoFragment {
     #bindings = new Map();  // Bindings in this fragment
     #component;             // Root component
+    #template;
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
     #root = null;           // Fragment root node
@@ -60,7 +61,9 @@ export class EnsoFragment {
         this._processTemplate(template);
     }
     _processTemplate(template) {
-        this.#root = template.process(this).firstElementChild;
+        if (template) {
+            this.#root = template.process(this).firstElementChild;
+        }
     }
 
     //// Accessors - Public
@@ -105,10 +108,10 @@ export class EnsoFragment {
         this.#component[SCHEDULE_UPDATE]();
     }
 
-    mount() {
+    mount(doMount = true) {
         if (this.#attached || !this.#parentAttached) return;
 
-        this.#anchor.after(this.#root);
+        if (doMount) this.#anchor.after(this.#root);
         this.#attached = true;
         this[UPDATE]();
     }

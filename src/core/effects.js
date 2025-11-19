@@ -76,9 +76,8 @@ export class Effect {
     #action;
     constructor(parent, element, action) {
         this.#element = element;
-
         try {
-            this.#action = action.createFunc(parent.component);
+            this.#action = action.createFunc(parent);
         } catch (e) {
             console.error("[Endo] Error instantiating effect:\n", e, action);
             this.#action = () => {};
