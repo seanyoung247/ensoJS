@@ -6,7 +6,7 @@ import { EnsoFragment } from "../../core/fragment.js";
 import { addBinding, bindSource, getDirective } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
 import { Action } from "../../core/effects.js";
-import { ROOT, CHILDREN, ANCHOR, ENV } from "../../core/symbols.js";
+import { ROOT, CHILDREN, UPDATE, ENV, ANCHOR } from "../../core/symbols.js";
 
 
 class ItemFragment extends EnsoFragment {
@@ -15,11 +15,10 @@ class ItemFragment extends EnsoFragment {
         this[ENV] = item;
         this._processTemplate(template);
     }
-    mount(anchor) {
-        if (anchor) {
-            anchor.before(this[ROOT]);
-        }
-        super.mount(false);
+    mount() {
+        this.isAttached = true;
+        this[UPDATE]();
+        return this[ROOT];
     }
 }
 
@@ -33,29 +32,39 @@ class ForFragment extends EnsoFragment {
     }
     get tag() { return "enso:for"; }
 
-    isAttached() { return this[CHILDREN].length > 0; }
-
     run() {
-        const iterator = this.#effect.run();
-        // Clear children list
-        let child = this[CHILDREN].pop();
-        while (child) {
-            child.unmount();
-            child = this[CHILDREN].pop();
-        }
+        this.mount();
+    }
 
+    mount() {
+        // Clear children list
+        this.unmount();
+        // Construct new items
+        const elements = [];
+        const iterator = this.#effect.run();
         for (const item of iterator) {
             // Copy template to a new ItemFragment
             const child = new ItemFragment(
                 this, this.#template, item
             );
             // Mount
-            child.mount(this[ANCHOR]);
+            elements.push(child.mount());
         }
+        this[ANCHOR].after(...elements);
+        this.isAttached = true;
+        this[UPDATE]();
+    }
+
+    unmount() {
+        for (const child of this[CHILDREN]) {
+            child.unmount();
+        }
+        this[CHILDREN].length = 0;
+        this.isAttached = false;
     }
 }
 
-// *for="item in items"
+// *for="item in/of items"
 parser.registerNode({
     type: 'for',
 
