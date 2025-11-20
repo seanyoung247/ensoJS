@@ -6,12 +6,12 @@ import { bindSource, getName, isAttr } from "./utils.js";
 import { Action } from "../../core/effects.js";
 
 
-function attachEventListener(component, element, event) {
+function attachEventListener(parent, element, event) {
     const { name, action } = event;
 
     try {
-        const handler = action.createFunc(component);
-        element.addEventListener(name, handler.bind(component));
+        const handler = action.createFunc(parent);
+        element.addEventListener(name, handler.bind(parent.component));
     } catch (e) {
         console.error('[Enso] - ',e);
         element.addEventListener(name, () =>
@@ -44,10 +44,10 @@ parser.registerAttr({
     },
 
     process(def, parent, element) {
-        const component = parent.component;
+        // const component = parent.component;
         if (def.events?.length) {
             for (const event of def.events) {
-                attachEventListener(component, element, event);
+                attachEventListener(parent, element, event);
             }
         }
     }
