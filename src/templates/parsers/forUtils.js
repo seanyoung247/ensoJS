@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 const parseIdentifier = identifier => {
     if (identifier.includes(':')) {
         return identifier.split(':')[1].trim();

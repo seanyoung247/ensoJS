@@ -9,11 +9,8 @@ import { createEffectEnv } from "./core/effects.js";
 import { attachStyleSheets } from "./utils/css.js";
 import { EnsoNode } from "./core/components.js";
 import { 
-    ENV, ROOT,
-    UPDATE, 
-    SCHEDULE_UPDATE,
-    ATTACH_TEMPLATE,
-    BINDINGS, ENSO_INTERNAL,
+    ENV, ROOT, ATTACH_TEMPLATE, BINDINGS, 
+    UPDATE, SCHEDULE_UPDATE, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
 

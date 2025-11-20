@@ -6,9 +6,9 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { 
-    UPDATE, MARK_CHANGED, GET_BINDING, ADD_BINDING, TASK_LIST,
-    SCHEDULE_EFFECT, SCHEDULE_UPDATE, 
-    ENSO_INTERNAL, BINDINGS, CHILDREN,ADD_CHILD
+    MARK_CHANGED, GET_BINDING, ADD_BINDING, TASK_LIST,
+    SCHEDULE_EFFECT, SCHEDULE_UPDATE, UPDATE,
+    ENSO_INTERNAL, BINDINGS, CHILDREN, ADD_CHILD
 } from "./symbols.js";
 
 /** Creates a derived class from a base class and Object Literal mixin */

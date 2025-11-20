@@ -5,11 +5,8 @@
 import { EnsoNode } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
-    ROOT, ENV, ADD_CHILD,
-    SCHEDULE_UPDATE,
-    BINDINGS,
-    UPDATE,
-    ANCHOR
+    ROOT, ENV, ADD_CHILD, SCHEDULE_UPDATE,
+    BINDINGS, UPDATE, ANCHOR
 } from "./symbols.js";
 
 /**

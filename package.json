@@ -1,6 +1,6 @@
 {
   "name": "enso",
-  "version": "0.8.5",
+  "version": "0.9.5",
   "description": "A Web component framework that simplifies development by handling boilerplate code, providing an intuitive interface for component derivation, and enabling code separation.",
   "main": "enso.js",
   "directories": {

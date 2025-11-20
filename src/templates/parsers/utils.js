@@ -75,7 +75,6 @@ export const addBinding = (parent, bind, effect) => {
     parent[SCHEDULE_EFFECT](effect);
 };
 
-
 //// DIRECTIVES
 
 export const createPlaceholder = () => {

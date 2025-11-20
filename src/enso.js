@@ -19,7 +19,7 @@ const Enso = (()=>{
     });
         
     return {
-        version: '0.8.5',
+        version: '0.9.5',
 
         /**
          * Defines a new Enso component and registers it in the browser as a custom element.

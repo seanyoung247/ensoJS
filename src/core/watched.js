@@ -1,4 +1,7 @@
 
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { watch } from "./watcher.js";
 import { lifecycles } from "../component.js";
 import { BINDINGS, MARK_CHANGED } from "./symbols.js";
