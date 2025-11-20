@@ -7,13 +7,13 @@
 
 import { createEffectEnv } from "./core/effects.js";
 import { attachStyleSheets } from "./utils/css.js";
-import { markChanged, update } from "./core/components.js";
+import { EnsoNode } from "./core/components.js";
 import { 
-    ENV, ROOT, TASK_LIST, ADD_BINDING,
-    UPDATE, MARK_CHANGED, GET_BINDING, 
-    SCHEDULE_UPDATE, SCHEDULE_EFFECT,
-    ATTACH_TEMPLATE, ADD_CHILD,
-    BINDINGS, CHILDREN, ENSO_INTERNAL,
+    ENV, ROOT,
+    UPDATE, 
+    SCHEDULE_UPDATE,
+    ATTACH_TEMPLATE,
+    BINDINGS, ENSO_INTERNAL,
 } from "./core/symbols.js";
 
 
@@ -27,16 +27,13 @@ export const lifecycles = [
  * Enso Web Component base class
  * @abstract
  */
-export default class EnsoComponent extends HTMLElement {
+export default class EnsoComponent extends EnsoNode(HTMLElement) {
     //// Instance Fields
     #initialised = false;
     // Root element -> either this, or shadowroot
     #root = null;
     // Reactivity properties
     #updateScheduled = false;
-    #taskList = new Set();
-    #bindings;
-    #children = [];
     #watched;
     #refs = Object.create(null);
     #env = createEffectEnv(this.expose);
@@ -56,11 +53,8 @@ export default class EnsoComponent extends HTMLElement {
             );
         }
 
-        this[UPDATE] = this[UPDATE].bind(this);
-        this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
-
         this.#watched = new this.constructor.WatchedClass(this);
-        this.#bindings = this.#watched[BINDINGS];
+        this[BINDINGS]= this.#watched[BINDINGS];
         
         this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
     }
@@ -72,28 +66,8 @@ export default class EnsoComponent extends HTMLElement {
     get watched() { return this.#watched; }
 
     //// Accessors - Framework internal
-    get [TASK_LIST]() { return this.#taskList; }
-    get [BINDINGS]() { return this.#bindings; }
-    get [CHILDREN]() { return this.#children; }
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
-
-    [SCHEDULE_EFFECT](effect) {
-        this.#taskList.add(effect);
-    }
-
-    [GET_BINDING](bind) { return this.#bindings.get(bind); }
-    [ADD_BINDING](bind, effect) {
-        const binding = this[GET_BINDING](bind);
-        if (binding) {
-            binding.effects.push(effect);
-            binding.changed = true;
-        }
-    }
-
-    [ADD_CHILD](fragment) {
-        this.#children.push(fragment);
-    }
 
     //// Web Component API
 
@@ -159,14 +133,10 @@ export default class EnsoComponent extends HTMLElement {
         }
     }
 
-    [MARK_CHANGED](prop) {
-        markChanged(this, prop); 
-    }
-
     [UPDATE]() {
         this.#updateScheduled = false;
 
-        update(this);
+        super[UPDATE]();
 
         this.#watched._notify('lifecycle:update');
     }

@@ -2,13 +2,13 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { markChanged, update } from "./components.js";
+import { EnsoNode } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
-    ROOT, ENV, ADD_CHILD, GET_BINDING,
-    SCHEDULE_UPDATE, SCHEDULE_EFFECT,
-    BINDINGS, CHILDREN, TASK_LIST,
-    UPDATE, MARK_CHANGED, ADD_BINDING,
+    ROOT, ENV, ADD_CHILD,
+    SCHEDULE_UPDATE,
+    BINDINGS,
+    UPDATE,
     ANCHOR
 } from "./symbols.js";
 
@@ -21,23 +21,18 @@ import {
  * Fragments are used to implement control flow directives such as *if and *for
  * 
  */
-export class EnsoFragment {
-    #bindings = new Map();  // Bindings in this fragment
+export class EnsoFragment extends EnsoNode() {
     #component;             // Root component
-    #template;
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
     #root = null;           // Fragment root node
     #env;                   // Effect environment
 
-    #children = [];         // Child fragments
-
-    #taskList = new Set();  // Set of effects to be run during the next update
     #attached = false;      // Is the fragment currently attached to the DOM?
 
     constructor(parent, template, placeholder) {
+        super();
         this.#component = parent.component;
-        // this.#template = template;
         this.#parent = parent;
         this.#env = parent[ENV];
 
@@ -51,13 +46,14 @@ export class EnsoFragment {
         parent[ADD_CHILD](this);
 
         // Create initial binding map
+        const bindings = new Map();
         for (const [prop, bind] of this.#component[BINDINGS]) {
-            this.#bindings.set(prop, {
+            bindings.set(prop, {
                 changed: false, watchers: bind.watchers, effects: []
             });
         }
+        this[BINDINGS] = bindings;
 
-        this[UPDATE] = this[UPDATE].bind(this);
         this._processTemplate(template);
     }
     _processTemplate(template) {
@@ -70,12 +66,10 @@ export class EnsoFragment {
     get tag() { return "enso:fragment"; }
     get component() { return this.#component; }
     get isAttached() { return this.#attached; }
+    set isAttached(val) { this.#attached = val; }
 
     //// Accessors - Framework internal
     get [ANCHOR]() { return this.#anchor; }
-    get [TASK_LIST]() { return this.#taskList; }
-    get [BINDINGS]() { return this.#bindings; }
-    get [CHILDREN]() { return this.#children; }
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
@@ -84,43 +78,22 @@ export class EnsoFragment {
 
     get #parentAttached() { return this.#parent.isAttached; }
 
-    [ADD_CHILD](fragment) {
-        this.#children.push(fragment);
-    }
-
-    [GET_BINDING](bind) {
-        return this.#bindings.get(bind); 
-    }
-    [ADD_BINDING](bind, effect) {
-        const binding = this[GET_BINDING](bind);
-        if (binding) {
-            binding.effects.push(effect);
-            binding.changed = true;
-        }
-    }
-
-    [SCHEDULE_EFFECT](effect) {
-        this.#taskList.add(effect);
-    }
-
     //// Fragment Lifecycle
     [SCHEDULE_UPDATE]() {
         this.#component[SCHEDULE_UPDATE]();
     }
 
-    mount(doMount = true) {
+    mount() {
         if (this.#attached || !this.#parentAttached) return;
 
-        if (doMount) this.#anchor.after(this.#root);
+        this.#anchor.after(this.#root);
         this.#attached = true;
         this[UPDATE]();
     }
 
-    [MARK_CHANGED](prop) { markChanged(this, prop); }
-
     [UPDATE]() {
-        if (this.#taskList.size > 0 && this.#attached) 
-            update(this);
+        if (!this.#attached) return;
+        super[UPDATE]();
     }
 
 
