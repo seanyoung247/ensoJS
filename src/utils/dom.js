@@ -22,6 +22,8 @@ export const createTemplate = html => {
 
 };
 
+export const cloneTemplate = template => 
+    createTemplate(template.content.cloneNode(true));
 
 //// DOM traversal
 export const getChildIndex = (parent, node) => 

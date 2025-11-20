@@ -4,36 +4,31 @@
 
 import { parser } from "../parser.js";
 import { getDirective, addBinding, bindSource } from "./utils.js";
-import { createEffect, createStringTemplate } from "../../core/effects.js";
+import { compileValue, Action } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
-
 import { ROOT } from "../../core/symbols.js";
 
+
 class IfFragment extends EnsoFragment {
-    constructor(parent, template, placeholder) {
+    #effect;
+    constructor(parent, template, placeholder, action) {
         super(parent, template, placeholder);
+        this.#effect = action.createEffect(parent, this[ROOT]);
     }
+
     get tag() { return "enso:if"; }
-}
 
-function createConditionEffect(code) {
-    code = createStringTemplate(code);
-    const fn = createEffect(code);
-
-    return function (env, effect) {
-        let show;
-        show = fn.call(this, env);
+    run() {
+        const show = this.#effect.run();
         if (show) {
-            effect.fragment.mount();
-            effect.element = effect.fragment[ROOT];
+            this.mount();
         } else {
-            effect.fragment.unmount();
-            effect.element = null;
-        }   
-    };
+            this.unmount();
+        }
+    }
 }
 
-// *if="<expression>"
+// *if="{{ <expression> }}"
 parser.registerNode({
     type: 'if',
 
@@ -46,18 +41,17 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        // Ensuire only one directive per node, and ensure directive matches parser
-        let directive = getDirective(node, '*if', 'enso-if');
         if (def.directive) return false;
-
+        // get and ensure directive matches parser
+        let directive = getDirective(node, '*if', 'enso-if');
         const binds = new Set();
 
         directive = bindSource(directive, binds);
-        const effect = createConditionEffect(directive);
+        const action = new Action(compileValue(directive));
 
         // Create new nodedef for the if directive.
         const ifDef = def.map.createRoot(node);
-        ifDef.setDirective({type: 'if', effect, binds});
+        ifDef.setDirective({type: 'if', action, binds});
         ifDef.attachParser(this);
 
         return true;
@@ -66,13 +60,12 @@ parser.registerNode({
     process(def, parent, element) {
         if (def?.directive?.type === 'if') {
             const fragment = new IfFragment(
-                parent, def.directive.template, element
+                parent, def.directive.template, element, def.directive.action
             );
-            const effect = {element: null, fragment, action: def.directive.effect};
 
             // Attach effect to all bindings
             for (const bind of def.directive.binds) {
-                addBinding(parent, bind, effect);
+                addBinding(parent, bind, fragment);
             }
         }
     }

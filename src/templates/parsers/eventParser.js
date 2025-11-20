@@ -1,33 +1,23 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-
 import { parser } from "../parser.js";
 import { bindSource, getName, isAttr } from "./utils.js";
-import { createEffect } from "../../core/effects.js";
-
-import { ENV } from "../../core/symbols.js";
+import { Action } from "../../core/effects.js";
 
 
-function createEventHandler(code) {
-    return createEffect(code);
-}
+function attachEventListener(parent, element, event) {
+    const { name, action } = event;
 
-function attachEventListener(component, element, event) {
-    let handler;
     try {
-        handler = event.func.call(component, component[ENV]);
-        if (typeof handler !== 'function') {
-            throw new Error(`Invalid event handler for event '${event.name}' on element ${element.tagName}\n`+
-                `- event handler must be a function but got: ${typeof handler}`);
-        }
-        handler = handler.bind(component);
+        const handler = action.createFunc(parent);
+        element.addEventListener(name, handler.bind(parent.component));
     } catch (e) {
         console.error('[Enso] - ',e);
-        handler = () => { console.warn(`Invalid event handler for event '${event.name}'`); };
-        handler = handler.bind(component);
+        element.addEventListener(name, () =>
+            console.warn(`[Enso] Invalid handler for event '${name}'`)
+        );
     }
-    element.addEventListener( event.name, handler );
 }
 
 // Event Attribute (@<event name>) parser
@@ -45,7 +35,7 @@ parser.registerAttr({
         const source = bindSource(attribute.value);
         def.addEvent(
             getName(attribute),
-            createEventHandler(source)
+            new Action(source)
         );
         node.removeAttribute(attribute.name);
         def.attachParser(this);
@@ -54,10 +44,10 @@ parser.registerAttr({
     },
 
     process(def, parent, element) {
-        const component = parent.component;
+        // const component = parent.component;
         if (def.events?.length) {
             for (const event of def.events) {
-                attachEventListener(component, element, event);
+                attachEventListener(parent, element, event);
             }
         }
     }

@@ -15,7 +15,7 @@ Enso.component(
 
     'enso-cuboid', {
   
-    properties: {
+    watched: {
         width: {attribute: true},
         height: {attribute: true},
         depth: {attribute: true}

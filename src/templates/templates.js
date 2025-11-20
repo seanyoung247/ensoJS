@@ -3,13 +3,14 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { createTemplate } from "../utils/dom.js";
+import { createTemplate, cloneTemplate } from "../utils/dom.js";
 import { NodeDefMap } from "./nodedef.js";
 import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
+import { ENSO_PARSED } from "../core/symbols.js";
 
 import './parsers/parsers.js';
-import { ENSO_PARSED } from "../core/symbols.js";
+
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /({{(.|\n)*}})/;
@@ -60,7 +61,6 @@ export default class EnsoTemplate {
         // into new templates and attach to placeholder nodes.
         let root;
         while (root = parser.getRoot(rootNode)) {
-
             // Get node watch parameters and replace with placeholder
             const def = this.#watched.getByRoot(root);
             def.unRoot();
@@ -69,7 +69,6 @@ export default class EnsoTemplate {
             // Construct and append the template.
             const template = createTemplate(root);
             template.setAttribute(ENSO_PARSED, "");
-
             def.directive.template = new EnsoTemplate(template, this.#watched);
         }
     }
@@ -84,6 +83,11 @@ export default class EnsoTemplate {
             parser.process( def, parent, element );
         }
         return DOM;
+    }
+
+    clone() {
+        const template = cloneTemplate(this.#template);
+        return new EnsoTemplate(template, this.#watched);
     }
 
     get watchedNodes() { return this.#watched; }

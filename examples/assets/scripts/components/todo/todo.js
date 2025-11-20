@@ -6,8 +6,8 @@ function slotChange(e) {
 }
 
 Enso.component( 'enso-todo', {
-    properties: {
-        items: { value: [] }
+    watched: {
+        items: { value: ['cheese', 'pork'] }
     },
 
     expose: { slotChange },
@@ -19,9 +19,8 @@ Enso.component( 'enso-todo', {
 
     template: html`
         <ul>
-            <li>Test Items</li>
+            <li *for="item of @:items">{{ item }}</li>
         </ul>
-        <slot id="hidden" @slotchange="slotChange"></slot>
     `,
 
 });

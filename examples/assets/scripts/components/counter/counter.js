@@ -3,7 +3,7 @@ import Enso, {html, css, classList} from "enso";
 
 Enso.component('enso-counter', {
 
-    properties: {
+    watched: {
         count: { value: 0, attribute: { type: Number, force: true } }
     },
 
@@ -15,13 +15,13 @@ Enso.component('enso-counter', {
         .display { flex-grow: 2; text-align: center; }`,
 
     template: html`
-        <button @click="()=>this.count--">-</button>
+        <button @click="()=>watched:count--">-</button>
         <span :class="{{ 
             classList('display', 
-            (this.count >= 10) && 'red') 
+            (watched:count >= 10) && 'red') 
         }}">
-            {{ this.count }}
+            {{ watched:count }}
         </span>
-        <button @click="()=>this.count++">+</button>`,
+        <button @click="()=>watched:count++">+</button>`,
 
 });

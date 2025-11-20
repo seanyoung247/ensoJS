@@ -19,6 +19,7 @@ export const ADD_BINDING = Symbol("enso.setBinding");
 export const TASK_LIST = Symbol("enso.taskList");
 export const BINDINGS = Symbol("enso.bindings");
 export const CHILDREN = Symbol("enso.children");
+export const ANCHOR = Symbol("enso.anchor");
 export const ROOT = Symbol("enso.root");
 export const ENV = Symbol("enso.env");
 

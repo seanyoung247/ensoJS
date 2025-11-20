@@ -6,7 +6,7 @@
     const modalStaticBtn = document.getElementById('static-modal-btn');
 
     showModalBtn.addEventListener('click', () => {
-        testModal.show = true;
+        testModal.show();
     });
 
     modalStaticBtn.addEventListener('click', () => {
@@ -25,10 +25,9 @@
     const testCounter2 = document.getElementById('test-counter2');
 
     counterTestBtn.addEventListener('click', () => {
-        testCounter1.count++;
+        testCounter1.watched.count++;
 
         const newVal = parseInt(testCounter2.getAttribute('count')) + 1;
         testCounter2.setAttribute('count', newVal);
     });
 })();
-

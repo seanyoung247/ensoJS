@@ -7,6 +7,8 @@ Enso.component( "enso-app", {
 
     watched: {
         flag: false,
+        flag2: true,
+        list: { value: [1,2,3], deep: true },
         showChild: { value: 'show' },
         classList: { value: 'if-test' },
     },
@@ -48,27 +50,39 @@ Enso.component( "enso-app", {
         <style>
             ${ cssObj({
                 div: {
-                    backgroundColor: "{{ watched.flag ? 'red' : 'green' }}",
+                    backgroundColor: "{{ watched:flag ? 'red' : 'green' }}",
                     color: 'white',
                 }
             }) }
         </style>
         <div id="app-root"
-            :style="{{ cssObj({fontWeight: watched.flag && 'bold'}) }}">
-            <button @click="()=>{ watched.flag = !watched.flag; }">Toggle Flag</button>
-            {{ watched.flag ? 'App Enso' : 'Enso App' }}
+            :style="{{ cssObj({fontWeight: watched:flag && 'bold'}) }}">
+            <div>
+                <button @click="()=>{ watched:flag = !watched:flag; }">Toggle Flag</button>
+                <button @click="()=>{ watched:flag2 = !watched:flag2; }">Toggle Flag2</button>
+                <button @click="()=>{ watched:list.push(watched:list.length + 1); }">Add List Item</button>
+            </div>
 
-            <div *if="{{ !watched.flag }}">No Content</div>
-            <div :class="{{ watched.classList }}" *if="{{ watched.flag }}">
+            {{ watched:flag ? 'App Enso' : 'Enso App' }}
+            {{ @:flag2.toString()}}
+
+            <div *if="{{ !watched:flag }}">No Content</div>
+            <div :class="{{ watched:classList }}" *if="{{ watched:flag }}">
                 Content
-                <div *if="{{ watched.showChild === 'show' }}">
+                <div *if="{{ watched:showChild === 'show' }}">
                     Child Content <br/>
-                    Flag Value = {{ watched.flag.toString() }}
+                    Flag Value = {{ watched:flag2.toString() }}
                 </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
+            <div *for="item of @:list">
+                For Item = {{ item }}, {{ @:flag2.toString() }} |
+                <button @click="()=>{ @:list = @:list.filter(i => i !== item); }">
+                    X
+                </button>
+            </div>
 
-            Hello {{ watched.flag ? 'You' : 'World' }}
+            Hello {{ watched:flag ? 'You' : 'World' }}
         </div>
     `,
 

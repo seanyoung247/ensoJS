@@ -5,15 +5,11 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-
-import { runEffect } from "./effects.js";
 import { 
-    UPDATE, MARK_CHANGED, GET_BINDING, TASK_LIST,
+    UPDATE, MARK_CHANGED, GET_BINDING, ADD_BINDING, TASK_LIST,
     SCHEDULE_EFFECT, SCHEDULE_UPDATE, 
-    ENSO_INTERNAL, BINDINGS, CHILDREN,
+    ENSO_INTERNAL, BINDINGS, CHILDREN,ADD_CHILD
 } from "./symbols.js";
-
-//// Mixins
 
 /** Creates a derived class from a base class and Object Literal mixin */
 export const createComponent = (base, proto) => {
@@ -37,39 +33,76 @@ export const createComponent = (base, proto) => {
     return component;
 };
 
-//// Component/Fragment lifecycle methods
-export function markChanged(owner, prop) {
-    const bind = owner[GET_BINDING](prop);
-    if (bind && !bind.changed) {
-        bind.changed = true;
+/** Defines functionality shared by Components and Fragments */
+export const EnsoNode = (Base = Object) => {
+    return class extends Base {
+        #bindings;              // Bindings in this node
+        #taskList = new Set();  // Set of effects to be run during the next update
+        #children = [];         // Child fragments
 
-        for (const effect of bind.effects) {
-            owner[SCHEDULE_EFFECT](effect);
+        constructor() {
+            super();
+            this[UPDATE] = this[UPDATE].bind(this);
+            this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
         }
-        owner[SCHEDULE_UPDATE]();
-    }
 
-    for (const child of owner[CHILDREN]) {
-        child[MARK_CHANGED](prop);
-    }
-}
+        //// Accessors - Framework internal
+        get [BINDINGS]() { return this.#bindings; }
+        set [BINDINGS](bindings) { this.#bindings = bindings; }
+        get [TASK_LIST]() { return this.#taskList; }
+        get [CHILDREN]() { return this.#children; }
 
-export function update(owner) {
+        [ADD_CHILD](fragment) {
+            this.#children.push(fragment);
+        }
 
-    // run all effects once
-    for (const effect of owner[TASK_LIST]) {
-        runEffect(owner, effect);
-    }
-    owner[TASK_LIST].clear();
+        [GET_BINDING](bind) { return this.#bindings.get(bind); }
+        [ADD_BINDING](bind, effect) {
+            const binding = this[GET_BINDING](bind);
+            if (binding) {
+                binding.effects.push(effect);
+                binding.changed = true;
+            }
+        }
 
-    // reset all bindings
-    for (const bind of owner[BINDINGS].values()) {
-        bind.changed = false;
-    }
+        [SCHEDULE_EFFECT](effect) {
+            this.#taskList.add(effect);
+        }
 
-    // recurse into children safely
-    const children = [...owner[CHILDREN]];
-    for (const child of children) {
-        child[UPDATE]();
-    }
-}
+        [MARK_CHANGED](prop) {
+            const bind = this.#bindings.get(prop);
+            if (bind && !bind.changed) {
+                bind.changed = true;
+
+                for (const effect of bind.effects) {
+                    this[SCHEDULE_EFFECT](effect);
+                }
+                this[SCHEDULE_UPDATE]();
+            }
+
+            for (const child of this.#children) {
+                child[MARK_CHANGED](prop);
+            }
+        }
+
+        [UPDATE]() {
+            // run all effects once
+            for (const effect of this.#taskList) {
+                effect.run();
+            }
+            this.#taskList.clear();
+
+            // reset all bindings
+            for (const bind of this.#bindings.values()) {
+                bind.changed = false;
+            }
+
+            // recurse into children safely
+            const children = [...this.#children];
+            for (const child of children) {
+                child[UPDATE]();
+            }
+        }
+    };
+};
+

@@ -6,15 +6,20 @@ const [template, styles] = await load.all(import.meta.resolve,
     './modal.css',
 );
 
-Enso.component(
-
-    'enso-modal', {
-    
-    properties: {
+Enso.component('enso-modal', {
+    watched: {
         'show': { attribute: {type: Boolean}, value: false},    // Is the modal shown?
         'static': { attribute: {type: Boolean}, value: false}   // Does clicking outside the modal close it?
     },
-
-    template, styles
-
+    template, styles,
+    script: {
+        get static() { return this.watched.static; },
+        set static(value) { this.watched.static = value; },
+        show() {
+            this.watched.show = true;
+        },
+        hide() {
+            this.watched.show = false;
+        }
+    }
 });
