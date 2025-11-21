@@ -2,10 +2,10 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import { parser } from '../../src/templates/parser.js';
-import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
-import { ADD_BINDING, ENSO_NODE, GET_BINDING, SCHEDULE_EFFECT } from '../../src/core/symbols.js';
-import '../../src/templates/parsers/attrParser.js';
+import { parser } from '../../../src/templates/parser.js';
+import { NodeDef, NodeDefMap } from '../../../src/templates/nodedef.js';
+import { ADD_BINDING, ENSO_NODE, GET_BINDING, SCHEDULE_EFFECT } from '../../../src/core/symbols.js';
+import '../../../src/templates/parsers/attrParser.js';
 
 describe('Attribute Parser', () => {
     let div, attr, def, parent;

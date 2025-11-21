@@ -80,9 +80,9 @@ describe('NodeDef', () => {
         expect(def.directive.binds).toBeUndefined();
         expect(node.hasAttribute(ENSO_NODE)).toBe(false);
         expect(node.hasAttribute(ENSO_ROOT)).toBe(false);
-        def.setDirective({ effect: ()=>{} });
+        def.setDirective({ action: ()=>{} });
         expect(def.directive.type).toBe('custom');
-        expect(def.directive.effect).toBeInstanceOf(Function);      
+        expect(def.directive.action).toBeInstanceOf(Function);      
     });
 
     it('attaches parsers correctly', () => {

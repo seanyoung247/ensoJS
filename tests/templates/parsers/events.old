@@ -2,11 +2,11 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import { parser } from '../../src/templates/parser.js';
-import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
-import { ENV, ENSO_NODE } from "../../src/core/symbols.js";
+import { parser } from '../../../src/templates/parser.js';
+import { NodeDef, NodeDefMap } from '../../../src/templates/nodedef.js';
+import { ENV, ENSO_NODE } from "../../../src/core/symbols.js";
 
-import '../../src/templates/parsers/eventParser.js';
+import '../../../src/templates/parsers/eventParser.js';
 
 
 describe('Event Parser', () => {

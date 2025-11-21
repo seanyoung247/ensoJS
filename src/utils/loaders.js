@@ -4,7 +4,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import EnsoTemplate from "../templates/templates.js";
+import EnsoTemplate from "../templates/template.js";
 import { createStyleSheet } from "./css.js";
 
 const extension = /(?:\w+\.)(\w+)$/;

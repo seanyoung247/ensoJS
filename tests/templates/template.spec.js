@@ -11,15 +11,23 @@ import {
 } from '../../src/core/symbols.js';
 import { UUIDRegEx } from '../shared.js';
 
-import EnsoTemplate from '../../src/templates/templates.js';
-import { runEffect } from '../../src/core/effects.js';
-import { parse } from '../../src/core/tags.js';
+import EnsoTemplate from '../../src/templates/template.js';
 
 
 const getWatchedNodeElement = node => (
     (node.nodeType === Node.TEXT_NODE) ?
         node.parentElement : node
 );
+const isValid = v => !(v === true || v === false || v === null || v === undefined);
+const parse = (strings, ...values) => {
+    let isBool = false;
+    const str = strings.reduce((a,c,i) => {
+        const value = values[i];
+        if (value === true) isBool = true;
+        return a + c + (isValid(value) ? value : '');
+    }, '');
+    return (isBool && !str) ? true : str;
+};
 
 class MockComponent {
     // Watched props mocks
@@ -33,7 +41,7 @@ class MockComponent {
     children = [];
     refs = {};
     root = null;
-    [ENV] = {parse};
+    [ENV] = { parse };
     [BINDINGS] = new Map();
 
     constructor(){
@@ -64,7 +72,7 @@ class MockComponent {
     render() {
         for (const {effects} of this[BINDINGS].values()) {
             for (const effect of effects) {
-                runEffect(this, effect);
+                effect.run();
             }
         }
         for (const child of this.children) {
@@ -80,7 +88,7 @@ describe('Template System', () => {
     beforeAll(() => {
         html = /*html*/ 
             `<div id="if-parent" *if="{{ watched:isVisible === true}}">
-                Hello {{ watched.name }}!
+                Hello {{ watched:name }}!
                 <span id="ref" #ref="myRef"></span>
                 <div id="if-child" #ref="anotherRef" *if="{{ watched:childIsVisible }}">
                     Child Content
@@ -175,5 +183,12 @@ describe('Template System', () => {
         // Have references been setup
         expect(component.refs.myRef).toBeDefined();
         expect(component.refs.myRef.id).toBe('ref');
+    });
+
+    it('clone() returns a fresh EnsoTemplate instance', () => {
+        const cloned = template.clone();
+        expect(cloned).toBeInstanceOf(EnsoTemplate);
+        expect(cloned.template).not.toBe(template.template);
+        expect(cloned.template.innerHTML).toBe(template.template.innerHTML);
     });
 });
