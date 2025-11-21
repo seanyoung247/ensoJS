@@ -1,108 +1,122 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
-    createEffectEnv,
-    createStringTemplate,
-    // `createEffect` is IIFE with cache closure
-    createEffect,
-    runEffect,
+    createEffectEnv, compileValue, Action, Effect
 } from "../../src/core/effects.js";
 import { ENV } from "../../src/core/symbols.js";
 
-// Mock parse to verify propagation into environment
-vi.mock("../../src/core/tags.js", () => ({
-    parse: vi.fn(() => "parsed")
-}));
 
-describe("createEffectEnv", () => {
-    it("creates a frozen object inheriting from baseEnv", () => {
-        const base = { a: 1 };
-        const env = createEffectEnv({ b: 2 }, base);
-        expect(Object.getPrototypeOf(env)).toBe(base);
-        expect(env.b).toBe(2);
-        expect(Object.isFrozen(env)).toBe(true);
-    });
+export const mockParent = (env = {}) => ({
+    component: { name: "mock-component" },
+    [ENV]: env
+});
 
-    it("defaults to rootEnv when not provided", () => {
+export const mockElement = () => ({ tag: "div" });
+
+describe("createEffectEnv()", () => {
+    it("creates a frozen object", () => {
         const env = createEffectEnv();
-        expect(env.parse).toBeTypeOf("function");
         expect(Object.isFrozen(env)).toBe(true);
     });
-});
 
-describe("createStringTemplate", () => {
-    it("replaces {{}} with ${} and trims whitespace", () => {
-        const result = createStringTemplate("  Hello {{name}}!  ");
-        expect(result).toBe("parse`Hello ${name}!`");
+    it("inherits from baseEnv", () => {
+        const base = { base: 123 };
+        const env = createEffectEnv({}, base);
+        expect(env.base).toBe(123);
+        expect(Object.getPrototypeOf(env)).toBe(base);
     });
 
-    it("handles multiple replacements", () => {
-        const result = createStringTemplate("{{a}} and {{b}}");
-        expect(result).toBe("parse`${a} and ${b}`");
-    });
-});
-
-describe("createEffect", () => {
-    it("creates a new function with parameters", () => {
-        const fn = createEffect("x", "y", "x + y");
-        const result = fn({}, 2, 3);
-        expect(result).toBe(5);
-    });
-
-    it("caches identical function bodies", () => {
-        const fn1 = createEffect("a", "a");
-        const fn2 = createEffect("a", "a"); // identical args -> same cache key
-        expect(fn1).toBe(fn2);
-    });
-
-    it("works with no parameters", () => {
-        const fn = createEffect("42");
-        expect(fn({},)).toBe(42);
-    });
-
-    it("wraps code in strict env correctly", () => {
-        const fn = createEffect("x", "x * 2");
-        const res = fn({}, 4);
-        expect(res).toBe(8);
-    });
-
-    it('logs an error when new Function throws', () => {
-        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        // Cause invalid function syntax — `args.pop()` is the body string, so make it invalid JS.
-        const badBody = 'return something that is not valid js }';
-        
-        // args before body simulate effect arguments
-        createEffect('a', 'b', badBody);
-
-        expect(spy.mock.calls[0][0]).toContain('Error in effect:');
-        expect(spy.mock.calls[0][1]).toBeInstanceOf(SyntaxError);
-
-        spy.mockRestore();
-
-        const fn = createEffect('a', 'b', "x + 1");
-        expect(fn).toThrow();
+    it("adds provided args as own props", () => {
+        const env = createEffectEnv({ a: 10 });
+        expect(env.a).toBe(10);
+        // eslint-disable-next-line no-prototype-builtins
+        expect(env.hasOwnProperty("a")).toBe(true);
     });
 });
 
-describe("runEffect", () => {
-    it("calls effect.action with correct context and args", () => {
-        const action = vi.fn();
-        const parent = {
-            component: { id: 1 },
-            [ENV]: { foo: "bar" }
+describe("compileValue()", () => {
+    it("wraps template into parse-tagged IIFE", () => {
+        const out = compileValue("{{a + 1}}");
+        expect(out).toContain("()=>parse`");
+        expect(out).toContain("${a + 1}");
+    });
+
+    it("strips surrounding whitespace", () => {
+        const out = compileValue("   {{x}}   ");
+        expect(out).toContain("${x}");
+    });
+});
+
+describe("Action", () => {
+    it("stores data and code", () => {
+        const act = new Action("1+2", { test: true });
+        expect(act.data.test).toBe(true);
+        expect(act.code).toBe("1+2");
+    });
+
+    it("creates a callable effect function", () => {
+        const act = new Action("() => 1 + 2");
+        const parent = mockParent();
+        const fn = act.createFunc(parent);
+        expect(fn()).toBe(3);
+    });
+
+    it("executes with env scoping", () => {
+        const act = new Action("() => x + 1");
+        const parent = mockParent({ x: 10 });
+
+        const fn = act.createFunc(parent);
+        expect(fn()).toBe(11);
+    });
+
+    it("throws TypeError if created function doesn't return a function", () => {
+        const act = new Action("123"); // returns 123, not a function
+        const parent = mockParent();
+
+        expect(() => act.createFunc(parent)).toThrow(TypeError);
+    });
+});
+
+describe("Effect", () => {
+    it("stores element and action function", () => {
+        const act = new Action("() => 42");
+        const parent = mockParent();
+        const element = mockElement();
+
+        const effect = act.createEffect(parent, element);
+
+        expect(effect.element).toBe(element);
+        expect(typeof effect.action).toBe("function");
+    });
+
+    it("runs the action", () => {
+        const act = new Action("() => 5");
+        const parent = mockParent();
+        const element = mockElement();
+
+        const effect = act.createEffect(parent, element);
+        expect(effect.run()).toBe(5);
+    });
+
+    it("catches errors and returns undefined", () => {
+        const act = new Action("() => { throw new Error('fail'); }");
+        const parent = mockParent();
+        const element = mockElement();
+
+        const effect = act.createEffect(parent, element);
+        expect(effect.run()).toBeUndefined();
+    });
+
+    it("handles failure to instantiate effect gracefully", () => {
+        const badAction = {
+            createFunc() { throw new Error("boom"); }
         };
-        const effect = { action };
-        runEffect(parent, effect);
-        expect(action).toHaveBeenCalledWith(parent[ENV], effect);
-        expect(action.mock.instances[0]).toBe(parent.component);
-    });
+        const parent = mockParent();
+        const element = mockElement();
 
-    it("does nothing if effect or action missing", () => {
-        const parent = { component: {}, [ENV]: {} };
-        expect(() => runEffect(parent, {})).not.toThrow();
-        expect(() => runEffect(parent, null)).not.toThrow();
+        const effect = new Effect(parent, element, badAction);
+        expect(effect.run()).toBeUndefined();
     });
 });

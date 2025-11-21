@@ -22,7 +22,8 @@ Enso.component( "enso-app", {
                 display: 'flex',
                 flexDirection: 'column',
                 "align-items": 'center',
-                justifyContent: 'space-evenly',
+                justifyContent: 'space-between',
+                padding: '2em',
                 border: '1px solid black',
                 height: '100vh',
             },
@@ -58,9 +59,15 @@ Enso.component( "enso-app", {
         <div id="app-root"
             :style="{{ cssObj({fontWeight: watched:flag && 'bold'}) }}">
             <div>
-                <button @click="()=>{ watched:flag = !watched:flag; }">Toggle Flag</button>
-                <button @click="()=>{ watched:flag2 = !watched:flag2; }">Toggle Flag2</button>
-                <button @click="()=>{ watched:list.push(watched:list.length + 1); }">Add List Item</button>
+                <button @click="()=>{ watched:flag = !watched:flag; }">
+                    Toggle Flag
+                </button>
+                <button @click="()=>{ watched:flag2 = !watched:flag2; }">
+                    Toggle Flag2
+                </button>
+                <button @click="()=>{ watched:list.push(watched:list.length + 1); }">
+                    Add List Item
+                </button>
             </div>
 
             {{ watched:flag ? 'App Enso' : 'Enso App' }}
@@ -75,9 +82,9 @@ Enso.component( "enso-app", {
                 </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
-            <div *for="item of @:list">
+            <div *for="[index, item] of @:list.entries()">
                 For Item = {{ item }}, {{ @:flag2.toString() }} |
-                <button @click="()=>{ @:list = @:list.filter(i => i !== item); }">
+                <button @click="()=>{ @:list.splice(index,1); }">
                     X
                 </button>
             </div>

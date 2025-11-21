@@ -54,7 +54,7 @@ const createFunctionBody = code => (
         return (() => {
             "use strict";
             try { return ${code}; } catch(e) {
-                console.error('Runtime error in effect:', e);
+                console.error('[Enso] Runtime error in effect:', e);
                 return undefined;
             }
         })();
@@ -66,7 +66,7 @@ const createAction = code => {
     try {
         return new Function('env', body);
     } catch(e) {
-        console.error("Error in effect: ", e, '\n', body);
+        console.error("[Enso] Error in effect: ", e, '\n', body);
         return () => () => {/* no-op on error */};
     }
 };
@@ -79,7 +79,7 @@ export class Effect {
         try {
             this.#action = action.createFunc(parent);
         } catch (e) {
-            console.error("[Endo] Error instantiating effect:\n", e, action);
+            console.error("[Enso] Error instantiating effect:\n", e, action);
             this.#action = () => {};
         }
     }
@@ -91,7 +91,7 @@ export class Effect {
         try {
             return this.#action?.();
         } catch (e) {
-            console.error("[Endo] Error running effect:\n", e);
+            console.error("[Enso] Error running effect:\n", e, this.#action.toString());
             return undefined;
         }
     }

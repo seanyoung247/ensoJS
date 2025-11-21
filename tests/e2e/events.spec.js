@@ -10,12 +10,12 @@ import EnsoComponent from '../../src/component.js';
 Enso.component( "enso-events-test", {
 
     watched: {
-        flag: { value: false }
+        flag: false
     },
 
     template: html`
         <div #ref="root">
-            <div id="bound">{{ watched:flag ? 'True' : 'False' }}</div>
+            <div id="bound">{{ @:flag.toString() }}</div>
             <button @click="()=>watched:flag = !watched:flag">Test Me!</button>
         </div>
     `
@@ -41,14 +41,14 @@ describe('Enso Events', () => {
         expect(el.refs).toBeDefined();
         expect(el.refs.root).toBeInstanceOf(HTMLDivElement);
 
-        expect(bound.textContent.trim()).toBe('False');
+        expect(bound.textContent.trim()).toBe('false');
         expect(button.hasAttribute('@click')).toBe(false);
     });
 
     it('reacts to events and property changes', async () => {
         button.click();
         await nextFrame();
-        expect(bound.textContent.trim()).toBe('True');
+        expect(bound.textContent.trim()).toBe('true');
     });
 
 });

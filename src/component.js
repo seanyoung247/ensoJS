@@ -131,6 +131,8 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     [UPDATE]() {
+        if (!this.#initialised) return;
+        
         this.#updateScheduled = false;
 
         super[UPDATE]();

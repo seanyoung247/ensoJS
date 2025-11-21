@@ -38,7 +38,7 @@ export const EnsoNode = (Base = Object) => {
     return class extends Base {
         #bindings;              // Bindings in this node
         #taskList = new Set();  // Set of effects to be run during the next update
-        #children = [];         // Child fragments
+        #children = [];         // Child nodes
 
         constructor() {
             super();

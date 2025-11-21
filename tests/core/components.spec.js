@@ -1,100 +1,187 @@
-// tests/components.spec.js
+// components.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  createComponent,
-  markChanged, update,
+
+import { 
+    createComponent,
+    EnsoNode
 } from "../../src/core/components.js";
-import { runEffect } from "../../src/core/effects.js";
 import {
-  UPDATE, MARK_CHANGED,
-  GET_BINDING, TASK_LIST,
-  SCHEDULE_EFFECT, SCHEDULE_UPDATE,
-  ENSO_INTERNAL, CHILDREN, BINDINGS,
+    MARK_CHANGED, ADD_BINDING, BINDINGS,
+    TASK_LIST, SCHEDULE_UPDATE, UPDATE,
+    ENSO_INTERNAL, CHILDREN, ADD_CHILD
 } from "../../src/core/symbols.js";
 
-vi.mock("../../src/core/effects.js", () => ({
-  runEffect: vi.fn(),
-}));
+describe("createComponent()", () => {
 
-describe("createComponent", () => {
-  it("creates a derived class with ENSO_INTERNAL constructor", () => {
     class Base {
-      constructor(x) {
-        this.arg = x;
-      }
+        constructor(key) {
+            if (key !== ENSO_INTERNAL) {
+                throw new Error("Direct subclassing not allowed");
+            }
+        }
     }
-    const Derived = createComponent(Base);
-    const inst = new Derived();
-    expect(inst.arg).toBe(ENSO_INTERNAL);
-  });
 
-  it("applies mixin properties", () => {
-    class Base {}
-    const mixin = { foo() {}, bar: 123 };
-    const Derived = createComponent(Base, mixin);
-    expect(Derived.prototype.foo).toBeTypeOf("function");
-    expect(Derived.prototype.bar).toBe(123);
-  });
+    it("creates a class extending the base", () => {
+        const C = createComponent(Base);
+        const inst = new C();
+        expect(inst).toBeInstanceOf(C);
+        expect(inst).toBeInstanceOf(Base);
+    });
 
-  it("throws if proto is not an object", () => {
-    class Base {}
-    expect(() => createComponent(Base, 5)).toThrow(/object litteral/);
-  });
+    it("throws if proto is not an object literal", () => {
+        expect(() => createComponent(Base, 123)).toThrow(/object litteral/);
+        expect(() => createComponent(Base, "x")).toThrow();
+    });
+
+    it("mixes object literal properties into prototype", () => {
+        const proto = {
+            x: 10,
+            doThing() { return 99; }
+        };
+
+        const C = createComponent(Base, proto);
+        const inst = new C();
+
+        expect(inst.x).toBe(10);
+        expect(inst.doThing()).toBe(99);
+    });
+
+    it("preserves property descriptors (getters/setters)", () => {
+        let val = 0;
+        const C = createComponent(Base, {
+            get value() { return val; },
+            set value(v) { val = v * 2; }
+        });
+
+        const inst = new C();
+        inst.value = 5;
+        expect(val).toBe(10);
+        expect(inst.value).toBe(10);
+    });
 });
 
-describe("markChanged", () => {
-  let owner, child;
+describe("EnsoNode", () => {
 
-  beforeEach(() => {
-    child = { [MARK_CHANGED]: vi.fn() };
-    owner = {
-      [CHILDREN]: [child],
-      [GET_BINDING]: vi.fn(),
-      [SCHEDULE_EFFECT]: vi.fn(),
-      [SCHEDULE_UPDATE]: vi.fn(),
-    };
-  });
+    let Node, instance;
 
-  it("marks changed binding and schedules effects + update", () => {
-    const effect = {};
-    const binding = { changed: false, effects: [effect] };
-    owner[GET_BINDING].mockReturnValue(binding);
-    markChanged(owner, "prop");
-    expect(binding.changed).toBe(true);
-    expect(owner[SCHEDULE_EFFECT]).toHaveBeenCalledWith(effect);
-    expect(owner[SCHEDULE_UPDATE]).toHaveBeenCalled();
-    expect(child[MARK_CHANGED]).toHaveBeenCalledWith("prop");
-  });
+    beforeEach(() => {
+        Node = EnsoNode(); // default Base=Object
+        instance = new Node();
 
-  it("handles missing binding gracefully", () => {
-    owner[GET_BINDING].mockReturnValue(undefined);
-    expect(() => markChanged(owner, "prop")).not.toThrow();
-    expect(child[MARK_CHANGED]).toHaveBeenCalledWith("prop");
-  });
+        // Mock bindings map
+        instance[BINDINGS] = new Map();
+
+        // Mock SCHEDULE_UPDATE so we can detect calls
+        instance[SCHEDULE_UPDATE] = vi.fn();
+    });
+
+
+    it("initialises binding, children, and task list", () => {
+        expect(instance[BINDINGS]).toBeInstanceOf(Map);
+        expect(instance[TASK_LIST]).toBeInstanceOf(Set);
+        expect(instance[CHILDREN]).toEqual([]);
+    });
+
+
+    it("ADD_BINDING adds effect to existing binding", () => {
+        const effect = { run: vi.fn() };
+        instance[BINDINGS].set("x", { effects: [], changed: false });
+
+        instance[ADD_BINDING]("x", effect);
+
+        const bind = instance[BINDINGS].get("x");
+        expect(bind.effects).toContain(effect);
+        expect(bind.changed).toBe(true);
+    });
+
+
+    it("MARK_CHANGED marks binding changed and schedules effects", () => {
+        const effect1 = { run: vi.fn() };
+        const effect2 = { run: vi.fn() };
+
+        instance[BINDINGS].set("x", {
+            changed: false,
+            effects: [effect1, effect2]
+        });
+
+        instance[MARK_CHANGED]("x");
+
+        const bind = instance[BINDINGS].get("x");
+        expect(bind.changed).toBe(true);
+
+        // Effects scheduled
+        expect(instance[TASK_LIST].has(effect1)).toBe(true);
+        expect(instance[TASK_LIST].has(effect2)).toBe(true);
+
+        // Update scheduled
+        expect(instance[SCHEDULE_UPDATE]).toHaveBeenCalled();
+    });
+
+
+    it("MARK_CHANGED propagates to children", () => {
+        const child = new Node();
+        child[BINDINGS] = new Map();
+        child[SCHEDULE_UPDATE] = vi.fn();
+
+        child[BINDINGS].set("y", { changed: false, effects: [] });
+        instance[ADD_CHILD](child);
+
+        instance[MARK_CHANGED]("y");
+
+        const bind = child[BINDINGS].get("y");
+        expect(bind.changed).toBe(true);
+    });
+
+
+    it("UPDATE runs effects once then clears task list", () => {
+        const effect1 = { run: vi.fn() };
+        const effect2 = { run: vi.fn() };
+
+        instance[TASK_LIST].add(effect1);
+        instance[TASK_LIST].add(effect2);
+
+        instance[BINDINGS].set("x", { changed: true, effects: [] });
+
+        instance[UPDATE]();
+
+        expect(effect1.run).toHaveBeenCalledTimes(1);
+        expect(effect2.run).toHaveBeenCalledTimes(1);
+
+        expect(instance[TASK_LIST].size).toBe(0);
+    });
+
+
+    it("UPDATE resets changed flags", () => {
+        instance[BINDINGS].set("a", { changed: true, effects: [] });
+        instance[BINDINGS].set("b", { changed: true, effects: [] });
+
+        instance[UPDATE]();
+
+        expect(instance[BINDINGS].get("a").changed).toBe(false);
+        expect(instance[BINDINGS].get("b").changed).toBe(false);
+    });
+
+
+    it("UPDATE recursively updates children", () => {
+        const child = new Node();
+        child[BINDINGS] = new Map();
+        child[TASK_LIST].add({ run: vi.fn() });
+
+        const childUpdateSpy = vi.spyOn(child, UPDATE);
+
+        instance[ADD_CHILD](child);
+
+        instance[UPDATE]();
+
+        expect(childUpdateSpy).toHaveBeenCalled();
+    });
+
+
+    it("ADD_CHILD stores children", () => {
+        const child = new Node();
+        instance[ADD_CHILD](child);
+        expect(instance[CHILDREN]).toContain(child);
+    });
+
 });
 
-describe("update", () => {
-  let owner, child;
-
-  beforeEach(() => {
-    child = { [UPDATE]: vi.fn() };
-    owner = {
-      [TASK_LIST]: new Set([{}]),
-      [BINDINGS]: new Map([["x", { changed: true }]]),
-      [CHILDREN]: [child],
-    };
-  });
-
-  it("runs effects, resets bindings, and updates children", () => {
-    update(owner);
-    expect(runEffect).toHaveBeenCalled();
-    expect([...owner[TASK_LIST]]).toEqual([]);
-    expect([...owner[BINDINGS].values()][0].changed).toBe(false);
-    expect(child[UPDATE]).toHaveBeenCalled();
-  });
-
-  it("handles empty children safely", () => {
-    owner[CHILDREN] = [];
-    expect(() => update(owner)).not.toThrow();
-  });
-});

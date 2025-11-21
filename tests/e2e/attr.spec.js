@@ -21,7 +21,7 @@ Enso.component( "enso-attr-test", {
             enso-attr:style="color:{{ (watched:value > 5) ? 'red' : 'green' }};"
             :data-value="{{ watched:value }}"
         >
-            {{ watched.value }}
+            {{ watched:value }}
         </span>
     `
 
