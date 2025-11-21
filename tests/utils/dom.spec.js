@@ -2,7 +2,13 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect } from 'vitest';
-import { createFragment, createTemplate, getChildIndex, createWalker } from '../../src/utils/dom'; 
+import { 
+    createFragment,
+    createTemplate, 
+    cloneTemplate,
+    getChildIndex, 
+    createWalker 
+} from '../../src/utils/dom'; 
 
 describe('createFragment', () => {
     it('creates a DocumentFragment from an HTML string', () => {
@@ -113,5 +119,65 @@ describe('createWalker', () => {
         expect(walker.currentNode).toBe(root);
         expect(walker.nextNode()).toBe(child);
         expect(walker.nextNode()).toBeNull();
+    });
+});
+
+describe('cloneTemplate', () => {
+    it('creates a deep clone of the template content', () => {
+        const template = document.createElement('template');
+        template.innerHTML = `
+            <div class="outer">
+                <span class="inner">Hello</span>
+            </div>
+        `;
+
+        const cloned = cloneTemplate(template);
+
+        // Should be an HTMLTemplateElement
+        expect(cloned).toBeInstanceOf(HTMLTemplateElement);
+
+        // Different nodes, same structure/content
+        const originalDiv = template.content.querySelector('.outer');
+        const clonedDiv = cloned.content.querySelector('.outer');
+
+        expect(clonedDiv).not.toBe(originalDiv);
+        expect(clonedDiv.innerHTML.trim()).toBe(originalDiv.innerHTML.trim());
+    });
+
+    it('produces a clone independent of later changes to the original', () => {
+        const template = document.createElement('template');
+        template.innerHTML = `<p id="tgt">Original</p>`;
+
+        const cloned = cloneTemplate(template);
+        const clonedP = cloned.content.querySelector('#tgt');
+
+        // NOW modify the original
+        template.content.querySelector('#tgt').textContent = 'Modified';
+
+        // Clone should remain unchanged
+        expect(clonedP.textContent).toBe('Original');
+    });
+
+    it('passes a DocumentFragment clone to createTemplate()', () => {
+        const template = document.createElement('template');
+        template.innerHTML = `<span>Test</span>`;
+
+        const cloned = cloneTemplate(template);
+
+        // cloneTemplate always returns createTemplate(DocumentFragment)
+        expect(cloned).toBeInstanceOf(HTMLTemplateElement);
+
+        const span = cloned.content.querySelector('span');
+        expect(span).toBeTruthy();
+        expect(span.textContent).toBe('Test');
+    });
+
+    it('handles empty templates correctly', () => {
+        const template = document.createElement('template');
+
+        const cloned = cloneTemplate(template);
+
+        expect(cloned).toBeInstanceOf(HTMLTemplateElement);
+        expect(cloned.content.childNodes.length).toBe(0);
     });
 });
