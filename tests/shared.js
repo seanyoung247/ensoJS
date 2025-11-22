@@ -20,3 +20,9 @@ export const setup = (component) => {
 export const clearDOM = () => {
     document.body.innerHTML = '';
 };
+
+export const getTestElement = (attribute, value) => {
+    const parent = document.createElement('div');
+    parent.innerHTML = `<div ${attribute}="${value}"></div>`;
+    return parent.firstChild;
+};

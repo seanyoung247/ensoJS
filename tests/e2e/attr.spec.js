@@ -10,6 +10,7 @@ import EnsoComponent from '../../src/component.js';
 Enso.component( "enso-attr-test", {
 
     watched: {
+        show: true,
         value: { value: 0, attribute: { type: Number, force: true } },
         str: { value: 'test', attribute: { type: String } }
     },
@@ -20,6 +21,7 @@ Enso.component( "enso-attr-test", {
             #ref="display" 
             enso-attr:style="color:{{ (watched:value > 5) ? 'red' : 'green' }};"
             :data-value="{{ watched:value }}"
+            :data-show="{{ watched:show }}"
         >
             {{ watched:value }}
         </span>
@@ -85,6 +87,10 @@ describe('Enso Attributes', () => {
         expect(el.hasAttribute('str')).toBe(true);
         el.watched.str = null;
         expect(el.hasAttribute('str')).toBe(false);
+
+        el.watched.show = false;
+        await nextFrame();
+        expect(el.hasAttribute('data-show')).toBe(false);
     });
 
 });

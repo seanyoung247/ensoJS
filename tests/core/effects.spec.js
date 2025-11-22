@@ -1,7 +1,7 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
     createEffectEnv, compileValue, Action, Effect
 } from "../../src/core/effects.js";
@@ -80,6 +80,15 @@ describe("Action", () => {
 });
 
 describe("Effect", () => {
+
+    beforeEach(() => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it("stores element and action function", () => {
         const act = new Action("() => 42");
         const parent = mockParent();

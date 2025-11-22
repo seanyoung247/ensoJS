@@ -78,5 +78,17 @@ describe('Template Parser', () => {
         expect(watched).toBe(div.children[0]);
         expect(parser.getWatched(div.children[1])).toBe(null);
     });
+
+    it('preprocessor deals with parser failure', () => {
+        parser.registerAttr({
+            type: 'failAttr',
+            match() { return true; },
+            preprocess() { return false; },
+        });
+
+        div.setAttribute('fail-attr', 'value');
+        const def = new NodeDef('test', div, null);
+        expect(parser.preprocess(def, div)).toBe(false);
+    });
 });
 

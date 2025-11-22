@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { css, html } from '../../src/core/tags.js';
-import EnsoTemplate from '../../src/templates/templates.js';
+import EnsoTemplate from '../../src/templates/template.js';
 
 describe('css', () => {
     it('creates a CSSStyleSheet from template strings', () => {
