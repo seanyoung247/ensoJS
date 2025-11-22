@@ -4,10 +4,10 @@
 
 const parseIdentifier = identifier => {
     if (identifier.includes(':')) {
-        return identifier.split(':')[1].trim();
+        return parseIdentifier(identifier.split(':')[1]);
     }
     if (identifier.includes('=')) {
-        return identifier.split('=')[0].trim();
+        return parseIdentifier(identifier.split('=')[0]);
     }
     return identifier.trim();
 };
@@ -39,6 +39,7 @@ const getIdentifiers = source => {
         
         if (stack.at(-1).capturing) {
             allowCapture = false;
+            if (token.trim().at(-1) === ':') allowCapture = true;
             return parseIdentifier(token);
         }
         
