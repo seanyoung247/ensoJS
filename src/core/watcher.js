@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 const proxies = new WeakMap();
-
+const reactives = new WeakMap();
 
 const baseWatcher = (onChange, name) => ({
     get(target, prop, receiver) {
@@ -41,7 +41,7 @@ const baseWatcher = (onChange, name) => ({
 const iterators = ['values','entries','keys', Symbol.iterator];
 const isIterator = (target, prop) => (
     typeof target[prop] === 'function' && 
-    iterators.includes(prop)
+        iterators.includes(prop)
 );
 
 const mutatorWatcher = (onChange, name, trapMethods) => {
@@ -91,5 +91,10 @@ export const watch = (target, name, onChange) => {
     const watcher = getWatcher(target, name, onChange);
     const proxy = new Proxy(target, watcher);
     proxies.set(target, proxy);
+    reactives.set(proxy, true);
     return proxy;
 };
+
+export const isReactive = (value) => (
+    reactives.has(value)
+);

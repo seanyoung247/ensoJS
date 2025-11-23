@@ -80,9 +80,9 @@ describe("Action", () => {
 });
 
 describe("Effect", () => {
-
+    let consoleSpy;
     beforeEach(() => {
-        vi.spyOn(console, 'error').mockImplementation(() => {});
+        consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -107,6 +107,11 @@ describe("Effect", () => {
 
         const effect = act.createEffect(parent, element);
         expect(effect.run()).toBe(5);
+    });
+
+    it("handles malformed action code", () => {
+        new Action("(} => [}");
+        expect(consoleSpy).toHaveBeenCalled();
     });
 
     it("catches errors and returns undefined", () => {

@@ -30,7 +30,7 @@ export class NodeDef {
     }
 
     get id() { return this.#id; }
-    set node(val) { this.#node = val; }
+    //set node(val) { this.#node = val; }
     get node() { return this.#node; }
     get map() { return this.#map; }
 

@@ -35,8 +35,8 @@ const Enso = (()=>{
          * 
          * @example
          * const MyCounter = Enso.component('my-counter', {
-         *   template: html`<button @click="this.increment">{{ watched.count }}</button>`,
          *   watched: { count: 0 },
+         *   template: html`<button @click="this.increment">{{ watched:count }}</button>`,
          *   script: {
          *     increment() { this.watched.count++; }
          *   }
