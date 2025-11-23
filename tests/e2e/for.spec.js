@@ -64,6 +64,77 @@ describe('Basic FOR directive', () => {
         expect(root.querySelectorAll('.for-test').length).toBe(0);
     });
 
+    it('updates correctly when array is reordered', async () => {
+        el.watched.items = [3,1,2];
+        await nextFrame();
+
+        el.watched.items.sort();       // → [1,2,3]
+        await nextFrame();
+
+        const items = root.querySelectorAll('.for-test');
+        expect(items[0].textContent).toContain('1');
+        expect(items[1].textContent).toContain('2');
+        expect(items[2].textContent).toContain('3');
+
+        el.watched.items.reverse();    // → [3,2,1]
+        await nextFrame();
+
+        const reversed = root.querySelectorAll('.for-test');
+        expect(reversed[0].textContent).toContain('3');
+        expect(reversed[1].textContent).toContain('2');
+        expect(reversed[2].textContent).toContain('1');
+    });
+
+    it('re-renders when replacing array with new instance', async () => {
+        el.watched.items = [1,2,3];
+        await nextFrame();
+
+        // Replace with a new instance that contains the same values
+        el.watched.items = [1,2,3];
+        await nextFrame();
+
+        const items = root.querySelectorAll('.for-test');
+        expect(items.length).toBe(3);
+        expect(items[0].textContent).toContain('1');
+    });
+
+    it('updates when iterator source changes', async () => {
+        // Start with entries()
+        el.watched.items = ['a', 'b', 'c'];
+        await nextFrame();
+
+        // Switch to keys()
+        el.watched.items = Object.keys({x:1, y:2, z:3});
+        await nextFrame();
+
+        const items = root.querySelectorAll('.for-test');
+        expect(items.length).toBe(3);
+        // Should contain keys 'x', 'y', 'z'
+        expect(items[0].textContent).toContain('x');
+        expect(items[1].textContent).toContain('y');
+        expect(items[2].textContent).toContain('z');
+
+        // Switch to values()
+        el.watched.items = Object.values({p:10, q:20});
+        await nextFrame();
+
+        const valueItems = root.querySelectorAll('.for-test');
+        expect(valueItems.length).toBe(2);
+        expect(valueItems[0].textContent).toContain('10');
+        expect(valueItems[1].textContent).toContain('20');
+        
+        // Switch to a Set
+        el.watched.items = new Set([100, 200, 300]);
+        console.log('Changed to Set:', el.watched.items);
+        await nextFrame();
+
+        const setItems = root.querySelectorAll('.for-test');
+        expect(setItems.length).toBe(3);
+        expect(setItems[0].textContent).toContain('100');
+        expect(setItems[1].textContent).toContain('200');
+        expect(setItems[2].textContent).toContain('300');
+    });
+
 });
 
 
@@ -158,6 +229,52 @@ describe('FOR directive with index', () => {
 });
 
 
+const objectFor = 'enso-for-object-test';
+Enso.component(objectFor, {
+    watched: { data: { value:{ a: 1, b: 2, c: 3 }, deep: true } },
+    template: html`
+        <div id="for-object-root">
+            <div class="for-object-test" *for="[key, value] of Object.entries(@:data)">
+                Key: {{ key }}, Value: {{ value }}
+            </div>
+        </div>
+    `
+});
+
+describe('FOR directive with object entries', () => {
+
+    let el, root;
+    beforeAll(() => {
+        [el, root] = setup(objectFor);
+    });
+
+    it('renders correct key-value pairs', () => {
+        const items = root.querySelectorAll('.for-object-test');
+        expect(items.length).toBe(3);
+        expect(items[0].textContent).toContain('Key: a, Value: 1');
+        expect(items[1].textContent).toContain('Key: b, Value: 2');
+        expect(items[2].textContent).toContain('Key: c, Value: 3');
+    });
+
+    it('updates when object changes', async () => {
+        el.watched.data.d = 4; // Add new key-value
+        await nextFrame();
+        const items = root.querySelectorAll('.for-object-test');
+        expect(items.length).toBe(4);
+        expect(items[3].textContent).toContain('Key: d, Value: 4');
+
+        delete el.watched.data.b; // Remove a key
+        await nextFrame();
+        const updatedItems = root.querySelectorAll('.for-object-test');
+        expect(updatedItems.length).toBe(3);
+        expect(Array.from(updatedItems).some(
+            item => item.textContent.includes('Key: b')
+        )).toBe(false);
+    });
+
+});
+
+
 const destructureFor = 'enso-for-destructure-test';
 Enso.component(destructureFor, {
     watched: { 
@@ -205,6 +322,8 @@ describe('FOR directive with destructuring', () => {
         const items = root.querySelectorAll('.for-destructure-test');
         expect(items.length).toBe(el.watched.items.length);
         expect(items[3].textContent).toContain('Name: Diana');
+        expect(items[4].textContent).toContain('Name: Edna');
+        expect(items[4].textContent).toContain('City: N/A');
 
         el.watched.items.splice(0, 2); // Remove first two
         await nextFrame();
@@ -217,3 +336,63 @@ describe('FOR directive with destructuring', () => {
 });
 
 
+const nestedFor = 'enso-for-nested-test';
+Enso.component(nestedFor, {
+    watched: { 
+        lists: { 
+            value:[
+                [1,2],
+                [3,4,5],
+                [6]
+            ],
+            deep: true 
+        } 
+    },
+    template: html`
+        <div id="for-nested-root">
+            <div class="for-nested-outer" *for="innerList of @:lists">
+                <div class="for-nested-inner" *for="item of innerList">
+                    Item: {{ item }}
+                </div>
+            </div>
+        </div>
+    `
+});
+
+describe('Nested FOR directives', () => {
+
+    let el, root;
+    beforeAll(() => {
+        [el, root] = setup(nestedFor);
+    });
+
+    it('renders correct number of nested items', () => {
+        const outerLists = root.querySelectorAll('.for-nested-outer');
+        expect(outerLists.length).toBe(3);
+
+        const innerItems = root.querySelectorAll('.for-nested-inner');
+        expect(innerItems.length).toBe(6); // 2 + 3 + 1 = 6
+    });
+
+    it('updates nested lists correctly', async () => {
+        el.watched.lists[1].push(6); // Add to second inner list
+        await nextFrame();
+        let innerItems = root.querySelectorAll('.for-nested-inner');
+        expect(innerItems.length).toBe(7);
+
+        el.watched.lists.push([7,8]); // Add new inner list
+        await nextFrame();
+        const outerLists = root.querySelectorAll('.for-nested-outer');
+        expect(outerLists.length).toBe(4);
+        innerItems = root.querySelectorAll('.for-nested-inner');
+        expect(innerItems.length).toBe(9); // 2 + 4 + 1 + 2 = 9
+
+        el.watched.lists.splice(0,1); // Remove first inner list
+        await nextFrame();
+        const updatedOuterLists = root.querySelectorAll('.for-nested-outer');
+        expect(updatedOuterLists.length).toBe(3);
+        innerItems = root.querySelectorAll('.for-nested-inner');
+        expect(innerItems.length).toBe(7); // 4 + 1 + 2 = 7
+    });
+
+});
