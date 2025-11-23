@@ -82,7 +82,7 @@ Enso.component( "enso-app", {
                 </div>
                 <button @click="this.childHide">Toggle Child</button>
             </div>
-            <div *for="[index, item] of @:list.entries()">
+            <div class="for-item" *for="[index, item] of @:list.entries()">
                 For Item = {{ item }}, {{ @:flag2.toString() }} |
                 <button @click="()=>{ @:list.splice(index,1); }">
                     X
