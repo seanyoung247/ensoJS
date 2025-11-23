@@ -61,6 +61,7 @@ class ForFragment extends EnsoFragment {
         }
         this[CHILDREN].length = 0;
         this.isAttached = false;
+
     }
 }
 

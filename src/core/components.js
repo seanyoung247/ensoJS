@@ -86,7 +86,7 @@ export const EnsoNode = (Base = Object) => {
         }
 
         [UPDATE]() {
-            // run all effects once
+            // run all effects in the task list
             for (const effect of this.#taskList) {
                 effect.run();
             }

@@ -1,3 +1,7 @@
+
+// Part of Enso
+// Licensed under the MIT License, see LICENSE file in root.
+
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Mock parser
