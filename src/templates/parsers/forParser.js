@@ -6,7 +6,7 @@ import { EnsoFragment } from "../../core/fragment.js";
 import { addBinding, bindSource, getDirective } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
 import { Action } from "../../core/effects.js";
-import { ROOT, CHILDREN, UPDATE, ENV, ANCHOR } from "../../core/symbols.js";
+import { NODES, CHILDREN, UPDATE, ENV, ANCHOR } from "../../core/symbols.js";
 
 
 class ItemFragment extends EnsoFragment {
@@ -18,7 +18,7 @@ class ItemFragment extends EnsoFragment {
     mount() {
         this.isAttached = true;
         this[UPDATE]();
-        return this[ROOT];
+        return this[NODES];
     }
 }
 
@@ -27,7 +27,7 @@ class ForFragment extends EnsoFragment {
     #template;
     constructor(parent, template, placeholder, action) {
         super(parent, null, placeholder);
-        this.#effect = action.createEffect(parent, this[ROOT]);
+        this.#effect = action.createEffect(parent, null);
         this.#template = template;
     }
     get tag() { return "enso:for"; }
@@ -48,7 +48,7 @@ class ForFragment extends EnsoFragment {
                 this, this.#template, item
             );
             // Mount
-            elements.push(child.mount());
+            elements.push(...child.mount());
         }
         this[ANCHOR].after(...elements);
         this.isAttached = true;

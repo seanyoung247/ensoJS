@@ -70,6 +70,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
     connectedCallback() {
         if (this.#initialised) return;
+        this.#initialised = true;
 
         // Loops through all properties defined as attributes 
         // and sets their initial value if they're forced.
@@ -89,10 +90,9 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
             attachStyleSheets(this[ROOT], this.styles);
         }
 
-        this.#initialised = true;
-
         // Initial render
         this[UPDATE]();
+        // this[SCHEDULE_UPDATE]();
     }
 
     disconnectedCallback() {

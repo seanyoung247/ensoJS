@@ -5,8 +5,8 @@
 import { EnsoNode } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
-    ROOT, ENV, ADD_CHILD, SCHEDULE_UPDATE,
-    BINDINGS, UPDATE, ANCHOR
+    NODES, ENV, ADD_CHILD, SCHEDULE_UPDATE,
+    BINDINGS, UPDATE, ANCHOR,
 } from "./symbols.js";
 
 /**
@@ -22,7 +22,7 @@ export class EnsoFragment extends EnsoNode() {
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
-    #root = null;           // Fragment root node
+    #nodes = null;          // Fragment root node
     #env;                   // Effect environment
 
     #attached = false;      // Is the fragment currently attached to the DOM?
@@ -54,8 +54,13 @@ export class EnsoFragment extends EnsoNode() {
         this._processTemplate(template);
     }
     _processTemplate(template) {
-        if (template) {
-            this.#root = template.process(this).firstElementChild;
+        if (!template) return;
+
+        const node = template.process(this).firstElementChild;
+        if (node instanceof HTMLTemplateElement) {
+            this.#nodes = Array.from(node.content.childNodes);
+        } else {
+            this.#nodes = [node];
         }
     }
 
@@ -67,7 +72,7 @@ export class EnsoFragment extends EnsoNode() {
 
     //// Accessors - Framework internal
     get [ANCHOR]() { return this.#anchor; }
-    get [ROOT]() { return this.#root; }
+    get [NODES]() { return this.#nodes; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
         this.#env = createEffectEnv(env, this.#parent[ENV]);
@@ -83,7 +88,7 @@ export class EnsoFragment extends EnsoNode() {
     mount() {
         if (this.#attached || !this.#parentAttached) return;
 
-        this.#anchor.after(this.#root);
+        this.#anchor.after(...this.#nodes);
         this.#attached = true;
         this[UPDATE]();
     }
@@ -95,7 +100,7 @@ export class EnsoFragment extends EnsoNode() {
 
 
     unmount() {
-        this.#root?.remove();
+        for (const node of this.#nodes) node.remove();
         this.#attached = false;
     }
 }
