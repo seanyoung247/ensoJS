@@ -6,7 +6,7 @@ import { watch } from "./watcher.js";
 import { lifecycles } from "../component.js";
 import { BINDINGS, MARK_CHANGED } from "./symbols.js";
 
-//// Watched Properties
+
 export const attributeTypes = Object.freeze([
     Boolean, Number, String
 ]);
@@ -36,45 +36,60 @@ function createFactory(value) {
     return () => structuredClone(value);
 }
 
-function createAttrDesc(attr, value, options = {}) {
-    // Allow shorthand boolean for attribute presence
-    if (typeof options === 'boolean') options = {};
+//// USER FACING
 
-    let { type = String, force = false } = options;
+const descripter = (desc) => Object.defineProperty(desc, '_prop', {
+    value: true, writable: false, configurable: false, enumerable: false
+});
 
-    if (!converters.has(type) || !attributeTypes.includes(type)) {
-        throw new Error(`Component attribute '${attr}' has unsupported type`);
+/**
+ * Defines a watched property with shallow reactivity.
+ * @param {*} value - The default value for the property
+ * @returns property descripter object
+ */
+export const prop = (value = null) => descripter({
+    value: createFactory(value), deep: false, attribute: false
+});
+/**
+ * Defines a watched property with deep reactivity.
+ * @param {[]||{}} value - The default value for the property
+ * @returns property descriptor object
+ */
+export const deep = (value) => {
+    const valid = (value != null && typeof value === 'object');
+    return descripter({
+        value: createFactory(value), deep: valid, attribute: false
+    });
+};
+/**
+ * Defines a watched attribute with shallow reactivity
+ * @param {String||Boolean||Number||null} value - The default value for the attribute 
+ * @param {String||Boolean||Number} type - The type of the attribute 
+ * @returns attribute descriptor
+ */
+export const attr = (value = null, type = String) => {
+    const force = (value !== null && value !== undefined);
+
+    if (force) {
+        type = value.constructor;
+    }
+
+    if (!attributeTypes.includes(type) || (value !== null && typeof value === 'object')) {
+        throw new Error(
+            `Unsupported attribute type '${type}'. Allowed: ${
+                attributeTypes.map(t => t.name).join(', ')
+            }`
+        );
     }
 
     const { toProp, toAttr } = converters.get(type);
-
-    // Force attribute if user asked for it OR if a default value exists
-    force = force || (value !== null && value !== undefined);
-
-    return { type, force, toProp, toAttr };
-}
-
-function createPropDesc(name, desc, watchers = []) {
-    // Support shorthand: count: 0
-    if (desc !== Object(desc)) desc = { value: desc };
-
-    let { deep = false, value = null, attribute = false } = desc;
-
-    if (attribute) {
-        attribute = createAttrDesc(name, value, attribute);
-        // Automatically force attribute if default value exists
-        if (value !== null && value !== undefined) {
-            attribute.force = true;
+    return descripter({
+        value: createFactory(value), deep: false, attribute: {
+            type, force, toProp, toAttr
         }
-        // Attributes are always shallow, and must be basic datatypes
-        deep = false;
-    }
-    // Ensure value is a factory function, not a value
-    value = createFactory(value);
-    return { name, deep, value, attribute, watchers };
-}
+    });
+};
 
-const VALUES = Symbol('enso.watched.values');
 /**
  * Get all watched values for a given component.
  * 
@@ -108,6 +123,47 @@ export function watches(fn, props, keep=false) {
     return fn;
 }
 
+
+// function createAttrDesc(attr, value, options = {}) {
+//     // Allow shorthand boolean for attribute presence
+//     if (typeof options === 'boolean') options = {};
+
+//     let { type = String, force = false } = options;
+
+//     if (!converters.has(type) || !attributeTypes.includes(type)) {
+//         throw new Error(`Component attribute '${attr}' has unsupported type`);
+//     }
+
+//     const { toProp, toAttr } = converters.get(type);
+
+//     // Force attribute if user asked for it OR if a default value exists
+//     force = force || (value !== null && value !== undefined);
+
+//     return { type, force, toProp, toAttr };
+// }
+
+// function createPropDesc(name, desc, watchers = []) {
+//     // Support shorthand: count: 0
+//     if (desc !== Object(desc)) desc = { value: desc };
+
+//     let { deep = false, value = null, attribute = false } = desc;
+
+//     if (attribute) {
+//         attribute = createAttrDesc(name, value, attribute);
+//         // Automatically force attribute if default value exists
+//         if (value !== null && value !== undefined) {
+//             attribute.force = true;
+//         }
+//         // Attributes are always shallow, and must be basic datatypes
+//         deep = false;
+//     }
+//     // Ensure value is a factory function, not a value
+//     value = createFactory(value);
+//     return { name, deep, value, attribute, watchers };
+// }
+
+const VALUES = Symbol('enso.watched.values');
+
 const objEntries = obj => Object.entries(Object.getOwnPropertyDescriptors(obj));
 /**
  * Scans through the given script and collects any methods
@@ -130,6 +186,11 @@ export function parseScript(script) {
     }
     return watchers;
 }
+
+const createPropDesc = (name, desc, watchers = []) => {
+    const propDesc = desc?._prop ? desc : prop(desc);
+    return Object.assign({}, propDesc, { name, watchers });
+};
 
 export class Watched {
 
