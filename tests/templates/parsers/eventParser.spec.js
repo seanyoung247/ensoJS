@@ -88,13 +88,18 @@ describe('@event parser', () => {
 
     it('Handles invalid handler functions gracefully', () => {
         const element = document.createElement('div');
-        const parent = { component: {}, events: [{ name: 'click', action: {createFunc() { throw new Error("boom"); }} }] };
+        const parent = { component: {}, events: [
+            { name: 'click', action: {createFunc() { throw new Error("boom"); }} }
+        ]};
 
         const def = { events: parent.events };
 
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         eventParser.process(def, parent, element);
 
-        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        expect(consoleErrorSpy).toHaveBeenCalled();
 
         const clickEvent = new Event('click');
         element.dispatchEvent(clickEvent);
@@ -104,5 +109,6 @@ describe('@event parser', () => {
         );
 
         consoleWarnSpy.mockRestore();
+        consoleErrorSpy.mockRestore();
     });
 });

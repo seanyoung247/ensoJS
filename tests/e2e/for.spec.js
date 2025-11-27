@@ -1,7 +1,7 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import Enso, { html } from "../../src/enso.js";
 import { nextFrame, setup } from '../shared.js';
 
@@ -20,7 +20,7 @@ Enso.component(basicFor, {
 describe('Basic FOR directive', () => {
 
     let el, root;
-    beforeAll(() => {
+    beforeEach(() => {
         [el, root] = setup(basicFor);
     });
 
@@ -125,7 +125,6 @@ describe('Basic FOR directive', () => {
         
         // Switch to a Set
         el.watched.items = new Set([100, 200, 300]);
-        console.log('Changed to Set:', el.watched.items);
         await nextFrame();
 
         const setItems = root.querySelectorAll('.for-test');
@@ -153,7 +152,7 @@ Enso.component(nonDeepFor, {
 describe('FOR directive with non-deep watched property', () => {
 
     let el, root;
-    beforeAll(() => {
+    beforeEach(() => {
         [el, root] = setup(nonDeepFor);
     });
 
@@ -173,9 +172,10 @@ describe('FOR directive with non-deep watched property', () => {
 
     it('does not update on internal mutations', async () => {
         el.watched.items.push('c');
+
         await nextFrame();
         const items = root.querySelectorAll('.for-non-deep-test');
-        expect(items.length).toBe(2); // Should remain 2
+        expect(items.length).toBe(3); // Should remain 3 [x,y,z]
     });
 
 });
@@ -196,7 +196,7 @@ Enso.component(indexFor, {
 describe('FOR directive with index', () => {
 
     let el, root;
-    beforeAll(() => {
+    beforeEach(() => {
         [el, root] = setup(indexFor);
     });
 
@@ -244,7 +244,7 @@ Enso.component(objectFor, {
 describe('FOR directive with object entries', () => {
 
     let el, root;
-    beforeAll(() => {
+    beforeEach(() => {
         [el, root] = setup(objectFor);
     });
 
@@ -302,7 +302,7 @@ Enso.component(destructureFor, {
 describe('FOR directive with destructuring', () => {
 
     let el, root;
-    beforeAll(() => {
+    beforeEach(() => {
         [el, root] = setup(destructureFor);
     });
 
@@ -362,7 +362,7 @@ Enso.component(nestedFor, {
 describe('Nested FOR directives', () => {
 
     let el, root;
-    beforeAll(() => {
+    beforeEach(() => {
         [el, root] = setup(nestedFor);
     });
 

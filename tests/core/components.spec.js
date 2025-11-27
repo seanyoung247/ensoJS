@@ -18,6 +18,10 @@ describe("createComponent()", () => {
         }
     }
 
+    beforeEach(() => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
     it("creates a class extending the base", () => {
         const C = createComponent(Base);
         const inst = new C();

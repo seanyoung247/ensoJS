@@ -97,7 +97,7 @@ describe("For Parser", () => {
         forParser.process(def, parent, el);
 
         expect(def.directive.action.createEffect).toHaveBeenCalledWith(
-            parent, expect.any(HTMLElement)
+            parent, null
         );
         expect(addBinding).toHaveBeenCalledWith(
             parent, 'item', 

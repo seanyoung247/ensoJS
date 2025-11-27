@@ -58,4 +58,13 @@ describe('#ref parser', () => {
         refParser.process(def, parent, element);
         expect(parent.component.refs.myRef).toBe(element);
     });
+
+    it('rejects faulty refs', () => {
+        const def = {};
+        const element = document.createElement('div');
+        const parent = { component: { refs: {} } };
+
+        refParser.process(def, parent, element);
+        expect(parent.component.refs.myRef).toBeUndefined();
+    });
 });

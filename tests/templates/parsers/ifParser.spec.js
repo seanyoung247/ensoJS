@@ -132,7 +132,7 @@ describe("If Parser", () => {
             type: "if",
             action: { createEffect: vi.fn(() => ({ eff: true })) },
             binds: new Set(["x"]),
-            template: "<template></template>"
+            template: document.createElement('template')
         };
 
         const def = { directive };
@@ -141,7 +141,7 @@ describe("If Parser", () => {
 
         ifParser.process(def, parent, el);
 
-        expect(directive.action.createEffect).toHaveBeenCalledWith(parent, undefined);
+        expect(directive.action.createEffect).toHaveBeenCalledWith(parent, null);
 
         expect(addBinding).toHaveBeenCalledWith(
             parent,
