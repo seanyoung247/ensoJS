@@ -86,6 +86,30 @@ describe('watch()', () => {
         expect(watch(null, 'nil', onChange)).toBeNull();
         expect(watch('text', 'str', onChange)).toBe('text');
     });
+
+    it("does not call onChange when property does not exist", () => {
+        const onChange = vi.fn();
+        const proxy = watch({}, onChange);
+
+        delete proxy.missing;
+
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it("does not call onChange when deleteProperty returns false", () => {
+        const target = {};
+        Object.defineProperty(target, "foo", {
+            value: 1,
+            configurable: false,
+            writable: true
+        });
+
+        const onChange = vi.fn();
+        const proxy = watch(target, onChange);
+
+        expect(() => delete proxy.foo).toThrow(TypeError);
+        expect(onChange).not.toHaveBeenCalled();
+    });
 });
 
 describe('isReactive', () => {

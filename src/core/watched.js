@@ -43,10 +43,14 @@ const descripter = (desc) => Object.defineProperty(desc, '_prop', {
 });
 
 /**
- * Defines a watched property with deep or shallow reactivity.
- * @param {*} value - The default value for the property
- * @param {boolean} deep - Should the value have deep reactivity? Default=false
- * @returns property descripter object
+ * Create a watched property descriptor.
+ *
+ * - If `deep` is true AND `value` is a non-null object, deep reactivity is enabled.
+ * - Primitive values always produce shallow descriptors.
+ *
+ * @param {*} value - Initial property value.
+ * @param {boolean} [deep=false] - Whether to enable deep reactivity if the value is an object.
+ * @returns {object} - A property descriptor object consumed by the watched system.
  */
 export const prop = (value = null, deep=false) => {
     deep = deep && (value !== null && typeof value === 'object');
@@ -56,10 +60,15 @@ export const prop = (value = null, deep=false) => {
 };
 
 /**
- * Defines a watched attribute with shallow reactivity
- * @param {String||Boolean||Number||null} value - The default value for the attribute 
- * @param {String||Boolean||Number} type - The type of the attribute 
- * @returns attribute descriptor
+ * Create a watched attribute descriptor (string/number/boolean).
+ *
+ * - Automatically detects type from the default value if provided.
+ * - Rejects object values and unsupported constructors.
+ *
+ * @param {string|number|boolean|null} value - Default attribute value. If non-null, determines the attribute type unless explicitly overridden.
+ * @param {Function} [type=String] - Constructor representing the expected attribute type (String, Number, Boolean).
+ * @throws {Error} - If value is an object, or type is not in the allowed attributeTypes list.
+ * @returns {object} - A descriptor object defining attribute parsing, serialisation, and reactivity.
  */
 export const attr = (value = null, type = String) => {
     const force = (value !== null && value !== undefined);

@@ -93,6 +93,9 @@ describe("EnsoNode", () => {
         const bind = instance[BINDINGS].get("x");
         expect(bind.effects).toContain(effect);
         expect(bind.changed).toBe(true);
+
+        instance[ADD_BINDING](null, effect);
+        expect(instance[BINDINGS].get('x').effects.length).toBe(1);
     });
 
 
