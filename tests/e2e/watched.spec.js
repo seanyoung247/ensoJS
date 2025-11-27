@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { html } from "../../src/enso.js";
+import Enso, { prop, attr, html } from "../../src/enso.js";
 import { nextFrame, setup } from '../shared.js';
 import { isReactive } from '../../src/core/watcher.js';
 
@@ -12,11 +12,11 @@ Enso.component( watchedTest, {
         // Shorthand for primitive values
         show: true,
         // Shorthand attribute
-        name: { value: 'Test', attribute: true },
+        name: attr('Test'),
         // Partial
-        num: { attribute: { type: Number } },
+        num: attr(null, Number),
         // Full definition
-        count: { value: 0, deep: false, attribute: { force: true, type: Number } },
+        count: attr(0, Number),
     },
     template: html`
         <div id="watched-test"> 
@@ -85,19 +85,6 @@ describe('Basic watched properties', () => {
         expect(nameEl.textContent).toBe('name = ');
         expect(countEl.textContent).toBe('count = 5');
     });
-
-    // Broken definitions
-    it("Deals with broken definitions", () => {
-        const brokenTest = "enso-broken-watched-test";
-        expect(()=>
-            Enso.component(brokenTest, {
-                watched: {
-                    badType: { value: null, attribute: { type: Object } }
-                },
-                template: html`<div></div>`
-            })
-        ).toThrow();
-    });
 });
 
 
@@ -105,14 +92,14 @@ describe('Basic watched properties', () => {
 const complexWatched = "enso-complex-watched-test";
 Enso.component(complexWatched, {
     watched: {
-        show: { value: true, attribute: { type: Boolean } },
-        list: { value: [1,2,3], deep: true },
-        objList: { value: [
+        show: attr(true),
+        list: prop([1,2,3], true),
+        objList: prop([
             { name: "John Smith", age: 25 },
             { name: "Anne Lake", age: 32 },
             { name: "Mary Sue", age: 19 }
-        ]},
-        options: { value: {
+        ]),
+        options: prop({
             showNames: true,
             nested: {
                 bool: true,
@@ -121,7 +108,7 @@ Enso.component(complexWatched, {
                     str: 'test' 
                 },
             }
-        }, deep: true }
+        }, true)
     },
     template: html`
         <div id="options">

@@ -8,7 +8,7 @@ import { nextFrame, setup } from '../shared.js';
 
 const basicIF = 'enso-if-basic-test';
 Enso.component(basicIF, {
-  watched: { show: { value: true } },
+  watched: { show: true },
   template: html`
     <div>
       <div id="if-test" *if="{{ watched:show }}">Visible</div>
@@ -39,7 +39,7 @@ describe('Basic IF directive', () => {
 
 const multiIF = 'enso-if-multi-test';
 Enso.component(multiIF, {
-    watched: { show: { value: true } },
+    watched: { show: true },
     template: html`
         <div id="if-test1" *if="{{ watched:show }}">Content</div>
         <div id="if-test2" enso-if="{{ watched:show === false }}">No Content</div>
@@ -72,8 +72,8 @@ describe('Multiple IF directives', () => {
 const nestedIF = 'enso-if-nested-test';
 Enso.component(nestedIF, {
     watched: { 
-        show: { value: true },
-        showChild: { value: false },
+        show: true,
+        showChild: false,
     },
     template: html`
         <div id="if-test-parent" *if="{{ watched:show }}">

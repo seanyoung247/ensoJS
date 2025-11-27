@@ -43,8 +43,9 @@ const descripter = (desc) => Object.defineProperty(desc, '_prop', {
 });
 
 /**
- * Defines a watched property with shallow reactivity.
+ * Defines a watched property with deep or shallow reactivity.
  * @param {*} value - The default value for the property
+ * @param {boolean} deep - Should the value have deep reactivity? Default=false
  * @returns property descripter object
  */
 export const prop = (value = null, deep=false) => {

@@ -2,12 +2,12 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { html } from "../../src/enso.js";
+import Enso, { html, prop } from "../../src/enso.js";
 import { nextFrame, setup } from '../shared.js';
 
 const basicFor = 'enso-for-basic-test';
 Enso.component(basicFor, {
-    watched: { items: { value:[1,2,3], deep: true } },
+    watched: { items: prop([1,2,3], true) },
     template: html`
         <div id="for-root">
             <div class="for-test" *for="item of @:items">
@@ -139,7 +139,7 @@ describe('Basic FOR directive', () => {
 
 const nonDeepFor = 'enso-for-non-deep-test';
 Enso.component(nonDeepFor, {
-    watched: { items: { value:[ 'x', 'y', 'z' ], deep: false } },
+    watched: { items: prop([ 'x', 'y', 'z' ], false) },
     template: html`
         <div id="for-non-deep-root">
             <div class="for-non-deep-test" *for="item of @:items">
@@ -183,7 +183,7 @@ describe('FOR directive with non-deep watched property', () => {
 
 const indexFor = 'enso-for-index-test';
 Enso.component(indexFor, {
-    watched: { items: { value:['a','b','c'], deep: true } },
+    watched: { items: prop(['a','b','c'], true) },
     template: html`
         <div id="for-index-root">
             <div class="for-index-test" *for="[index, item] of @:items.entries()">
@@ -231,7 +231,7 @@ describe('FOR directive with index', () => {
 
 const objectFor = 'enso-for-object-test';
 Enso.component(objectFor, {
-    watched: { data: { value:{ a: 1, b: 2, c: 3 }, deep: true } },
+    watched: { data: prop({ a: 1, b: 2, c: 3 }, true) },
     template: html`
         <div id="for-object-root">
             <div class="for-object-test" *for="[key, value] of Object.entries(@:data)">
@@ -278,15 +278,14 @@ describe('FOR directive with object entries', () => {
 const destructureFor = 'enso-for-destructure-test';
 Enso.component(destructureFor, {
     watched: { 
-        items: { 
-            value:[ 
+        items: prop(
+            [ 
                 { name:'Alice', age: 20, address: { city: 'Wonderland' } }, 
                 { name:'Bob', age: 31, address: { city: 'Builderland' } }, 
                 { name:'Charlie', age: 25, address: { city: 'Chocolate Factory' } },
                 { name:'Diana', age: 28, }
-            ],
-            deep: true 
-        } 
+            ], true
+        )
     },
     template: html`
         <div id="for-destructure-root">
@@ -339,14 +338,13 @@ describe('FOR directive with destructuring', () => {
 const nestedFor = 'enso-for-nested-test';
 Enso.component(nestedFor, {
     watched: { 
-        lists: { 
-            value:[
+        lists: prop(
+            [
                 [1,2],
                 [3,4,5],
                 [6]
-            ],
-            deep: true 
-        } 
+            ], true
+        )
     },
     template: html`
         <div id="for-nested-root">

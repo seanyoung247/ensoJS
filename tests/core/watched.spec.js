@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Watched, getWatched, setWatched } from "../../src/core/watched.js";
+import { Watched, getWatched, setWatched, prop, attr } from "../../src/core/watched.js";
 import { MARK_CHANGED } from "../../src/core/symbols.js";
 
 describe("Watched class", () => {
@@ -10,8 +10,8 @@ describe("Watched class", () => {
     // Define the watched class properly
     const MyWatched = Watched.define({
       count: 5,
-      show: { value: true },
-      attr: { value: 'test', attribute: { force: true } }
+      show: prop(true),
+      attr: attr('test')
     });
     observedAttributes = MyWatched.attr;
 

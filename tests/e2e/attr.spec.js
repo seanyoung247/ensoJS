@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { html } from "../../src/enso.js";
+import Enso, { attr, html } from "../../src/enso.js";
 import { nextFrame } from '../shared.js';
 import EnsoComponent from '../../src/component.js';
 
@@ -11,8 +11,8 @@ Enso.component( "enso-attr-test", {
 
     watched: {
         show: true,
-        value: { value: 0, attribute: { type: Number, force: true } },
-        str: { value: 'test', attribute: { type: String } }
+        value: attr(0, Number),
+        str: attr('test', String)
     },
 
     template: html`
