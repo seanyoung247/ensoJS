@@ -18,7 +18,7 @@ const Enso = (()=>{
         ...overrides
     });
         
-    return {
+    return Object.seal({
         version: '0.9.5',
 
         /**
@@ -77,7 +77,7 @@ const Enso = (()=>{
             customElements.define(tag, component);
             return component;
         }
-    };
+    });
 })();
 
 //// EXPORTS
@@ -89,6 +89,9 @@ export { css, html } from './core/tags.js';
 // Template helpers
 export * from './utils/helpers.js';
 // Watched properties
-export { watches, getWatched, setWatched } from './core/watched.js';
+export { 
+    prop, attr, watches, 
+    getWatched, setWatched 
+} from './core/watched.js';
 // Component creator and global settings
 export default Enso;

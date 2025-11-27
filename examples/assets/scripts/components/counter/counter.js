@@ -1,10 +1,10 @@
 
-import Enso, {html, css, classList} from "enso";
+import Enso, {html, attr, css, classList} from "enso";
 
 Enso.component('enso-counter', {
 
     watched: {
-        count: { value: 0, attribute: { type: Number, force: true } }
+        count: attr(0)
     },
 
     expose: { classList },

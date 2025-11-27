@@ -1,5 +1,8 @@
 
-import Enso, { html, css, load, cssObj, getWatched, setWatched } from "enso";
+import Enso, { 
+    html, css, load, cssObj, 
+    prop, getWatched, setWatched 
+} from "enso";
 
 const cssReset = await load.css('assets/styles/reset.css');
 
@@ -8,9 +11,9 @@ Enso.component( "enso-app", {
     watched: {
         flag: false,
         flag2: true,
-        list: { value: [1,2,3], deep: true },
-        showChild: { value: 'show' },
-        classList: { value: 'if-test' },
+        list: prop([1,2,3], true),
+        showChild: prop('show') ,
+        classList: prop('if-test'),
     },
 
     expose: { cssObj },

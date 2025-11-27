@@ -1,5 +1,5 @@
 
-import Enso, { css, html } from "enso";
+import Enso, { attr, css, html } from "enso";
 
 
 const faces = [
@@ -16,9 +16,9 @@ Enso.component(
     'enso-cuboid', {
   
     watched: {
-        width: {attribute: true},
-        height: {attribute: true},
-        depth: {attribute: true}
+        width: attr(null, Number),
+        height: attr(null, Number),
+        depth: attr(null, Number)
     },
 
     styles: css`

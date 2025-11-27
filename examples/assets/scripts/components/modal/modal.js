@@ -1,5 +1,5 @@
 
-import Enso, { load } from "enso";
+import Enso, { attr, load } from "enso";
 
 const [template, styles] = await load.all(import.meta.resolve,
     './modal.html',
@@ -8,8 +8,8 @@ const [template, styles] = await load.all(import.meta.resolve,
 
 Enso.component('enso-modal', {
     watched: {
-        'show': { attribute: {type: Boolean}, value: false},    // Is the modal shown?
-        'static': { attribute: {type: Boolean}, value: false}   // Does clicking outside the modal close it?
+        show: attr(false),  // Is the modal shown?
+        static: attr(false) // Does clicking outside the modal close it?
     },
     template, styles,
     script: {

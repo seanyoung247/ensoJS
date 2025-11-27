@@ -47,20 +47,13 @@ const descripter = (desc) => Object.defineProperty(desc, '_prop', {
  * @param {*} value - The default value for the property
  * @returns property descripter object
  */
-export const prop = (value = null) => descripter({
-    value: createFactory(value), deep: false, attribute: false
-});
-/**
- * Defines a watched property with deep reactivity.
- * @param {[]||{}} value - The default value for the property
- * @returns property descriptor object
- */
-export const deep = (value) => {
-    const valid = (value != null && typeof value === 'object');
+export const prop = (value = null, deep=false) => {
+    deep = deep && (value !== null && typeof value === 'object');
     return descripter({
-        value: createFactory(value), deep: valid, attribute: false
+        value: createFactory(value), deep, attribute: false
     });
 };
+
 /**
  * Defines a watched attribute with shallow reactivity
  * @param {String||Boolean||Number||null} value - The default value for the attribute 
@@ -122,45 +115,6 @@ export function watches(fn, props, keep=false) {
     }
     return fn;
 }
-
-
-// function createAttrDesc(attr, value, options = {}) {
-//     // Allow shorthand boolean for attribute presence
-//     if (typeof options === 'boolean') options = {};
-
-//     let { type = String, force = false } = options;
-
-//     if (!converters.has(type) || !attributeTypes.includes(type)) {
-//         throw new Error(`Component attribute '${attr}' has unsupported type`);
-//     }
-
-//     const { toProp, toAttr } = converters.get(type);
-
-//     // Force attribute if user asked for it OR if a default value exists
-//     force = force || (value !== null && value !== undefined);
-
-//     return { type, force, toProp, toAttr };
-// }
-
-// function createPropDesc(name, desc, watchers = []) {
-//     // Support shorthand: count: 0
-//     if (desc !== Object(desc)) desc = { value: desc };
-
-//     let { deep = false, value = null, attribute = false } = desc;
-
-//     if (attribute) {
-//         attribute = createAttrDesc(name, value, attribute);
-//         // Automatically force attribute if default value exists
-//         if (value !== null && value !== undefined) {
-//             attribute.force = true;
-//         }
-//         // Attributes are always shallow, and must be basic datatypes
-//         deep = false;
-//     }
-//     // Ensure value is a factory function, not a value
-//     value = createFactory(value);
-//     return { name, deep, value, attribute, watchers };
-// }
 
 const VALUES = Symbol('enso.watched.values');
 
