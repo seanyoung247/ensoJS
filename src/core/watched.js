@@ -26,6 +26,16 @@ const converters = new Map([
     }]
 ]);
 
+function createFactory(value) {
+    if (typeof value === 'function') return value;
+
+    if (value === null || typeof value !== 'object') {
+        return () => value;
+    }
+
+    return () => structuredClone(value);
+}
+
 function createAttrDesc(attr, value, options = {}) {
     // Allow shorthand boolean for attribute presence
     if (typeof options === 'boolean') options = {};
@@ -56,10 +66,11 @@ function createPropDesc(name, desc, watchers = []) {
         if (value !== null && value !== undefined) {
             attribute.force = true;
         }
-        // Attributes are always shallow
+        // Attributes are always shallow, and must be basic datatypes
         deep = false;
     }
-
+    // Ensure value is a factory function, not a value
+    value = createFactory(value);
     return { name, deep, value, attribute, watchers };
 }
 
@@ -150,7 +161,7 @@ export class Watched {
         for (const lifecycle of lifecycles) {
             cls.defs[lifecycle] = { 
                 name: lifecycle, 
-                value: false,
+                value: () => false,
                 attribute: false,
                 watchers: watchers[lifecycle] ?? [],
             };
@@ -169,7 +180,7 @@ export class Watched {
         // Property and binding setup
         for (const defName in this.defs) {
             const prop = this.defs[defName];
-            let value = prop.value;
+            let value = prop.value();
             // Wrap value in proxy if deep reactivity requested
             if (prop.deep && typeof value === 'object' && value !== null) {
                 value = watch(value, prop.name, component[MARK_CHANGED]);
