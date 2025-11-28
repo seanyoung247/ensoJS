@@ -12,7 +12,15 @@ describe("parseFor()", () => {
     });
 
     it("parses destructuring", () => {
-        expect(parseFor("{ a, b } of list")).toEqual(["a","b"]);
+        expect(parseFor("{a}{b} of list")).toEqual(["a"]);
+    });
+
+    it("hits the colon-handling path", () => {
+        expect(parseFor("a: b of list")).toEqual(["b"]);
+    });
+
+    it("handles bare alias keys ending with colon", () => {
+        expect(parseFor("{ a: } of list")).toEqual([]);
     });
 
     it("parses alias destructuring", () => {

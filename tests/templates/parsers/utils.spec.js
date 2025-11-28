@@ -17,11 +17,8 @@ import { ADD_BINDING, SCHEDULE_EFFECT } from '../../../src/core/symbols';
 describe('getName', () => {
 
     it("it to return name portion of bound attribute", () => {
-        const attr = {
-            name: "@test",
-        };
-
-        expect(getName(attr)).toBe('test');
+        expect(getName({name: "@test"})).toBe('test');
+        expect(getName({name: "enso-If/x"})).toBe('nso-if/x');
     });
 
 });

@@ -111,4 +111,24 @@ describe('@event parser', () => {
         consoleWarnSpy.mockRestore();
         consoleErrorSpy.mockRestore();
     });
+
+    it('process() does nothing when no events are defined', () => {
+        const element = document.createElement('div');
+        const parent = { component: {} };
+
+        const def = {};
+
+        // Should not throw, should not attempt to attach events
+        expect(() => eventParser.process(def, parent, element)).not.toThrow();
+    });
+
+    it('process() does nothing when events is an empty array', () => {
+        const element = document.createElement('div');
+        const parent = { component: {} };
+
+        const def = { events: [] };
+
+        expect(() => eventParser.process(def, parent, element)).not.toThrow();
+    });
+
 });

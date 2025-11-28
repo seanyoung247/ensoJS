@@ -122,4 +122,8 @@ describe(':attr parser', () => {
         expect(addBinding).toHaveBeenCalledWith(parent, 'b', fakeEffect);
         expect(addBinding).toHaveBeenCalledWith(parent, 'x', fakeEffect);
     });
+
+    it('deals with bad input without throwing', () => {
+        expect(() => attrParser.process({}, null, null)).not.toThrow();
+    });
 });

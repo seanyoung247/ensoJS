@@ -106,4 +106,18 @@ describe("For Parser", () => {
             )
         );
     });
+
+    it('process() ignores missing or mismatched directive definitions', () => {
+        // No directive 
+        expect(() => forParser.process({}, null, null)).not.toThrow();
+        // No type
+        expect(() => forParser.process(
+            {directive: {}}, null, null)
+        ).not.toThrow();
+        // Wrong type
+        expect(() => forParser.process(
+            {directive: { type: "NotFor" }}, null, null)
+        ).not.toThrow();
+    });
+
 });

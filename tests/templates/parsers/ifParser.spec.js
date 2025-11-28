@@ -149,4 +149,17 @@ describe("If Parser", () => {
             expect.objectContaining({ run: expect.any(Function) })
         );
     });
+
+    it('process() ignores missing or mismatched directive definitions', () => {
+        // No directive 
+        expect(() => ifParser.process({}, null, null)).not.toThrow();
+        // No type
+        expect(() => ifParser.process(
+            {directive: {}}, null, null)
+        ).not.toThrow();
+        // Wrong type
+        expect(() => ifParser.process(
+            {directive: { type: "NotIf" }}, null, null)
+        ).not.toThrow();
+    });
 });

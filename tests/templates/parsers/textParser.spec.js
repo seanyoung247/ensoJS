@@ -153,4 +153,8 @@ describe('Text Parser', () => {
             expect.objectContaining({ dummy: true })
         );
     });
+
+    it('deals with bad input without throwing', () => {
+        expect(() => textParser.process({}, null, null)).not.toThrow();
+    });
 });
