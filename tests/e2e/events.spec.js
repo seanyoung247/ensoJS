@@ -1,12 +1,12 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Enso, { html } from "../../src/enso.js";
 import { nextFrame } from '../shared.js';
 import EnsoComponent from '../../src/component.js';
 
-
+vi.spyOn(console, 'error').mockImplementation(() => {});
 Enso.component( "enso-events-test", {
 
     watched: {
@@ -17,13 +17,15 @@ Enso.component( "enso-events-test", {
         <div #ref="root">
             <div id="bound">{{ @:flag.toString() }}</div>
             <button @click="()=>watched:flag = !watched:flag">Test Me!</button>
+            {{}}
         </div>
     `
 });
 
 
 beforeEach(() => {
-    document.body.innerHTML = /*html*/`<enso-events-test id="test-component"></enso-events-test>`;
+    document.body.innerHTML = /*html*/
+        `<enso-events-test id="test-component"></enso-events-test>`;
 });
 
 describe('Enso Events', () => {

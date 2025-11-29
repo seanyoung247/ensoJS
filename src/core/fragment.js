@@ -7,7 +7,6 @@ import { createEffectEnv } from "./effects.js";
 import { 
     NODES, ENV, ADD_CHILD, SCHEDULE_UPDATE,
     BINDINGS, UPDATE, ANCHOR, ENSO_FRAGMENT,
-    ROOT
 } from "./symbols.js";
 
 // Fragment placeholder component
@@ -77,8 +76,6 @@ export class EnsoFragment extends EnsoNode() {
     //// Accessors - Framework internal
     get [ANCHOR]() { return this.#anchor; }
     get [NODES]() { return this.#nodes; }
-    set [NODES](nodes) { this.#nodes = nodes; }
-    get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
         this.#env = createEffectEnv(env, this.#parent[ENV]);

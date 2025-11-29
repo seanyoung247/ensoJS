@@ -31,9 +31,6 @@ const extractLooseFragments = root => {
     );
 
     for (const node of loose) {
-        const parent = node.parentNode;
-        if (!parent) continue;
-
         const children = [...node.childNodes];
         if (children.length === 0) {
             node.remove();

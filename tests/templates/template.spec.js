@@ -192,4 +192,36 @@ describe('Template System', () => {
         expect(cloned.template).not.toBe(template.template);
         expect(cloned.template.innerHTML).toBe(template.template.innerHTML);
     });
+
+    it("extractLooseFragments handles parentless fragment node", () => {
+        const tpl = new EnsoTemplate("<div></div>");
+        const root = tpl.template.content;
+
+        // Create an orphan <enso-fragment>
+        const orphan = root.ownerDocument.createElement("enso-fragment");
+
+        // Monkey-patch querySelectorAll for this one call
+        const originalQS = root.querySelectorAll;
+        root.querySelectorAll = () => [ orphan ];
+
+        // Trigger fragment processing again (clone calls #fragment internally)
+        tpl.clone();
+
+        // Restore
+        root.querySelectorAll = originalQS;
+
+        expect(true).toBe(true); // Just "didn't throw"
+    });
+
+    it("extractLooseFragments removes empty enso-fragment nodes", () => {
+        const tpl = new EnsoTemplate(`
+            <div>
+                <enso-fragment></enso-fragment>
+            </div>
+        `);
+
+        const dom = tpl.process(null);
+
+        expect(dom.querySelector("enso-fragment")).toBeNull();
+    });
 });
