@@ -17,20 +17,31 @@ Enso.component( templateTest, {
                 </li>
             </enso-fragment>
         </ul>
+        <enso-fragment id="fragment"></enso-fragment>
     `
 });
 
 
-describe('Template tag elements', () => {
+describe('Fragment tag elements', () => {
 
-    let el;
+    let el, root;
     beforeEach(async () => {
-        [el, ] = setup(templateTest);
+        [el, root] = setup(templateTest);
         await nextFrame();
     });
 
-    it("Renders template contents correctly", () => {
+    it("Renders fragment contents correctly", () => {
         const itemList = el.refs.itemList;
         expect(itemList.children.length).toBe(2);
+    });
+
+    it("removes loose fragments", () => {
+        const frag = root.getElementById("fragment");
+        expect(frag).toBeNull();
+    });
+
+    it("Doesn't render fragments", () => {
+        const frag = root.querySelectorAll("enso-fragment");
+        expect(frag.length).toBe(0);
     });
 });
