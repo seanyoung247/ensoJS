@@ -66,7 +66,8 @@ class MockComponent {
     }
 
     mount(template) {
-        this.root = template.process(this);
+        this.root = document.createDocumentFragment();
+        this.root.append(template.process(this));
     }
 
     render() {

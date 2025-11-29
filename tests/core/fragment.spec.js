@@ -61,14 +61,6 @@ describe('EnsoFragment', () => {
         expect(document.body.contains(anchor)).toBe(true);
     });
 
-    it('stores processed nodes', () => {
-        const frag = new EnsoFragment(parent, template, placeholder);
-        const nodes = frag[NODES];
-
-        expect(nodes.length).toBe(1);
-        expect(nodes[0].id).toBe('inside');
-    });
-
     it('unmount() removes all nodes and marks as detached', () => {
         const frag = new EnsoFragment(parent, template, placeholder);
 

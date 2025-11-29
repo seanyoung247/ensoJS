@@ -24,7 +24,11 @@ export const NODES = Symbol("enso.nodes");
 export const ROOT = Symbol("enso.root");
 export const ENV = Symbol("enso.env");
 
+// Fragment root component
+export const ENSO_FRAGMENT = 'ENSO-FRAGMENT';
+
 // Watched and root node definition attributes
 export const ENSO_NODE = 'data-enso-node';
 export const ENSO_ROOT = 'data-enso-root';
 export const ENSO_PARSED = 'data-enso-fragment';
+export const ENSO_TEMPLATE = 'data-enso-template';

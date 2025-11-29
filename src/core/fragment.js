@@ -6,8 +6,13 @@ import { EnsoNode } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
     NODES, ENV, ADD_CHILD, SCHEDULE_UPDATE,
-    BINDINGS, UPDATE, ANCHOR,
+    BINDINGS, UPDATE, ANCHOR, ENSO_FRAGMENT,
+    ROOT
 } from "./symbols.js";
+
+// Fragment placeholder component
+class EnsoFragmentElement extends HTMLElement {}
+customElements.define(ENSO_FRAGMENT.toLowerCase(), EnsoFragmentElement);
 
 /**
  * Enso Fragment base class
@@ -22,7 +27,8 @@ export class EnsoFragment extends EnsoNode() {
     #component;             // Root component
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
-    #nodes = null;          // Fragment root node
+    #nodes = null;          // Live nodes
+    #root = null;           // Fragment root
     #env;                   // Effect environment
 
     #attached = false;      // Is the fragment currently attached to the DOM?
@@ -56,12 +62,10 @@ export class EnsoFragment extends EnsoNode() {
     _processTemplate(template) {
         if (!template) return;
 
-        const node = template.process(this).firstElementChild;
-        if (node instanceof HTMLTemplateElement) {
-            this.#nodes = Array.from(node.content.childNodes);
-        } else {
-            this.#nodes = [node];
-        }
+        this.#root = template.process(this);
+    }
+    _getChildren() {
+        this.#nodes = Array.from(this.#root.children);
     }
 
     //// Accessors - Public
@@ -73,6 +77,8 @@ export class EnsoFragment extends EnsoNode() {
     //// Accessors - Framework internal
     get [ANCHOR]() { return this.#anchor; }
     get [NODES]() { return this.#nodes; }
+    set [NODES](nodes) { this.#nodes = nodes; }
+    get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }
     set [ENV](env) {
         this.#env = createEffectEnv(env, this.#parent[ENV]);
@@ -88,6 +94,7 @@ export class EnsoFragment extends EnsoNode() {
     mount() {
         if (this.#attached || !this.#parentAttached) return;
 
+        this._getChildren();
         this.#anchor.after(...this.#nodes);
         this.#attached = true;
         this[UPDATE]();
@@ -98,9 +105,11 @@ export class EnsoFragment extends EnsoNode() {
         super[UPDATE]();
     }
 
-
     unmount() {
-        for (const node of this.#nodes) node.remove();
+        if (!this.#attached) return;
+
+        this.#root.append(...this.#nodes);
+        this.#nodes = null;
         this.#attached = false;
     }
 }

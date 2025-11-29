@@ -7,7 +7,7 @@ import { createTemplate, cloneTemplate } from "../utils/dom.js";
 import { NodeDefMap } from "./nodedef.js";
 import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
-import { ENSO_PARSED } from "../core/symbols.js";
+import { ENSO_PARSED, ENSO_FRAGMENT, ENSO_ROOT } from "../core/symbols.js";
 
 import './parsers/parsers.js';
 
@@ -25,16 +25,45 @@ const getWalker = rootNode =>
     document.createTreeWalker(rootNode, NODE_TYPES, { acceptNode });
 
 
+const extractLooseFragments = root => {
+    const loose = root.querySelectorAll(
+        `${ENSO_FRAGMENT}:not([${ENSO_ROOT}])`
+    );
+
+    for (const node of loose) {
+        const parent = node.parentNode;
+        if (!parent) continue;
+
+        const children = [...node.childNodes];
+        if (children.length === 0) {
+            node.remove();
+            continue;
+        }
+
+        node.replaceWith(...children);
+    }
+};
+
+const wrapFragment = (root, wrap) => {
+    if (!wrap || root.tagName === ENSO_FRAGMENT) {
+        return root;
+    }
+    const frag = document.createElement(ENSO_FRAGMENT);
+    frag.append(root);
+    return frag;
+};
+
+
 export default class EnsoTemplate {
     #template = null;   // The underlying HTML template
     #watched;           // The nodes that are referenced or mutated
 
-    constructor(html, watched = new NodeDefMap()) {
+    constructor(html, watched = new NodeDefMap(), wrap=false) {
         const template = createTemplate(html);
         this.#watched = watched;
 
         this.#template = this.#parse(template);
-        this.#fragment();
+        this.#fragment(wrap);
     }
 
     #parse(template) {
@@ -55,8 +84,10 @@ export default class EnsoTemplate {
         return template;
     }
 
-    #fragment() {
+    #fragment(wrap) {
         const rootNode = this.#template.content;
+        // Ensure there's no orphand enso-fragments
+        extractLooseFragments(rootNode);
         // Iterate over sub roots, pull them out and place them 
         // into new templates and attach to placeholder nodes.
         let root;
@@ -67,9 +98,11 @@ export default class EnsoTemplate {
             def.replaceNode( createPlaceholder() );
 
             // Construct and append the template.
-            const template = createTemplate(root);
+            const template = createTemplate(
+                wrapFragment(root, wrap)
+            );
             template.setAttribute(ENSO_PARSED, "");
-            def.directive.template = new EnsoTemplate(template, this.#watched);
+            def.directive.template = new EnsoTemplate(template, this.#watched, true);
         }
     }
 
@@ -82,6 +115,7 @@ export default class EnsoTemplate {
             const def = this.#watched.getByNode(element);
             parser.process( def, parent, element );
         }
+
         return DOM;
     }
 

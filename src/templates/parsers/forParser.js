@@ -18,6 +18,7 @@ class ItemFragment extends EnsoFragment {
     mount() {
         this.isAttached = true;
         this[UPDATE]();
+        this._getChildren();
         return this[NODES];
     }
 }
@@ -61,7 +62,6 @@ class ForFragment extends EnsoFragment {
         }
         this[CHILDREN].length = 0;
         this.isAttached = false;
-
     }
 }
 
