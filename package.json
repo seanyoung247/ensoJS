@@ -7,6 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "test:browser": "vitest --config=vitest.browser.config.js"
@@ -28,8 +31,11 @@
   "devDependencies": {
     "@vitest/browser-webdriverio": "^4.0.14",
     "@vitest/coverage-v8": "^4.0.14",
+    "esbuild": "^0.27.0",
     "eslint": "^8.44.0",
     "jsdom": "^27.0.0",
+    "terser": "^5.44.1",
+    "vite": "^7.2.4",
     "vitest": "^4.0.14"
   }
 }
