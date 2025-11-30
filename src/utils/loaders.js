@@ -7,7 +7,11 @@
 import EnsoTemplate from "../templates/template.js";
 import { createStyleSheet } from "./css.js";
 
-const extension = /(?:\w+\.)(\w+)$/;
+const extension = /(?:\w+\.)(\w+)(?:$||\?)/;
+
+
+const getUrl = (resolver, file) => new URL(file, resolver).href;
+
 
 export const load = {
 
@@ -42,6 +46,8 @@ export const load = {
     load(resolver, file) {
         if (typeof resolver === 'function') {
             file = resolver(file);
+        } else if (typeof resolver === 'string') {
+            file = getUrl(resolver, file);
         } else {
             file = resolver;
         }

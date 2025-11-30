@@ -1,6 +1,7 @@
 
 import Enso, { attr, load } from "enso";
 
+
 const [template, styles] = await load.all(import.meta.resolve,
     './modal.html',
     './modal.css',

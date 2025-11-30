@@ -13,6 +13,10 @@ export const createTemplate = html => {
 
     if (html instanceof HTMLTemplateElement) return html;
 
+    // Don't allow scripts inside text HTML:
+    if (typeof html === "string")
+        html = html.replace(/<script\b[^>]*>.*?<\/script>/gis, '');
+
     const template = document.createElement('template');
     template.content.appendChild(
         (typeof html === "string") ? createFragment(html) : html
