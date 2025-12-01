@@ -5,10 +5,12 @@
  * Licensed under the MIT License
  */
 
+// Enso Internal
 import EnsoComponent from "./component.js";
 import { createComponent } from "./core/components.js";
 import { parseScript } from "./core/watched.js";
 import { Watched } from "./core/watched.js";
+import { VERSION } from "../version.js";
 
 const Enso = (()=>{
     const defaultSettings = (overrides = {}) => ({
@@ -19,7 +21,7 @@ const Enso = (()=>{
     });
         
     return Object.seal({
-        version: '0.9.5',
+        version: VERSION,
 
         /**
          * Defines a new Enso component and registers it in the browser as a custom element.
@@ -93,5 +95,6 @@ export {
     prop, attr, watches, 
     getWatched, setWatched 
 } from './core/watched.js';
+
 // Component creator and global settings
 export default Enso;

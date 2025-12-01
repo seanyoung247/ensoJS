@@ -1,16 +1,23 @@
 
 import { defineConfig } from 'vite';
-import path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import viteRaw from './vite-raw.js';
 
-// Polyfill __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const pkg = JSON.parse(
+  readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')
+);
+
 export default defineConfig({
   root: './',
+  define: {
+    __VERSION__: JSON.stringify(pkg.version)
+  },
   build: {
     outDir: 'dist',
     minify: 'terser',
@@ -18,12 +25,13 @@ export default defineConfig({
       entry: path.resolve(__dirname, 'src/index.js'),
       name: 'Enso',
       fileName: (format) => `enso.${format}.js`,
+      formats: ['es']
     },
     rollupOptions: {
       external: [],
       output: {
-        globals: {},
         exports: 'named',
+        globals: {},
       },
     },
   },
@@ -33,7 +41,8 @@ export default defineConfig({
     }
   },
   plugins: [
-    // Little patch to stop vite mangling css/html in loaders.
+    // Little plugin to stop vite mangling css/html in loaders
+    // in the test server.
     viteRaw()
   ]
 });

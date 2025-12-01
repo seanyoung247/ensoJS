@@ -1,8 +1,16 @@
 {
   "name": "enso",
-  "version": "0.9.5",
+  "version": "0.9.9",
   "description": "A Web component framework that simplifies development by handling boilerplate code, providing an intuitive interface for component derivation, and enabling code separation.",
-  "main": "enso.js",
+  "main": "./dist/enso.es.js",
+  "module": "dist/enso.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/enso.es.js",
+      "require": "./dist/enso.es.js"
+    }
+  },
+  "type": "module",
   "directories": {
     "doc": "docs"
   },
@@ -11,6 +19,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:build": "BUILD=1 vitest run",
     "coverage": "vitest run --coverage",
     "test:browser": "vitest --config=vitest.browser.config.js"
   },

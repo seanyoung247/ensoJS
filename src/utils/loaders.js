@@ -46,7 +46,7 @@ export const load = {
     load(resolver, file) {
         if (typeof resolver === 'function') {
             file = resolver(file);
-        } else if (typeof resolver === 'string') {
+        } else if (typeof resolver === 'string' && file) {
             file = getUrl(resolver, file);
         } else {
             file = resolver;

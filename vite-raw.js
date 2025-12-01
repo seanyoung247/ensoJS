@@ -1,4 +1,6 @@
 /* eslint-disable no-undef */
+import fs from 'node:fs';
+import path from 'node:path';
 
 // vite-raw.js
 export default function viteRaw() {
@@ -11,9 +13,6 @@ export default function viteRaw() {
             server.middlewares.use((req, res, next) => {
                 // Match raw files: e.g., modal.css or *.html
                 if (req.url && req.url.endsWith('.css') || req.url.endsWith('.html')) {
-                    const fs = require('fs');
-                    const path = require('path');
-
                     // Resolve the absolute path in the project
                     const filePath = path.join(process.cwd(), req.url.split('?')[0]);
 
