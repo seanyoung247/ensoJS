@@ -25,7 +25,7 @@ export const load = {
 
     json(resolver, file) {
         return this.load(resolver, file)
-            .then(responce => responce.json);
+            .then(responce => responce.json());
     },
 
     text(resolver, file) {
