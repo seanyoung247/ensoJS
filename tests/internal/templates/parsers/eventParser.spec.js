@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 
 // Mock the parser module before importing the parser
-vi.mock('../../../src/templates/parser.js', () => {
+vi.mock('../../../../src/templates/parser.js', () => {
     return {
         parser: {
             registerAttr: vi.fn()
@@ -13,14 +13,14 @@ vi.mock('../../../src/templates/parser.js', () => {
 });
 
 // Mock dependencies used by the parser
-vi.mock('../../../src/templates/parsers/utils.js', () => ({
+vi.mock('../../../../src/templates/parsers/utils.js', () => ({
     bindSource: vi.fn(value => value),
     getName: vi.fn(attr => attr.name.slice(1)), // remove "@" prefix
     isAttr: vi.fn((attr, prefix) => attr.name.startsWith(prefix))
 }));
 
 // Mock Action class
-vi.mock('../../../src/core/effects.js', () => {
+vi.mock('../../../../src/core/effects.js', () => {
     // define the mock class inside the factory
     return {
         Action: class {
@@ -33,11 +33,11 @@ vi.mock('../../../src/core/effects.js', () => {
 });
 
 // Import the parser (it will call registerAttr on our mock)
-import '../../../src/templates/parsers/eventParser.js';
-import { parser } from '../../../src/templates/parser.js';
-import { bindSource, getName, isAttr } from '../../../src/templates/parsers/utils.js';
-import { Action } from '../../../src/core/effects.js';
-import { getTestElement } from "../../shared.js";
+import '../../../../src/templates/parsers/eventParser.js';
+import { parser } from '../../../../src/templates/parser.js';
+import { bindSource, getName, isAttr } from '../../../../src/templates/parsers/utils.js';
+import { Action } from '../../../../src/core/effects.js';
+import { getTestElement } from "../../../shared.js";
 
 describe('@event parser', () => {
     let eventParser;

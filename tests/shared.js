@@ -1,3 +1,5 @@
+/* eslint-disable no-extra-boolean-cast */
+/* eslint-disable no-undef */
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
@@ -26,3 +28,24 @@ export const getTestElement = (attribute, value) => {
     parent.innerHTML = `<div ${attribute}="${value}"></div>`;
     return parent.firstChild;
 };
+
+export const testMode = (() => {
+    if (!!process.env.BUILD) {
+        return {
+            tests: [
+                "tests/public/**/*.spec.js",
+                "tests/e2e/**/*.spec.js"
+            ],
+            importModule: async () => await import('../dist/enso.es.js')
+        };
+    }
+    return {
+        tests: [
+            "tests/internal/*.spec.js", 
+            "tests/internal/**/*.spec.js",
+            "tests/public/**/*.spec.js",
+            "tests/e2e/**/*.spec.js"
+        ],
+        importModule: async () => await import('../src/index.js')
+    };
+})();

@@ -4,7 +4,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { describe, it, expect } from 'vitest';
-import { uuid, scopedId } from '../../src/utils/uuid.js';
+import { uuid, scopedId } from '../../../src/utils/uuid.js';
 
 describe('uuid', () => {
   it('returns a string of the correct length', () => {

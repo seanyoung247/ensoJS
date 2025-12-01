@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 
-vi.mock('../../../src/templates/parser.js', () => {
+vi.mock('../../../../src/templates/parser.js', () => {
     return {
         parser: {
             registerAttr: vi.fn()
@@ -12,14 +12,14 @@ vi.mock('../../../src/templates/parser.js', () => {
     };
 });
 
-vi.mock('../../../src/templates/parsers/utils.js', () => ({
+vi.mock('../../../../src/templates/parsers/utils.js', () => ({
     bindSource: vi.fn(value => value),
     getName: vi.fn(attr => attr.name.slice(1)),
     isAttr: vi.fn((attr, prefix) => attr.name.startsWith(prefix)),
     addBinding: vi.fn()
 }));
 
-vi.mock('../../../src/core/effects.js', () => {
+vi.mock('../../../../src/core/effects.js', () => {
     return {
         compileValue: vi.fn(value => `(()=>parse\`${value.replaceAll('{{', '${').replaceAll('}}', '}').trim()}\`)`),
         Action: class {
@@ -42,11 +42,11 @@ vi.mock('../../../src/core/effects.js', () => {
     };
 });
 
-import '../../../src/templates/parsers/attrParser.js';
-import { parser } from '../../../src/templates/parser.js';
-import { bindSource, getName, isAttr } from '../../../src/templates/parsers/utils.js';
-import { addBinding } from '../../../src/templates/parsers/utils.js';
-import { getTestElement } from "../../shared.js";
+import '../../../../src/templates/parsers/attrParser.js';
+import { parser } from '../../../../src/templates/parser.js';
+import { bindSource, getName, isAttr } from '../../../../src/templates/parsers/utils.js';
+import { addBinding } from '../../../../src/templates/parsers/utils.js';
+import { getTestElement } from "../../../shared.js";
 
 describe(':attr parser', () => {
     let attrParser;

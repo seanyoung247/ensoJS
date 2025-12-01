@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
+import { NodeDef, NodeDefMap } from '../../../src/templates/nodedef.js';
 
 describe('NodeDefMap', () => {
     let map;

@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   Watched, prop, attr,
   watches, getWatched, setWatched,
-} from "../../src/core/watched.js";
-import { BINDINGS, MARK_CHANGED } from "../../src/core/symbols.js";
+} from "../../../src/core/watched.js";
+import { BINDINGS, MARK_CHANGED } from "../../../src/core/symbols.js";
 
 describe("Watched class", () => {
     let component, observedAttributes;

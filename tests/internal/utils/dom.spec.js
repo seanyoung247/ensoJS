@@ -8,7 +8,7 @@ import {
     cloneTemplate,
     getChildIndex, 
     createWalker 
-} from '../../src/utils/dom'; 
+} from '../../../src/utils/dom'; 
 
 describe('createFragment', () => {
     it('creates a DocumentFragment from an HTML string', () => {

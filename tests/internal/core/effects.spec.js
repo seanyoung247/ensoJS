@@ -4,8 +4,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
     createEffectEnv, compileValue, Action, Effect
-} from "../../src/core/effects.js";
-import { ENV } from "../../src/core/symbols.js";
+} from "../../../src/core/effects.js";
+import { ENV } from "../../../src/core/symbols.js";
 
 
 export const mockParent = (env = {}) => ({

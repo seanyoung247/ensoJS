@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 
 // Mock the parser module before importing the parser
-vi.mock('../../../src/templates/parser.js', () => {
+vi.mock('../../../../src/templates/parser.js', () => {
     return {
         parser: {
             registerAttr: vi.fn()
@@ -13,8 +13,8 @@ vi.mock('../../../src/templates/parser.js', () => {
 });
 
 // Import the parser file (it will call registerAttr on our mock)
-import '../../../src/templates/parsers/refParser.js';
-import { parser } from '../../../src/templates/parser.js';
+import '../../../../src/templates/parsers/refParser.js';
+import { parser } from '../../../../src/templates/parser.js';
 
 describe('#ref parser', () => {
     let refParser;

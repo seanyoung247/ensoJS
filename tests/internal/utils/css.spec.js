@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect } from 'vitest';
-import { createStyleSheet, attachStyleSheets } from '../../src/utils/css.js';
+import { createStyleSheet, attachStyleSheets } from '../../../src/utils/css.js';
 
 
 describe('createStyleSheet', () => {

@@ -3,12 +3,15 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { defineConfig } from 'vitest/config';
+import { testMode } from './tests/shared';
+
 
 export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.js'],
+    include: testMode.tests,
     coverage: {
       reporter: ['text', 'json', 'html'],
       reportsDirectory: './tests/coverage',
@@ -17,7 +20,6 @@ export default defineConfig({
         'vitest.config.js',
         '.eslintrc.js',
         'src/templates/parsers/parsers.js', // No logic to cover
-        'src/utils/loaders.js',             // Requires network access
         'src/core/symbols.js',              // No logic to cover
         'examples/**',                      // Don't care about examples
       ],

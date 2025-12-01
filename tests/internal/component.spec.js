@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect } from "vitest";
-import EnsoComponent from '../src/component.js';
+import EnsoComponent from '../../src/component.js';
 
 // EnsoComponent is very heavilly integrated and dependent on other units, 
 // as such most testing is e2e.

@@ -1,10 +1,10 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { EnsoFragment } from '../../src/core/fragment.js';
+import { EnsoFragment } from  '../../../src/core/fragment.js';
 import {
     ADD_CHILD, BINDINGS, ENV, UPDATE,
     SCHEDULE_UPDATE, NODES, ANCHOR,
-} from '../../src/core/symbols.js';
+} from '../../../src/core/symbols.js';
 
 
 describe('EnsoFragment', () => {

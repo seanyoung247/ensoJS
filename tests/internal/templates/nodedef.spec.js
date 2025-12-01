@@ -2,8 +2,8 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import { NodeDef, NodeDefMap } from '../../src/templates/nodedef.js';
-import { ENSO_NODE, ENSO_ROOT } from '../../src/core/symbols.js';
+import { NodeDef, NodeDefMap } from '../../../src/templates/nodedef.js';
+import { ENSO_NODE, ENSO_ROOT } from '../../../src/core/symbols.js';
 
 describe('NodeDef', () => {
     let node, map, def, parser;

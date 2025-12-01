@@ -3,19 +3,19 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { ROOT, CHILDREN, ANCHOR } from "../../../src/core/symbols.js";
+import { ROOT, CHILDREN, ANCHOR } from "../../../../src/core/symbols.js";
 
-vi.mock('../../../src/templates/parser.js', () => ({
+vi.mock('../../../../src/templates/parser.js', () => ({
     parser: { registerNode: vi.fn() }
 }));
 
-vi.mock('../../../src/templates/parsers/utils.js', () => ({
+vi.mock('../../../../src/templates/parsers/utils.js', () => ({
     bindSource: vi.fn(value => value),
     addBinding: vi.fn(),
     getDirective: vi.fn(node => node.getAttribute('*for'))
 }));
 
-vi.mock('../../../src/core/effects.js', () => ({
+vi.mock('../../../../src/core/effects.js', () => ({
     Action: class {
         constructor(source) {
             this.source = source;
@@ -24,7 +24,7 @@ vi.mock('../../../src/core/effects.js', () => ({
     }
 }));
 
-vi.mock('../../../src/core/fragment.js', () => ({
+vi.mock('../../../../src/core/fragment.js', () => ({
     EnsoFragment: class { 
         constructor() { 
             this[ROOT]=document.createElement('template');
@@ -34,11 +34,11 @@ vi.mock('../../../src/core/fragment.js', () => ({
     }
 }));
 
-import '../../../src/templates/parsers/forParser.js';
-import { parser } from '../../../src/templates/parser.js';
-import { addBinding, bindSource } from '../../../src/templates/parsers/utils.js';
-import { Action } from '../../../src/core/effects.js';
-import { getTestElement } from "../../shared.js";
+import '../../../../src/templates/parsers/forParser.js';
+import { parser } from '../../../../src/templates/parser.js';
+import { addBinding, bindSource } from '../../../../src/templates/parsers/utils.js';
+import { Action } from '../../../../src/core/effects.js';
+import { getTestElement } from "../../../shared.js";
 
 describe("For Parser", () => {
     let forParser;

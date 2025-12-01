@@ -8,10 +8,10 @@ import {
     GET_BINDING, SCHEDULE_EFFECT,
     UPDATE,
     ADD_BINDING,
-} from '../../src/core/symbols.js';
-import { UUIDRegEx } from '../shared.js';
+} from '../../../src/core/symbols.js';
+import { UUIDRegEx } from '../../shared.js';
 
-import EnsoTemplate from '../../src/templates/template.js';
+import EnsoTemplate from '../../../src/templates/template.js';
 
 
 const getWatchedNodeElement = node => (

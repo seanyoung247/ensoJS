@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { describe, it, expect } from 'vitest';
-import { classList, cssObj } from '../../src/utils/helpers.js';
+import { classList, cssObj } from '../../../src/utils/helpers.js';
 
 describe('classList', () => {
   it('joins truthy values into a space-separated string', () => {

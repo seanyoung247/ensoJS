@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, vi } from 'vitest';
-import { watch, isReactive } from '../../src/core/watcher.js';
+import { watch, isReactive } from '../../../src/core/watcher.js';
 
 describe('watch()', () => {
 

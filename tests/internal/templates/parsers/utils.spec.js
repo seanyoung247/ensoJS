@@ -11,8 +11,8 @@ import {
     isAttr,
     createPlaceholder, 
     getDirective
-} from '../../../src/templates/parsers/utils';
-import { ADD_BINDING, SCHEDULE_EFFECT } from '../../../src/core/symbols';
+} from '../../../../src/templates/parsers/utils';
+import { ADD_BINDING, SCHEDULE_EFFECT } from '../../../../src/core/symbols';
 
 describe('getName', () => {
 

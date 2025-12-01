@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 
 // Mock parser.js — capture registerNode
-vi.mock('../../../src/templates/parser.js', () => {
+vi.mock('../../../../src/templates/parser.js', () => {
     return {
         parser: {
             registerNode: vi.fn()
@@ -14,20 +14,20 @@ vi.mock('../../../src/templates/parser.js', () => {
 });
 
 // Mock utils.js
-vi.mock('../../../src/templates/parsers/utils.js', () => ({
+vi.mock('../../../../src/templates/parsers/utils.js', () => ({
     bindSource: vi.fn((value, ) => value),
     addBinding: vi.fn()
 }));
 
 // dom utils
-vi.mock('../../../src/utils/dom.js', () => ({
+vi.mock('../../../../src/utils/dom.js', () => ({
     getChildIndex: vi.fn((parent, node) =>
         Array.prototype.indexOf.call(parent.childNodes, node)
     )
 }));
 
 // effects.js
-vi.mock('../../../src/core/effects.js', () => {
+vi.mock('../../../../src/core/effects.js', () => {
     return {
         compileValue: vi.fn(src => `compiled(${src})`),
 
@@ -54,11 +54,11 @@ vi.mock('../../../src/core/effects.js', () => {
     };
 });
 
-import '../../../src/templates/parsers/textParser.js';
+import '../../../../src/templates/parsers/textParser.js';
 
-import { parser } from '../../../src/templates/parser.js';
-import { bindSource, addBinding } from '../../../src/templates/parsers/utils.js';
-import { getChildIndex } from '../../../src/utils/dom.js';
+import { parser } from '../../../../src/templates/parser.js';
+import { bindSource, addBinding } from '../../../../src/templates/parsers/utils.js';
+import { getChildIndex } from '../../../../src/utils/dom.js';
 
 
 describe('Text Parser', () => {

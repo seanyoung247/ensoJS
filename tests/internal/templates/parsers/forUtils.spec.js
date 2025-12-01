@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { describe, it, expect } from 'vitest';
-import { parseFor, createForFunction } from "../../../src/templates/parsers/forUtils.js";
+import { parseFor, createForFunction } from "../../../../src/templates/parsers/forUtils.js";
 
 describe("parseFor()", () => {
 

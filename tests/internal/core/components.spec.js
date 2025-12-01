@@ -1,12 +1,12 @@
 // components.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { createComponent, EnsoNode } from "../../src/core/components.js";
+import { createComponent, EnsoNode } from "../../../src/core/components.js";
 import {
     MARK_CHANGED, ADD_BINDING, BINDINGS,
     TASK_LIST, SCHEDULE_UPDATE, UPDATE,
     ENSO_INTERNAL, CHILDREN, ADD_CHILD
-} from "../../src/core/symbols.js";
+} from "../../../src/core/symbols.js";
 
 describe("createComponent()", () => {
 

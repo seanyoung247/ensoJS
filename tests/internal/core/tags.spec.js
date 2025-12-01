@@ -3,8 +3,8 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { describe, it, expect } from 'vitest';
-import { css, html } from '../../src/core/tags.js';
-import EnsoTemplate from '../../src/templates/template.js';
+import { css, html } from '../../../src/core/tags.js';
+import EnsoTemplate from '../../../src/templates/template.js';
 
 describe('css', () => {
     it('creates a CSSStyleSheet from template strings', () => {

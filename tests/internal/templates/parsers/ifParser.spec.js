@@ -5,12 +5,12 @@
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Mock parser
-vi.mock("../../../src/templates/parser.js", () => ({
+vi.mock("../../../../src/templates/parser.js", () => ({
     parser: { registerNode: vi.fn() }
 }));
 
 // Mock utils
-vi.mock("../../../src/templates/parsers/utils.js", () => ({
+vi.mock("../../../../src/templates/parsers/utils.js", () => ({
     getDirective: vi.fn((node) => node.getAttribute('*if') || node.getAttribute('enso-if')),
     bindSource: vi.fn((src, binds) => {
         binds.add("x");
@@ -20,7 +20,7 @@ vi.mock("../../../src/templates/parsers/utils.js", () => ({
 }));
 
 // Mock Action & compileValue
-vi.mock("../../../src/core/effects.js", () => {
+vi.mock("../../../../src/core/effects.js", () => {
     return {
         compileValue: vi.fn(src => `compiled(${src})`),
 
@@ -34,7 +34,7 @@ vi.mock("../../../src/core/effects.js", () => {
 });
 
 // Mock EnsoFragment
-vi.mock("../../../src/core/fragment.js", () => {
+vi.mock("../../../../src/core/fragment.js", () => {
     return {
         EnsoFragment: class {
             constructor(parent, template, placeholder) {
@@ -49,11 +49,11 @@ vi.mock("../../../src/core/fragment.js", () => {
 });
 
 // load the parser module
-import "../../../src/templates/parsers/ifParser.js";
+import "../../../../src/templates/parsers/ifParser.js";
 
-import { parser } from "../../../src/templates/parser.js";
-import { getDirective, bindSource, addBinding } from "../../../src/templates/parsers/utils.js";
-import { getTestElement } from "../../shared.js";
+import { parser } from "../../../../src/templates/parser.js";
+import { getDirective, bindSource, addBinding } from "../../../../src/templates/parsers/utils.js";
+import { getTestElement } from "../../../shared.js";
 
 
 describe("If Parser", () => {
