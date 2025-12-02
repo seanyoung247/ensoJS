@@ -10,8 +10,10 @@ import {
 } from "./symbols.js";
 
 // Fragment placeholder component
-class EnsoFragmentElement extends HTMLElement {}
-customElements.define(ENSO_FRAGMENT.toLowerCase(), EnsoFragmentElement);
+if (!customElements.get(ENSO_FRAGMENT.toLowerCase())) {
+    class EnsoFragmentElement extends HTMLElement {}
+    customElements.define(ENSO_FRAGMENT.toLowerCase(), EnsoFragmentElement);
+}
 
 /**
  * Enso Fragment base class

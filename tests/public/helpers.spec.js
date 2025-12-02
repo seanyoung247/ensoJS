@@ -2,8 +2,15 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { describe, it, expect } from 'vitest';
-import { classList, cssObj } from '../../../src/utils/helpers.js';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { testMode } from '../shared.js';
+
+
+let classList, cssObj;
+beforeAll(async () => {
+  const mod = await testMode.importModule();
+  ({classList, cssObj} = mod);
+});
 
 describe('classList', () => {
   it('joins truthy values into a space-separated string', () => {

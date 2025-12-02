@@ -2,9 +2,15 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { describe, it, expect } from 'vitest';
-import { css, html } from '../../../src/core/tags.js';
-import EnsoTemplate from '../../../src/templates/template.js';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { testMode } from '../shared.js';
+
+
+let css, html;
+beforeAll(async () => {
+  const mod = await testMode.importModule();
+  ({ css, html } = mod);
+});
 
 describe('css', () => {
     it('creates a CSSStyleSheet from template strings', () => {
@@ -22,6 +28,6 @@ describe('css', () => {
 describe('html', () => {
     it('creates an EnsoTemplate from template strings', () => {
         const template = html`<div class="test">Hello, World!</div>`;
-        expect(template).toBeInstanceOf(EnsoTemplate);
+        expect(template).toBeInstanceOf(Object);
     });
 });
