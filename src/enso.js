@@ -54,6 +54,13 @@ const Enso = (()=>{
                 settings={}
             }) { settings = defaultSettings(settings);
 
+            if (customElements.get(tag)) {
+                throw new Error(
+                    `[Enso] Component "${tag}" is already defined. 
+                    Did you load the component twice?`
+                );
+            }
+
             const watchers = parseScript(script);
             const component = createComponent(EnsoComponent, script);
 
