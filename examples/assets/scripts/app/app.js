@@ -1,8 +1,10 @@
 
 import Enso, { 
-    html, css, load, cssObj, 
-    prop, getWatched, setWatched 
+    html, css, load, prop,
+    getWatched, setWatched 
 } from "enso";
+
+import { cssObj } from "enso/helpers";
 
 const cssReset = await load.css('assets/styles/reset.css');
 

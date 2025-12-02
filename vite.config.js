@@ -22,16 +22,22 @@ export default defineConfig({
     outDir: 'dist',
     minify: 'terser',
     lib: {
-      entry: path.resolve(__dirname, 'src/index.js'),
-      name: 'Enso',
-      fileName: (format) => `enso.${format}.js`,
-      formats: ['es']
+        entry: path.resolve(__dirname, 'src/index.js'),
+        name: 'Enso',
+        fileName: (format) => `enso.${format}.js`,
+        formats: ['es']
     },
     rollupOptions: {
+      input: {
+        enso: path.resolve(__dirname, 'src/index.js'),
+        helpers: path.resolve(__dirname, 'src/helpers/index.js')
+      },
       external: [],
       output: {
+        entryFileNames: '[name].[format].js',
         exports: 'named',
         globals: {},
+        format: 'es',
       },
     },
   },

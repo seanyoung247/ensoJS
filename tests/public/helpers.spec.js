@@ -8,7 +8,7 @@ import { testMode } from '../shared.js';
 
 let classList, cssObj;
 beforeAll(async () => {
-  const mod = await testMode.importModule();
+  const mod = await testMode.importHelpers();
   ({classList, cssObj} = mod);
 });
 

@@ -12,6 +12,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.js'],
     include: testMode.tests,
+    benchmark: {
+      include: ['bench/**/*.bench.js'],
+      time: 500,
+    },
     coverage: {
       reporter: ['text', 'json', 'html'],
       reportsDirectory: './tests/coverage',

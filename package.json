@@ -8,6 +8,10 @@
     ".": {
       "import": "./dist/enso.es.js",
       "require": "./dist/enso.es.js"
+    },
+    "./helpers": {
+      "import": "./dist/helpers.es.js",
+      "require": "./dist/helpers.es.js"
     }
   },
   "type": "module",

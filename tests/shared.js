@@ -36,7 +36,8 @@ export const testMode = (() => {
                 "tests/public/**/*.spec.js",
                 "tests/e2e/**/*.spec.js"
             ],
-            importModule: async () => await import('../dist/enso.es.js')
+            importModule: async () => await import('../dist/enso.es.js'),
+            importHelpers: async () => await import('../dist/helpers.es.js')
         };
     }
     return {
@@ -46,6 +47,7 @@ export const testMode = (() => {
             "tests/public/**/*.spec.js",
             "tests/e2e/**/*.spec.js"
         ],
-        importModule: async () => await import('../src/index.js')
+        importModule: async () => await import('../src/index.js'),
+        importHelpers: async () => await import('../src/helpers/index.js')
     };
 })();

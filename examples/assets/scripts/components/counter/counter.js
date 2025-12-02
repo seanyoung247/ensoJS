@@ -1,5 +1,6 @@
 
-import Enso, {html, attr, css, classList} from "enso";
+import Enso, {html, attr, css} from "enso";
+import { classList } from "enso/helpers";
 
 Enso.component('enso-counter', {
 
