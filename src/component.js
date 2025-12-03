@@ -76,7 +76,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
         // and sets their initial value if they're forced.
         const attributes = this.observedAttributes;
         for (const attr of attributes) {
-            if (this.watched.defs[attr].attribute.force) {
+            if (this.watched._defs[attr].attribute.force) {
                 this.reflectAttribute(attr);
             }
         }
@@ -103,7 +103,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-        const val = this.watched.defs[property].attribute.toProp(newValue);
+        const val = this.watched._defs[property].attribute.toProp(newValue);
         if (this.watched[property] !== val) this.watched[property] = val;
     }
 
@@ -114,7 +114,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     reflectAttribute(attribute) {
-        const attr = this.#watched.defs[attribute];
+        const attr = this.#watched._defs[attribute];
         const value = attr.attribute.toAttr(this.watched[attribute]);
         
         if (value !== this.getAttribute(attr.name)) {

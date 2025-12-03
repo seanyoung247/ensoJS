@@ -110,7 +110,7 @@ export function getWatched(component) {
  * @param {Object<string, any>} values - Object containing key/value pairs to update.
  */
 export function setWatched(component, values) {
-    component.watched.update(values);
+    component.watched._update(values);
 }
 
 /**
@@ -151,6 +151,11 @@ export function parseScript(script) {
     return watchers;
 }
 
+const validateName = (name) => {
+    if (name.startsWith('_'))
+        throw new Error("[Enso] - Watched property names must not start with '_'.");
+};
+
 const createPropDesc = (name, desc, watchers = []) => {
     const propDesc = desc?._prop ? desc : prop(desc);
     return Object.assign({}, propDesc, { name, watchers });
@@ -166,6 +171,7 @@ export class Watched {
 
         // For each watched property
         for (const [name, property] of Object.entries(properties)) {
+            validateName(name);
             // Construct property description
             const prop = createPropDesc(name, property, watchers[name]);
             // Add accessors for the property
@@ -203,8 +209,8 @@ export class Watched {
     constructor(component) {
         this.#component = component;
         // Property and binding setup
-        for (const defName in this.defs) {
-            const prop = this.defs[defName];
+        for (const defName in this._defs) {
+            const prop = this._defs[defName];
             let value = prop.value();
             // Wrap value in proxy if deep reactivity requested
             if (prop.deep && typeof value === 'object' && value !== null) {
@@ -223,7 +229,7 @@ export class Watched {
 
     get [BINDINGS]() { return this.#bindings; }
     get [VALUES]() { return Object.fromEntries(this.#values); }
-    get defs() { return this.constructor.defs; }
+    get _defs() { return this.constructor.defs; }
 
     _notify(prop) {
         if (this.#bindings.has(prop)) {
@@ -253,10 +259,10 @@ export class Watched {
         this._notify(prop.name);
     }
 
-    update(values) {
+    _update(values) {
         for (const val in values) {
             if (values[val] !== this.#values.get(val)) {
-                this._setProp(this.defs[val], values[val]);
+                this._setProp(this._defs[val], values[val]);
             }
         }
     } 

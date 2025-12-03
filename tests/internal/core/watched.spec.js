@@ -11,9 +11,9 @@ describe("Watched class", () => {
     beforeEach(() => {
         // Define the watched class properly
         const MyWatched = Watched.define({
-        count: 5,
-        show: prop(true),
-        attr: attr('test')
+            count: 5,
+            show: prop(true),
+            attr: attr('test')
         });
         observedAttributes = MyWatched.attr;
 
@@ -28,6 +28,10 @@ describe("Watched class", () => {
 
         component = new MockComponent();
         component.watched = new MyWatched(component);
+    });
+
+    it("Doesn't allow illegal property names", () => {
+        expect(()=>Watched.define({ _illegal: 5})).toThrow();
     });
 
     it("initial values are set correctly", () => {
@@ -59,11 +63,11 @@ describe("Watched class", () => {
     it('calls _setProp when a watched value changes', () => {
         const spy = vi.spyOn(component.watched, '_setProp');
 
-        component.watched.update({ count: 10 });
+        component.watched._update({ count: 10 });
 
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith(
-            component.watched.defs.count,
+            component.watched._defs.count,
             10
         );
     });
@@ -72,7 +76,7 @@ describe("Watched class", () => {
         const spy = vi.spyOn(component.watched, '_setProp');
 
         // count starts as 5 from the definition
-        component.watched.update({ count: 5 });
+        component.watched._update({ count: 5 });
 
         expect(spy).not.toHaveBeenCalled();
     });
