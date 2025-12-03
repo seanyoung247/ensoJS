@@ -85,13 +85,20 @@ describe("Watched class", () => {
         const component = {}; // dummy
         const watched = new Watched(component);
 
-        // Ensure no bindings exist for this prop
-        expect(watched[BINDINGS]?.has('missing')).toBe(false);
-
-        // Spy to confirm no watcher runs
         const spy = vi.fn();
+        watched[BINDINGS].set('known', {
+            changed: false,
+            watchers: [spy],
+            effects: []
+        });
+
+        // Ensure 'missing' is truly missing
+        expect(watched[BINDINGS].has('missing')).toBe(false);
+
+        // Act: notify a property with no watchers
         watched._notify('missing');
 
+        // Assert: no watchers were called
         expect(spy).not.toHaveBeenCalled();
     });
 });
