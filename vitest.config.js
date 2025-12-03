@@ -13,7 +13,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     include: testMode.tests,
     benchmark: {
-      include: ['bench/**/*.bench.js'],
+      include: ['benchmarks/**/*.bench.js'],
       time: 500,
     },
     coverage: {
