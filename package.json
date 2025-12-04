@@ -1,6 +1,6 @@
 {
   "name": "enso",
-  "version": "0.9.9",
+  "version": "1.0.0RC",
   "description": "A Web component framework that simplifies development by handling boilerplate code, providing an intuitive interface for component derivation, and enabling code separation.",
   "main": "./dist/enso.es.js",
   "module": "dist/enso.es.js",

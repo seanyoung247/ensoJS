@@ -1,12 +1,13 @@
 
-import Enso, { css, html, attr } from 'enso';
+import Enso, { css, html, attr, load } from 'enso';
 
+const reset = await load.css(import.meta.url, '../assets/reset.css');
 
 Enso.component('enso-counter', {
     watched: {
         count: attr(0)
     },
-    styles: css`
+    styles: [reset, css`
         div {
             display: flex;
             justify-content: space-between;
@@ -31,7 +32,7 @@ Enso.component('enso-counter', {
                 background-color: lightgrey;
             }
         }
-    `,
+    `],
     template: html`
         <div>
             <button @click="this.dec">-</button>
