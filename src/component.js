@@ -14,11 +14,12 @@ import {
 } from "./core/symbols.js";
 
 
-export const lifecycles = [
-    'lifecycle:mount',
-    'lifecycle:update',
-    'lifecycle:unmount',
-];
+export const lifecycle = Object.freeze({
+    mount: 'lifecycle:mount',
+    update: 'lifecycle:update',
+    unmount: 'lifecycle:unmount',
+});
+export const lifecycles = Object.values(lifecycle);
 
 /**
  * Enso Web Component base class
@@ -92,11 +93,10 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
         // Initial render
         this[UPDATE]();
-        // this[SCHEDULE_UPDATE]();
     }
 
     disconnectedCallback() {
-        this.#watched._notify('lifecycle:unmount');
+        this.#watched._notify(lifecycle.unmount);
     }
       
     // adoptedCallback() {} -- Not Yet Supported
@@ -110,7 +110,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     //// Lifecycle
     [ATTACH_TEMPLATE](DOM) { 
         this[ROOT].append(DOM);
-        this.#watched._notify('lifecycle:mount');
+        this.#watched._notify(lifecycle.mount);
     }
 
     reflectAttribute(attribute) {
@@ -135,6 +135,6 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
         super[UPDATE]();
 
-        this.#watched._notify('lifecycle:update');
+        this.#watched._notify(lifecycle.update);
     }
 }

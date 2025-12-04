@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Enso, { 
-    html, watches, getWatched, setWatched 
+    html, watches, getWatched, setWatched, lifecycle
 } from "../../src/enso.js";
 
 import { nextFrame, setup, clearDOM } from '../shared.js';
@@ -62,15 +62,15 @@ Enso.component(scriptCallbacks, {
 
         mount: watches(() => {
             mocks.mount();
-        }, ['lifecycle:mount']),
+        }, [lifecycle.mount]),
 
         update: watches(() => {
             mocks.update();
-        }, ['lifecycle:update']),
+        }, [lifecycle.update]),
 
         unmount: watches(() => {
             mocks.unMount();
-        }, ['lifecycle:unmount']),
+        }, [lifecycle.unmount]),
     }
 });
 

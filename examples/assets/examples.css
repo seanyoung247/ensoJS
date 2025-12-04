@@ -7,6 +7,8 @@ html {
 }
 body {
     display: flex;
+    flex-direction: column;
+    gap: 1em;
     width: 100%;
     height: 100%;
     justify-content: center;

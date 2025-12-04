@@ -95,6 +95,8 @@ const Enso = (()=>{
 export { load } from './utils/loaders.js';
 // Template tags
 export { css, html } from './core/tags.js';
+// Lifecycle identifies
+export { lifecycle } from './component.js';
 // Watched properties
 export { 
     prop, attr, watches, 

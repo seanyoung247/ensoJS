@@ -23,7 +23,8 @@ Enso.component('enso-counter', {
             width: 20px;
             aspect-ratio: 1;
             &:hover {
-                cursor: pointer; 
+                cursor: pointer;
+                opacity: 0.75;
             }
             &:active {
                 color: grey;
@@ -34,7 +35,7 @@ Enso.component('enso-counter', {
     template: html`
         <div>
             <button @click="this.dec">-</button>
-            <span>{{ @:count }}</span>
+                <span>{{ @:count }}</span>
             <button @click="this.inc">+</button>
         </div>
     `,
