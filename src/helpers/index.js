@@ -4,3 +4,5 @@
 
 export * from './css.js';
 export * from './range.js';
+// Resource loaders
+export { load } from './load.js';

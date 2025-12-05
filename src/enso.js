@@ -91,8 +91,6 @@ const Enso = (()=>{
 
 //// EXPORTS
 
-// Resource loaders
-export { load } from './utils/loaders.js';
 // Template tags
 export { css, html } from './core/tags.js';
 // Lifecycle identifies
