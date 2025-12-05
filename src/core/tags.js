@@ -6,9 +6,12 @@ import EnsoTemplate from "../templates/template.js";
 import { createStyleSheet } from "../utils/css.js";
 
 
-const combine = (strings, ...values) => (
-    strings.reduce((a,c,i) => a + c + (values[i] || ''), '')
-);
+const combine = (strings, ...values) => {
+    // Used as a parser function
+    if (typeof strings === "string") return strings;
+    // Used as a template tag
+    return strings.reduce((a,c,i) => a + c + (values[i] || ''), '');
+};
 
 /**
  * Parses a template string and returns an Enso stylesheet

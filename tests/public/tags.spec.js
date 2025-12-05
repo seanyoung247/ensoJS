@@ -23,6 +23,12 @@ describe('css', () => {
         expect(sheet.cssRules[0].cssText).toBe('body { background-color: red; }');
         expect(sheet.cssRules[1].cssText).toBe('.class { color: white; }');
     });
+
+    it('can be used as a parser', () => {
+        const text = "body { background-color: red; }";
+        const sheet = css(text);
+        expect(sheet).toBeInstanceOf(CSSStyleSheet);
+    });
 });
 
 describe('html', () => {
