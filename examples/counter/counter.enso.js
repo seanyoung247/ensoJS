@@ -1,6 +1,6 @@
 
-import Enso, { css, html, attr } from 'enso';
-import { load } from 'enso/helpers';
+import Enso, { css, html, attr } from 'ensojs';
+import { load } from 'ensojs/helpers';
 
 const [reset] = await load(import.meta.url, { file: '../assets/reset.css', as: css });
 

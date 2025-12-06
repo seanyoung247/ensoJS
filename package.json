@@ -1,23 +1,30 @@
 {
-  "name": "enso",
-  "version": "1.0.0RC",
-  "description": "A Web component framework that simplifies development by handling boilerplate code, providing an intuitive interface for component derivation, and enabling code separation.",
-  "main": "./dist/enso.es.js",
-  "module": "dist/enso.es.js",
+  "name": "ensojs",
+  "version": "1.0.0-rc.5",
+  "type": "module",
+
+  "description": "A lightweight Web Component framework focused on clarity, reactivity, and minimal boilerplate.",
+
+  "author": "Sean Young <seanyoung247@gmail.com>",
+  "license": "MIT",
+
+  "main": "./dist/ensojs.es.js",
+  "module": "./dist/ensojs.es.js",
+
   "exports": {
     ".": {
-      "import": "./dist/enso.es.js",
-      "require": "./dist/enso.es.js"
+      "source": "./src/index.js",
+      "default": "./dist/ensojs.es.js"
     },
     "./helpers": {
-      "import": "./dist/helpers.es.js",
-      "require": "./dist/helpers.es.js"
-    }
+      "source": "./src/helpers/index.js",
+      "default": "./dist/helpers.es.js"
+    },
+    "./package.json": "./package.json"
   },
-  "type": "module",
-  "directories": {
-    "doc": "docs"
-  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": true,
+  "homepage": "https://github.com/seanyoung247/ensojs#readme",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -29,18 +36,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seanyoung247/enso.git"
+    "url": "git+https://github.com/seanyoung247/ensojs.git"
   },
   "keywords": [
-    "Web",
-    "Component"
+    "web-components",
+    "custom-elements",
+    "framework",
+    "reactivity",
+    "templating",
+    "frontend",
+    "microframework",
+    "ui",
+    "native"
   ],
-  "author": "Sean Young",
-  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/seanyoung247/enso/issues"
+    "url": "https://github.com/seanyoung247/ensojs/issues"
   },
-  "homepage": "https://github.com/seanyoung247/enso#readme",
   "devDependencies": {
     "@vitest/browser-webdriverio": "^4.0.14",
     "@vitest/coverage-v8": "^4.0.14",

@@ -36,7 +36,7 @@ export const testMode = (() => {
                 "tests/public/**/*.spec.js",
                 "tests/e2e/**/*.spec.js"
             ],
-            importModule: async () => await import('../dist/enso.es.js'),
+            importModule: async () => await import('../dist/ensojs.es.js'),
             importHelpers: async () => await import('../dist/helpers.es.js')
         };
     }

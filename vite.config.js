@@ -23,13 +23,13 @@ export default defineConfig({
     minify: 'terser',
     lib: {
         entry: path.resolve(__dirname, 'src/index.js'),
-        name: 'Enso',
-        fileName: (format) => `enso.${format}.js`,
+        name: 'ensojs',
+        fileName: (format) => `ensojs.${format}.js`,
         formats: ['es']
     },
     rollupOptions: {
       input: {
-        enso: path.resolve(__dirname, 'src/index.js'),
+        ensojs: path.resolve(__dirname, 'src/index.js'),
         helpers: path.resolve(__dirname, 'src/helpers/index.js')
       },
       external: [],
@@ -42,9 +42,10 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      enso: path.resolve(__dirname, "/src")
-    }
+    // eslint-disable-next-line no-undef
+    alias: process.env.NODE_ENV === "development"
+      ? { ensojs: path.resolve(__dirname, './src') }
+      : {}
   },
   plugins: [
     // Little plugin to stop vite mangling css/html in loaders
