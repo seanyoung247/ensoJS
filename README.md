@@ -1,6 +1,6 @@
 # Enso 
 
-<img src="public/icon.svg" width="100">
+<img src="docs/icon.svg" width="100">
 
 ![npm version](https://img.shields.io/npm/v/ensojs?color=ca2e2e)
 ![bundle size](https://img.shields.io/bundlephobia/minzip/ensojs?label=size&color=ca2e2e&labelColor=333333)
@@ -18,7 +18,7 @@ It aims to be modern, minimal, and forward-focused — no compile step, no virtu
 
 Enso is guided by a few simple principles:
 
-- **Native-first** — build on the platform: Custom Elements, Shadow DOM, template literals.
+- **Native-first** — built on the modern web: Custom Elements, Shadow DOM, and template literals.
 - **Minimal surface area** — small API, small mental overhead.
 - **Declarative over imperative** — components describe what they are, not how to wire them.
 - **No build step** — just write HTML, CSS, and JS.
@@ -87,7 +87,7 @@ Or via CDN:
 
 A simple reactive counter component:
 
-![rendered image of tiny-counter component](public/tiny-counter.png)
+![rendered image of tiny-counter component](docs/tiny-counter.png)
 
 ```javascript
 import Enso, { css, html, attr } from 'ensojs';
