@@ -66,7 +66,7 @@ export class EnsoFragment extends EnsoNode() {
         this.#root = template.process(this);
     }
     _getChildren() {
-        this.#nodes = Array.from(this.#root.children);
+        this.#nodes = Array.from(this.#root.childNodes);
     }
 
     //// Accessors - Public

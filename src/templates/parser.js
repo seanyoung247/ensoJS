@@ -66,7 +66,7 @@ export const parser = (() => {
          * @returns 
          */
         getRoot(root) {
-            return root.querySelector(`[${ENSO_ROOT}]`);
+            return root.querySelector(`[${ENSO_ROOT}]:not([${ENSO_ROOT}="COMPONENT"])`);
         },
 
         /**

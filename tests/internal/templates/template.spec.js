@@ -222,6 +222,23 @@ describe('Template System', () => {
 
         const dom = tpl.process(null);
 
-        expect(dom.querySelector("enso-fragment")).toBeNull();
+        expect(dom.querySelector(`enso-fragment:not([${ENSO_ROOT}])`)).toBeNull();
+    });
+
+    it("does not double-wrap an existing <enso-fragment> root", () => {
+        const html = `
+            <enso-fragment>
+                <div>Test</div>
+            </enso-fragment>
+        `;
+
+        const template = new EnsoTemplate(html);
+
+        // template.template should be the existing wrapper, not wrapped again
+        const root = template.template.content.firstElementChild;
+
+        expect(root.tagName.toLowerCase()).toBe("enso-fragment");
+        expect(root.childElementCount).toBe(1);
+        expect(root.firstElementChild.tagName).toBe("DIV");
     });
 });

@@ -10,9 +10,8 @@ const basicIF = 'enso-if-basic-test';
 Enso.component(basicIF, {
   watched: { show: true },
   template: html`
-    <div>
-      <div id="if-test" *if="{{ watched:show }}">Visible</div>
-    </div>
+    <div id="if-test" *if="{{ watched:show }}">Visible</div>
+    {{ @:show.toString() }}
   `
 });
 

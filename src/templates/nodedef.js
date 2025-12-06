@@ -95,7 +95,6 @@ export class NodeDef {
 
     markWatched(append = true) {
         const el = targetNode(this.#node);
-
         if (!el.hasAttribute(ENSO_NODE)) {
             el.setAttribute(ENSO_NODE, this.#id);
         }
@@ -147,7 +146,6 @@ export class NodeDefMap {
     create(node) {
         const el = targetNode(node);
         const index = el.getAttribute(ENSO_NODE);
-
         return (this.#map.has(index) ?
             this.#map.get(index) : // Node is already watched, so return it's existing def
             new NodeDef( uuid(), node, this )

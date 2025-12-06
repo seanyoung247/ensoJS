@@ -60,10 +60,10 @@ describe("load() - descriptor object { file, as }", () => {
 
     it("throws if descriptor is invalid", async () => {
         await expect(load("https://x/base.js", { file: 123 }))
-            .rejects.toThrow(/Invalid item/);
+            .rejects.toThrow(/Invalid file/);
 
         await expect(load("https://x/base.js", { as: () => {} }))
-            .rejects.toThrow(/Invalid item/);
+            .rejects.toThrow(/Invalid file/);
     });
 });
 

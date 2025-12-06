@@ -3,7 +3,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { createTemplate, cloneTemplate } from "../utils/dom.js";
+import { createTemplate } from "../utils/dom.js";
 import { NodeDefMap } from "./nodedef.js";
 import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
@@ -41,10 +41,7 @@ const extractLooseFragments = root => {
     }
 };
 
-const wrapFragment = (root, wrap) => {
-    if (!wrap || root.tagName === ENSO_FRAGMENT) {
-        return root;
-    }
+const wrapFragment = (root) => {
     const frag = document.createElement(ENSO_FRAGMENT);
     frag.append(root);
     return frag;
@@ -55,18 +52,20 @@ export default class EnsoTemplate {
     #template = null;   // The underlying HTML template
     #watched;           // The nodes that are referenced or mutated
 
-    constructor(html, watched = new NodeDefMap(), wrap=false) {
+    constructor(html, watched = new NodeDefMap()) {
         const template = createTemplate(html);
         this.#watched = watched;
 
         this.#template = this.#parse(template);
-        this.#fragment(wrap);
+        this.#fragment();
     }
 
     #parse(template) {
         if (parser.isParsed(template)) return template;
 
-        const rootNode = template.content;
+        const rootNode = wrapFragment(template.content);
+        rootNode.setAttribute(ENSO_ROOT, "COMPONENT");
+        template.content.append(rootNode);
         const walker = getWalker(rootNode);
         
         let node;
@@ -81,7 +80,7 @@ export default class EnsoTemplate {
         return template;
     }
 
-    #fragment(wrap) {
+    #fragment() {
         const rootNode = this.#template.content;
         // Ensure there's no orphand enso-fragments
         extractLooseFragments(rootNode);
@@ -95,9 +94,9 @@ export default class EnsoTemplate {
             def.replaceNode( createPlaceholder() );
 
             // Construct and append the template.
-            const template = createTemplate(
-                wrapFragment(root, wrap)
-            );
+            const template = createTemplate(root);
+            //     wrapFragment(root, wrap)
+            // );
             template.setAttribute(ENSO_PARSED, "");
             def.directive.template = new EnsoTemplate(template, this.#watched, true);
         }
@@ -117,7 +116,8 @@ export default class EnsoTemplate {
     }
 
     clone() {
-        const template = cloneTemplate(this.#template);
+        // const template = cloneTemplate(this.#template);
+        const template = this.#template.cloneNode(true);
         return new EnsoTemplate(template, this.#watched);
     }
 

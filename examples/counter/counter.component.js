@@ -2,7 +2,7 @@
 import Enso, { css, html, attr } from 'enso';
 import { load } from 'enso/helpers';
 
-const [reset] = await load(import.meta.url, { file:'../assets/reset.css', as: css });
+const [reset] = await load(import.meta.url, { file: '../assets/reset.css', as: css });
 
 Enso.component('enso-counter', {
     watched: {

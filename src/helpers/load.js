@@ -37,7 +37,7 @@ async function loadFile(url) {
 /**
  * Load one of more files in parallel.
  *
- * Each item can be:
+ * Each file can be:
  *   - A string  → file path → raw text returned.
  *   - An object → {file, as} → transformed text returned.
  *
@@ -45,7 +45,7 @@ async function loadFile(url) {
  * @param {...(string|{file:string,as?:Function})} files - Strings or typed load descriptors
  * @returns {Promise<Array<any[]>>} - Loaded text or transformed values, in order
  */
-export async function load (base, ...files) {
+export async function load(base, ...files) {
     return Promise.all(files.map(async file => {
         // string, assume file path
         if (typeof file === "string") {
@@ -55,7 +55,7 @@ export async function load (base, ...files) {
         // Object: decoder
         if (file && typeof file === "object" && 
             typeof file.file === "string") {
-                
+
             const url = getUrl(base, file.file);
             const text = await loadFile(url);
             return typeof file.as === "function"
@@ -63,7 +63,7 @@ export async function load (base, ...files) {
                 : text;  // fallback to raw text
         }
         throw new TypeError(
-            "load: Invalid item. Must be a string or { file: string, as: function }"
+            "load: Invalid file. Must be a string or { file: string, as: function }"
         );
     }));
 }

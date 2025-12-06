@@ -108,8 +108,9 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     //// Lifecycle
-    [ATTACH_TEMPLATE](DOM) { 
-        this[ROOT].append(DOM);
+    [ATTACH_TEMPLATE](DOM) {
+        const nodes = Array.from(DOM.firstElementChild.childNodes);
+        this[ROOT].append(...nodes);
         this.#watched._notify(lifecycle.mount);
     }
 
