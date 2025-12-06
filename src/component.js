@@ -14,11 +14,12 @@ import {
 } from "./core/symbols.js";
 
 
-export const lifecycles = [
-    'lifecycle:mount',
-    'lifecycle:update',
-    'lifecycle:unmount',
-];
+export const lifecycle = Object.freeze({
+    mount: 'lifecycle:mount',
+    update: 'lifecycle:update',
+    unmount: 'lifecycle:unmount',
+});
+export const lifecycles = Object.values(lifecycle);
 
 /**
  * Enso Web Component base class
@@ -70,12 +71,13 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
     connectedCallback() {
         if (this.#initialised) return;
+        this.#initialised = true;
 
         // Loops through all properties defined as attributes 
         // and sets their initial value if they're forced.
         const attributes = this.observedAttributes;
         for (const attr of attributes) {
-            if (this.watched.defs[attr].attribute.force) {
+            if (this.watched._defs[attr].attribute.force) {
                 this.reflectAttribute(attr);
             }
         }
@@ -89,32 +91,31 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
             attachStyleSheets(this[ROOT], this.styles);
         }
 
-        this.#initialised = true;
-
         // Initial render
         this[UPDATE]();
     }
 
     disconnectedCallback() {
-        this.#watched._notify('lifecycle:unmount');
+        this.#watched._notify(lifecycle.unmount);
     }
       
     // adoptedCallback() {} -- Not Yet Supported
 
     attributeChangedCallback(property, oldValue, newValue) {
         if (oldValue === newValue) return;
-        const val = this.watched.defs[property].attribute.toProp(newValue);
+        const val = this.watched._defs[property].attribute.toProp(newValue);
         if (this.watched[property] !== val) this.watched[property] = val;
     }
 
     //// Lifecycle
-    [ATTACH_TEMPLATE](DOM) { 
-        this[ROOT].append(DOM);
-        this.#watched._notify('lifecycle:mount');
+    [ATTACH_TEMPLATE](DOM) {
+        const nodes = Array.from(DOM.firstElementChild.childNodes);
+        this[ROOT].append(...nodes);
+        this.#watched._notify(lifecycle.mount);
     }
 
     reflectAttribute(attribute) {
-        const attr = this.#watched.defs[attribute];
+        const attr = this.#watched._defs[attribute];
         const value = attr.attribute.toAttr(this.watched[attribute]);
         
         if (value !== this.getAttribute(attr.name)) {
@@ -131,12 +132,10 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     [UPDATE]() {
-        if (!this.#initialised) return;
-        
         this.#updateScheduled = false;
 
         super[UPDATE]();
 
-        this.#watched._notify('lifecycle:update');
+        this.#watched._notify(lifecycle.update);
     }
 }

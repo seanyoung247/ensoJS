@@ -3,12 +3,13 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 const proxies = new WeakMap();
+const reactives = new WeakMap();
 
 const baseWatcher = (onChange, name) => ({
     get(target, prop, receiver) {
         const value = Reflect.get(target, prop, receiver);
 
-        if (typeof value === 'object' && value !== null) {
+        if (typeof value === 'object' && value !== null &&(value)) {
             return watch(value, name, onChange);
         }
         return value;
@@ -24,7 +25,24 @@ const baseWatcher = (onChange, name) => ({
 
         return result;
     },
+
+    deleteProperty(target, prop) {
+        const hadKey = Object.prototype.hasOwnProperty.call(target, prop);
+        const result = Reflect.deleteProperty(target, prop);
+
+        if (hadKey && result) {
+            onChange(name);
+        }
+
+        return result;
+    },
 });
+
+const iterators = ['values','entries','keys', Symbol.iterator];
+const isIterator = (target, prop) => (
+    typeof target[prop] === 'function' && 
+        iterators.includes(prop)
+);
 
 const mutatorWatcher = (onChange, name, trapMethods) => {
     const base = baseWatcher(onChange, name);
@@ -40,6 +58,13 @@ const mutatorWatcher = (onChange, name, trapMethods) => {
                     return result;
                 };
             }
+
+            // For iteration methods (values, entries, keys, Symbol.iterator), 
+            // return the original function bound to target
+            if (isIterator(target, prop)) {
+                return target[prop].bind(target);
+            }
+
             return base.get(target, prop, receiver);
         }
     };
@@ -66,5 +91,10 @@ export const watch = (target, name, onChange) => {
     const watcher = getWatcher(target, name, onChange);
     const proxy = new Proxy(target, watcher);
     proxies.set(target, proxy);
+    reactives.set(proxy, true);
     return proxy;
 };
+
+export const isReactive = (value) => (
+    reactives.has(value)
+);

@@ -6,7 +6,7 @@ import { watch } from "./watcher.js";
 import { lifecycles } from "../component.js";
 import { BINDINGS, MARK_CHANGED } from "./symbols.js";
 
-//// Watched Properties
+
 export const attributeTypes = Object.freeze([
     Boolean, Number, String
 ]);
@@ -26,44 +26,73 @@ const converters = new Map([
     }]
 ]);
 
-function createAttrDesc(attr, value, options = {}) {
-    // Allow shorthand boolean for attribute presence
-    if (typeof options === 'boolean') options = {};
+function createFactory(value) {
+    if (typeof value === 'function') return value;
 
-    let { type = String, force = false } = options;
+    if (value === null || typeof value !== 'object') {
+        return () => value;
+    }
 
-    if (!converters.has(type) || !attributeTypes.includes(type)) {
-        throw new Error(`Component attribute '${attr}' has unsupported type`);
+    return () => structuredClone(value);
+}
+
+//// USER FACING
+
+const descripter = (desc) => Object.defineProperty(desc, '_prop', {
+    value: true, writable: false, configurable: false, enumerable: false
+});
+
+/**
+ * Create a watched property descriptor.
+ *
+ * - If `deep` is true AND `value` is a non-null object, deep reactivity is enabled.
+ * - Primitive values always produce shallow descriptors.
+ *
+ * @param {*} value - Initial property value.
+ * @param {boolean} [deep=false] - Whether to enable deep reactivity if the value is an object.
+ * @returns {object} - A property descriptor object consumed by the watched system.
+ */
+export const prop = (value = null, deep=false) => {
+    deep = deep && (value !== null && typeof value === 'object');
+    return descripter({
+        value: createFactory(value), deep, attribute: false
+    });
+};
+
+/**
+ * Create a watched attribute descriptor (string/number/boolean).
+ *
+ * - Automatically detects type from the default value if provided.
+ * - Rejects object values and unsupported constructors.
+ *
+ * @param {string|number|boolean|null} value - Default attribute value. If non-null, determines the attribute type unless explicitly overridden.
+ * @param {Function} [type=String] - Constructor representing the expected attribute type (String, Number, Boolean).
+ * @throws {Error} - If value is an object, or type is not in the allowed attributeTypes list.
+ * @returns {object} - A descriptor object defining attribute parsing, serialisation, and reactivity.
+ */
+export const attr = (value = null, type = String) => {
+    const force = (value !== null && value !== undefined);
+
+    if (force) {
+        type = value.constructor;
+    }
+
+    if (!attributeTypes.includes(type) || (value !== null && typeof value === 'object')) {
+        throw new Error(
+            `Unsupported attribute type '${type}'. Allowed: ${
+                attributeTypes.map(t => t.name).join(', ')
+            }`
+        );
     }
 
     const { toProp, toAttr } = converters.get(type);
-
-    // Force attribute if user asked for it OR if a default value exists
-    force = force || (value !== null && value !== undefined);
-
-    return { type, force, toProp, toAttr };
-}
-
-function createPropDesc(name, desc, watchers = []) {
-    // Support shorthand: count: 0
-    if (desc !== Object(desc)) desc = { value: desc };
-
-    let { deep = false, value = null, attribute = false } = desc;
-
-    if (attribute) {
-        attribute = createAttrDesc(name, value, attribute);
-        // Automatically force attribute if default value exists
-        if (value !== null && value !== undefined) {
-            attribute.force = true;
+    return descripter({
+        value: createFactory(value), deep: false, attribute: {
+            type, force, toProp, toAttr
         }
-        // Attributes are always shallow
-        deep = false;
-    }
+    });
+};
 
-    return { name, deep, value, attribute, watchers };
-}
-
-const VALUES = Symbol('enso.watched.values');
 /**
  * Get all watched values for a given component.
  * 
@@ -81,7 +110,7 @@ export function getWatched(component) {
  * @param {Object<string, any>} values - Object containing key/value pairs to update.
  */
 export function setWatched(component, values) {
-    component.watched.update(values);
+    component.watched._update(values);
 }
 
 /**
@@ -96,6 +125,8 @@ export function watches(fn, props, keep=false) {
     }
     return fn;
 }
+
+const VALUES = Symbol('enso.watched.values');
 
 const objEntries = obj => Object.entries(Object.getOwnPropertyDescriptors(obj));
 /**
@@ -120,6 +151,16 @@ export function parseScript(script) {
     return watchers;
 }
 
+const validateName = (name) => {
+    if (name.startsWith('_'))
+        throw new Error("[Enso] - Watched property names must not start with '_'.");
+};
+
+const createPropDesc = (name, desc, watchers = []) => {
+    const propDesc = desc?._prop ? desc : prop(desc);
+    return Object.assign({}, propDesc, { name, watchers });
+};
+
 export class Watched {
 
     // Builds a subclass of Watched tailored to the properties passed
@@ -130,6 +171,7 @@ export class Watched {
 
         // For each watched property
         for (const [name, property] of Object.entries(properties)) {
+            validateName(name);
             // Construct property description
             const prop = createPropDesc(name, property, watchers[name]);
             // Add accessors for the property
@@ -150,7 +192,7 @@ export class Watched {
         for (const lifecycle of lifecycles) {
             cls.defs[lifecycle] = { 
                 name: lifecycle, 
-                value: false,
+                value: () => false,
                 attribute: false,
                 watchers: watchers[lifecycle] ?? [],
             };
@@ -167,9 +209,9 @@ export class Watched {
     constructor(component) {
         this.#component = component;
         // Property and binding setup
-        for (const defName in this.defs) {
-            const prop = this.defs[defName];
-            let value = prop.value;
+        for (const defName in this._defs) {
+            const prop = this._defs[defName];
+            let value = prop.value();
             // Wrap value in proxy if deep reactivity requested
             if (prop.deep && typeof value === 'object' && value !== null) {
                 value = watch(value, prop.name, component[MARK_CHANGED]);
@@ -187,7 +229,7 @@ export class Watched {
 
     get [BINDINGS]() { return this.#bindings; }
     get [VALUES]() { return Object.fromEntries(this.#values); }
-    get defs() { return this.constructor.defs; }
+    get _defs() { return this.constructor.defs; }
 
     _notify(prop) {
         if (this.#bindings.has(prop)) {
@@ -217,10 +259,10 @@ export class Watched {
         this._notify(prop.name);
     }
 
-    update(values) {
+    _update(values) {
         for (const val in values) {
             if (values[val] !== this.#values.get(val)) {
-                this._setProp(this.defs[val], values[val]);
+                this._setProp(this._defs[val], values[val]);
             }
         }
     } 

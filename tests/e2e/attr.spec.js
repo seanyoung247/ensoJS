@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { html } from "../../src/enso.js";
+import Enso, { attr, html } from "../../src/enso.js";
 import { nextFrame } from '../shared.js';
 import EnsoComponent from '../../src/component.js';
 
@@ -10,8 +10,9 @@ import EnsoComponent from '../../src/component.js';
 Enso.component( "enso-attr-test", {
 
     watched: {
-        value: { value: 0, attribute: { type: Number, force: true } },
-        str: { value: 'test', attribute: { type: String } }
+        show: true,
+        value: attr(0, Number),
+        str: attr('test', String)
     },
 
     template: html`
@@ -20,6 +21,7 @@ Enso.component( "enso-attr-test", {
             #ref="display" 
             enso-attr:style="color:{{ (watched:value > 5) ? 'red' : 'green' }};"
             :data-value="{{ watched:value }}"
+            :data-show="{{ watched:show }}"
         >
             {{ watched:value }}
         </span>
@@ -85,6 +87,10 @@ describe('Enso Attributes', () => {
         expect(el.hasAttribute('str')).toBe(true);
         el.watched.str = null;
         expect(el.hasAttribute('str')).toBe(false);
+
+        el.watched.show = false;
+        await nextFrame();
+        expect(el.hasAttribute('data-show')).toBe(false);
     });
 
 });

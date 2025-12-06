@@ -5,10 +5,12 @@
  * Licensed under the MIT License
  */
 
+// Enso Internal
 import EnsoComponent from "./component.js";
 import { createComponent } from "./core/components.js";
 import { parseScript } from "./core/watched.js";
 import { Watched } from "./core/watched.js";
+import { VERSION } from "../version.js";
 
 const Enso = (()=>{
     const defaultSettings = (overrides = {}) => ({
@@ -18,8 +20,8 @@ const Enso = (()=>{
         ...overrides
     });
         
-    return {
-        version: '0.9.5',
+    return Object.seal({
+        version: VERSION,
 
         /**
          * Defines a new Enso component and registers it in the browser as a custom element.
@@ -35,8 +37,8 @@ const Enso = (()=>{
          * 
          * @example
          * const MyCounter = Enso.component('my-counter', {
-         *   template: html`<button @click="this.increment">{{ watched.count }}</button>`,
          *   watched: { count: 0 },
+         *   template: html`<button @click="this.increment">{{ watched:count }}</button>`,
          *   script: {
          *     increment() { this.watched.count++; }
          *   }
@@ -51,6 +53,13 @@ const Enso = (()=>{
                 script=null,
                 settings={}
             }) { settings = defaultSettings(settings);
+
+            if (customElements.get(tag)) {
+                throw new Error(
+                    `[Enso] Component "${tag}" is already defined. 
+                    Did you load the component twice?`
+                );
+            }
 
             const watchers = parseScript(script);
             const component = createComponent(EnsoComponent, script);
@@ -77,18 +86,20 @@ const Enso = (()=>{
             customElements.define(tag, component);
             return component;
         }
-    };
+    });
 })();
 
 //// EXPORTS
 
-// Resource loaders
-export { load } from './utils/loaders.js';
 // Template tags
 export { css, html } from './core/tags.js';
-// Template helpers
-export * from './utils/helpers.js';
+// Lifecycle identifies
+export { lifecycle } from './component.js';
 // Watched properties
-export { watches, getWatched, setWatched } from './core/watched.js';
+export { 
+    prop, attr, watches, 
+    getWatched, setWatched 
+} from './core/watched.js';
+
 // Component creator and global settings
 export default Enso;

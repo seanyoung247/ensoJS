@@ -6,14 +6,14 @@ import { parser } from "../parser.js";
 import { getDirective, addBinding, bindSource } from "./utils.js";
 import { compileValue, Action } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
-import { ROOT } from "../../core/symbols.js";
+// import { NODES } from "../../core/symbols.js";
 
 
 class IfFragment extends EnsoFragment {
     #effect;
     constructor(parent, template, placeholder, action) {
         super(parent, template, placeholder);
-        this.#effect = action.createEffect(parent, this[ROOT]);
+        this.#effect = action.createEffect(parent, null);
     }
 
     get tag() { return "enso:if"; }

@@ -4,10 +4,10 @@
 
 const parseIdentifier = identifier => {
     if (identifier.includes(':')) {
-        return identifier.split(':')[1].trim();
+        return parseIdentifier(identifier.split(':')[1]);
     }
     if (identifier.includes('=')) {
-        return identifier.split('=')[0].trim();
+        return parseIdentifier(identifier.split('=')[0]);
     }
     return identifier.trim();
 };
@@ -24,6 +24,7 @@ const getIdentifiers = source => {
         allowCapture = true;
     };
     const closeBracket = token => {
+        // If the closing bracket doesn't match the last opened, error
         if (token !== stack.pop().token) throw new Error('mismatched brackets');
         allowCapture = false;
     };
@@ -33,16 +34,20 @@ const getIdentifiers = source => {
         '}': closeBracket, ']': closeBracket,
     };
 
-    return source.split(/([{}[\],])/).map(token => {
+    const identifiers = source.split(/([{}[\],])/).map(token => {
         if (!token?.trim()) return;
         if (nonCapturing[token]) return nonCapturing[token](token);
         
         if (stack.at(-1).capturing) {
             allowCapture = false;
+            if (token.trim().at(-1) === ':') allowCapture = true;
             return parseIdentifier(token);
         }
         
     }).filter(Boolean);
+    // If there are still open brackets, error
+    if (stack.length > 1) throw new Error('mismatched brackets');
+    return identifiers;
 };
 // Parses a For Value, i.e. (item of list, member in object etc)
 // and returns the list and item identifier.

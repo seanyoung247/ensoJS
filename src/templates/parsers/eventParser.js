@@ -11,10 +11,12 @@ function attachEventListener(parent, element, event) {
 
     try {
         const handler = action.createFunc(parent);
-        element.addEventListener(name, handler.bind(parent.component));
+        element.addEventListener(
+            name.toLowerCase(), handler.bind(parent.component)
+        );
     } catch (e) {
         console.error('[Enso] - ',e);
-        element.addEventListener(name, () =>
+        element.addEventListener(name.toLowerCase(), () =>
             console.warn(`[Enso] Invalid handler for event '${name}'`)
         );
     }
