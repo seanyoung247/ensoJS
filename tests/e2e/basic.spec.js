@@ -21,12 +21,13 @@ Enso.component( "enso-basic-test", {
     `
 });
 
-beforeEach(() => {
-    document.body.innerHTML = 
-        /*html*/`<enso-basic-test id="test-component"></enso-basic-test>`;
-});
 
 describe('Basic Enso Component', () => {
+    
+    beforeEach(() => {
+        document.body.innerHTML = 
+            /*html*/`<enso-basic-test id="test-component"></enso-basic-test>`;
+    });
 
     let el, root, span, styleEl;
     beforeEach(() => {
@@ -59,4 +60,73 @@ describe('Basic Enso Component', () => {
         expect(attachSpy).not.toHaveBeenCalled();
     });
 
+});
+
+/* Basic Ignore Test */
+Enso.component( "enso-ignore-test", {
+    template: html`
+        <div>
+            <pre>
+                {{ "This should not be parsed" }}
+            </pre>
+            <code>
+                {{ "This should not be parsed" }}
+            </code>
+            <script>const x="{{ This should not be parsed }}";</script>
+            <p class="ignored" enso:ignore>
+                {{ "This should not be parsed" }}
+            </p>
+            <p class="ignored children" 
+                :data-enso-test="{{ true ? 'This should be parsed' : 'Not this' }}" 
+                enso:ignore-children>
+                {{ "This should not be parsed" }}
+            </p>
+            <p class="not-ignored">
+                {{ "This should be parsed" }}
+            </p>
+        </div>
+    `
+});
+
+describe('Basic Enso ignores', () => {
+    
+    beforeEach(() => {
+        document.body.innerHTML = 
+            /*html*/`<enso-ignore-test id="test-component"></enso-ignore-test>`;
+    });
+
+    let el, root;
+    beforeEach(() => {
+        el = document.getElementById("test-component");
+        root = el.shadowRoot;
+    });
+
+    describe('enso:ignore', () => {
+        it('ignores parsing of text content', () => {
+            console.log(root.innerHTML);
+            const pre = root.querySelector("pre");
+            expect(pre.textContent).toContain("{{ \"This should not be parsed\" }}");
+        });
+
+        it('removes script tags from templates', () => {
+            const script = root.querySelector("script");
+            expect(script).toBeNull();
+        });
+
+        it('ignores parsing of elements with enso:ignore attribute', () => {
+            const p = root.querySelector("p.ignored");
+            expect(p.textContent).toContain("{{ \"This should not be parsed\" }}");
+        });
+
+        it('parses elements with enso:ignore-children attribute, but ignores children', () => {
+            const p = root.querySelector("p.ignored.children");
+            expect(p.textContent).toContain("{{ \"This should not be parsed\" }}");
+            expect(p.getAttribute("data-enso-test")).toBe("This should be parsed");
+        });
+
+        it('parses normal elements as expected', () => {
+            const p = root.querySelector("p.not-ignored");
+            expect(p.textContent).not.toContain("{{ \"This should be parsed\" }}");
+        });
+    });
 });

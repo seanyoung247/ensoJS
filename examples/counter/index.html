@@ -10,9 +10,14 @@
     <script type="importmap">
         {
             "imports": {
-                "ensojs": "https://cdn.jsdelivr.net/npm/ensojs@1.0.0-rc.3/dist/ensojs.es.js"
+                "ensojs": "https://cdn.jsdelivr.net/npm/ensojs/dist/ensojs.es.js"
             }
         }
+    </script>
+
+    <script type="module">
+        import Enso from "ensojs"
+        console.log(`Enso version = ${Enso.version}`);
     </script>
 
     <script src="./counter.enso.js" type="module"></script>

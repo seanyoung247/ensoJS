@@ -1,6 +1,6 @@
 {
   "name": "ensojs",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0-rc.7",
   "type": "module",
 
   "description": "A lightweight Web Component framework focused on clarity, reactivity, and minimal boilerplate.",

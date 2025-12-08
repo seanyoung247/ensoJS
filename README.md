@@ -1,6 +1,6 @@
 # Enso 
 
-<img src="docs/icon.svg" width="100">
+<img src="public/icon.svg" width="100">
 
 ![npm version](https://img.shields.io/npm/v/ensojs?color=ca2e2e)
 ![bundle size](https://img.shields.io/bundlephobia/minzip/ensojs?label=size&color=ca2e2e&labelColor=333333)
@@ -50,7 +50,7 @@ class MyComponent extends WebComponent {
 }
 ```
 
-As real-world components grew, new sources of repetitive boilerplate appeared. For instance, querying the DOM for child elements. To solve this, a quick and simple processing step was added to the template parsing, to extract `#ref="myRef"` attributes, and insert them as fields on the component, for a simple access `this.myRef`. But it soon became apparent that there was still a great deal of boilerplate, attaching events and the `@<event>=""` attribute evolved to replace calls to `this.myRef.addEventListener(...)`. As more features were added, Enso started to form.
+As real-world components grew, new sources of repetitive boilerplate appeared. For instance, querying the DOM for child elements. To solve this, a quick and simple processing step was added to the template parsing, to extract `#ref="myRef"` attributes, and insert them as fields on the component, for simple access via the class: `this.myRef`. But it soon became apparent that there was still a great deal of boilerplate, attaching events and the `@<event>=""` attribute evolved to replace calls to `this.myRef.addEventListener(...)`. As more features were added, Enso started to form.
 
 From:
 
@@ -87,7 +87,7 @@ Or via CDN:
 
 A simple reactive counter component:
 
-![rendered image of tiny-counter component](docs/tiny-counter.png)
+![rendered image of tiny-counter component](public/tiny-counter.png)
 
 ```javascript
 import Enso, { css, html, attr } from 'ensojs';

@@ -13,11 +13,48 @@ import './parsers/parsers.js';
 
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
-const nodeEx = /({{(.|\n)*}})/;
-const acceptNode = node => 
-    // If a node is a text node, it must contain template directives {{}} to be accepted
-    node.nodeType !== Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
-        NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+const nodeEx = /{{[^]*}}/;
+// No parse tags
+const noParseTags = new Set(['SCRIPT', 'PRE', 'CODE']);
+const isNoParseTag = node => (
+    node.nodeType === Node.ELEMENT_NODE &&
+    noParseTags.has(node.tagName)
+);
+// Explicit ignore attribute
+const isIgnoreNode = node => (
+    node.nodeType === Node.ELEMENT_NODE &&
+    node.hasAttribute('enso:ignore')
+);
+// Explicit ignore children attribute
+const isIgnoredChild = node => (
+    node.parentNode?.hasAttribute('enso:ignore-children')
+);
+// Tree walker filter
+const acceptNode = node => {
+    // Ignore explicit no parse directives
+    if (isIgnoreNode(node)) {
+        return NodeFilter.FILTER_REJECT;
+    }
+    // Ignore children if specified
+    if (isIgnoredChild(node)) {
+        return NodeFilter.FILTER_REJECT;
+    }
+    // Ignore no parse tags
+    if (isNoParseTag(node)) {
+        return NodeFilter.FILTER_REJECT;
+    }
+    // Accept all other element nodes
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        return NodeFilter.FILTER_ACCEPT;
+    }
+    // Accept text nodes with template directives
+    if (node.nodeType === Node.TEXT_NODE && 
+        nodeEx.test(node.nodeValue)) {
+        return NodeFilter.FILTER_ACCEPT;
+    }
+    // Reject all other nodes
+    return NodeFilter.FILTER_REJECT;
+};
 
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 
