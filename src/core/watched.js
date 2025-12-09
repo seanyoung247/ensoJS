@@ -113,6 +113,7 @@ export function setWatched(component, values) {
     component.watched._update(values);
 }
 
+const isFunction = fn => typeof fn === 'function' && fn.prototype !== undefined;
 /**
  * Tags a script method to be notified when watched properties change
  * @param {Function} fn     - The function to call
@@ -120,8 +121,10 @@ export function setWatched(component, values) {
  * @returns {Function} The watcher function
  */
 export function watches(fn, props, keep=false) {
-    if (typeof fn === 'function') {
+    if (isFunction(fn)) {
         fn.__watches = { props, keep };
+    } else {
+        throw new Error("[Enso] - Watches can only be applied to functions.");
     }
     return fn;
 }

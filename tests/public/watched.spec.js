@@ -92,7 +92,7 @@ describe('attr()', () => {
 describe('watches()', () => {
 
     it('sets __watches on a function input', () => {
-        const fn = () => {};
+        const fn = function() {};
         const result = watches(fn, ['a', 'b']);
 
         expect(result).toBe(fn); // returns original
@@ -103,7 +103,7 @@ describe('watches()', () => {
     });
 
     it('respects the keep=true flag', () => {
-        const fn = () => {};
+        const fn = function() {};
         watches(fn, ['x'], true);
 
         expect(fn.__watches).toEqual({
@@ -113,7 +113,7 @@ describe('watches()', () => {
     });
 
     it('allows empty props array', () => {
-        const fn = () => {};
+        const fn = function() {};
         watches(fn, []);
 
         expect(fn.__watches).toEqual({
@@ -122,24 +122,13 @@ describe('watches()', () => {
         });
     });
 
-    it('returns the value unchanged when input is NOT a function', () => {
-        const obj = { test: 123 };
-        const result = watches(obj, ['x']);
-
-        expect(result).toBe(obj);
-        expect(obj.__watches).toBeUndefined();
+    it('throws on non-function inputs', () => {
+        expect(() => watches(null, ['x'])).toThrow();
+        expect(() => watches(5, ['x'])).toThrow();
+        expect(() => watches('hello', ['x'])).toThrow();
+        expect(() => watches({}, ['x'])).toThrow();
+        expect(() => watches([], ['x'])).toThrow();
+        expect(() => watches(()=>{}, ['x'])).toThrow();
     });
 
-    it('does not throw on non-function inputs', () => {
-        expect(() => watches(null, ['x'])).not.toThrow();
-        expect(() => watches(5, ['x'])).not.toThrow();
-        expect(() => watches('hello', ['x'])).not.toThrow();
-    });
-
-    it('does not set __watches when input is a primitive', () => {
-        const val = 42;
-        const result = watches(val, ['z']);
-        expect(result).toBe(42);
-        expect(result.__watches).toBeUndefined(); // primitives can't be mutated anyway
-    });
 });

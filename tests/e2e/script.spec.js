@@ -52,23 +52,23 @@ Enso.component(scriptCallbacks, {
     watched: { message: 'hello', counter: 0 },
     template: html`<div #ref='div'>{{ watched:message }}</div>`,
     script: {
-        onMessageChange: watches((prop, value) => {
+        onMessageChange: watches(function (prop, value) {
             mocks.message(prop, value);
         }, ['message']),
 
-        onCounterChange: watches((prop, value) => {
+        onCounterChange: watches(function (prop, value) {
             mocks.counter(prop, value);
         }, ['counter'], true),
 
-        mount: watches(() => {
+        mount: watches(function () {
             mocks.mount();
         }, [lifecycle.mount]),
 
-        update: watches(() => {
+        update: watches(function () {
             mocks.update();
         }, [lifecycle.update]),
 
-        unmount: watches(() => {
+        unmount: watches(function () {
             mocks.unMount();
         }, [lifecycle.unmount]),
     }
@@ -120,7 +120,7 @@ Enso.component(scriptAccess, {
         </div>`,
 
     script: {
-        onChange: watches((prop, value) => {
+        onChange: watches(function (prop, value) {
             mockFn(prop, value);
         }, [ 'message', 'counter' ]),
 
