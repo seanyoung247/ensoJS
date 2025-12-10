@@ -103,7 +103,6 @@ describe('Basic Enso ignores', () => {
 
     describe('enso:ignore', () => {
         it('ignores parsing of text content', () => {
-            console.log(root.innerHTML);
             const pre = root.querySelector("pre");
             expect(pre.textContent).toContain("{{ \"This should not be parsed\" }}");
         });

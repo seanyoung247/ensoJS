@@ -8,6 +8,7 @@
 // Enso Internal
 import EnsoComponent from "./component.js";
 import { createComponent } from "./core/components.js";
+import { createComponentTag } from "./core/tags.js";
 import { parseScript } from "./core/watched.js";
 import { Watched } from "./core/watched.js";
 import { VERSION } from "../version.js";
@@ -84,7 +85,7 @@ const Enso = (()=>{
 
             // Define the custom element
             customElements.define(tag, component);
-            return component;
+            return createComponentTag(tag, component);
         }
     });
 })();
