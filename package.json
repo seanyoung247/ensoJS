@@ -1,6 +1,6 @@
 {
   "name": "ensojs",
-  "version": "1.0.0-rc.8",
+  "version": "1.0.0-rc.9",
   "type": "module",
   "description": "A lightweight Web Component framework focused on clarity, reactivity, and minimal boilerplate.",
   "author": "Sean Young <seanyoung247@gmail.com>",
