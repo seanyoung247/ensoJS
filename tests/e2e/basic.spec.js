@@ -8,7 +8,6 @@ import { ATTACH_TEMPLATE } from '../../src/core/symbols.js';
 
 
 Enso.component( "enso-basic-test", {
-
     template: html`
         <style>
             div > span {
