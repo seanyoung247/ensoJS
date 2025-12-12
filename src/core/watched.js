@@ -120,7 +120,7 @@ const isFunction = fn => typeof fn === 'function' && fn.prototype !== undefined;
  * @param {[String]} props  - List of watched properties to watch
  * @returns {Function} The watcher function
  */
-export function watches(fn, props, keep=false) {
+export function watches(fn, props = [], keep=false) {
     if (isFunction(fn)) {
         fn.__watches = { props, keep };
     } else {
