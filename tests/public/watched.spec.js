@@ -122,6 +122,16 @@ describe('watches()', () => {
         });
     });
 
+    it('allows missing props array', () => {
+        const fn = function() {};
+        watches(fn);
+
+        expect(fn.__watches).toEqual({
+            props: [],
+            keep: false
+        });
+    });
+
     it('throws on non-function inputs', () => {
         expect(() => watches(null, ['x'])).toThrow();
         expect(() => watches(5, ['x'])).toThrow();
