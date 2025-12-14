@@ -20,7 +20,7 @@ const Enso = (()=>{
 
         ...overrides
     });
-        
+
     return Object.seal({
         version: VERSION,
 
