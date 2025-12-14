@@ -20,6 +20,21 @@ describe('createStyleSheet', () => {
 });
 
 describe('attachStyleSheets', () => {
+    it('returns early if root is not Document or ShadowRoot', () => {
+        const fakeRenderRoot = {
+            getRootNode() {
+                return {}; // not Document, not ShadowRoot
+            }
+        };
+
+        const sheet = new CSSStyleSheet();
+        const spy = vi.spyOn(document, 'adoptedStyleSheets', 'set');
+
+        attachStyleSheets(fakeRenderRoot, [sheet]);
+
+        expect(spy).not.toHaveBeenCalled();
+    });
+
     it('attaches stylesheets to document', () => {
         const css1 = 'body { margin: 0; }';
         const css2 = '.example { padding: 10px; }';

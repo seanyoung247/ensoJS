@@ -88,7 +88,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
         );
 
         if (this.styles) {
-            attachStyleSheets(this, this.styles);
+            attachStyleSheets(this[ROOT], this.styles);
         }
 
         // Initial render

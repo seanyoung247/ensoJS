@@ -8,8 +8,9 @@ export const createStyleSheet = css => {
     return sheet;
 };
 
-export const attachStyleSheets = (component, sheets)=> {
-    const root = component.getRootNode();
+export const attachStyleSheets = (host, sheets)=> {
+    const root = host instanceof ShadowRoot ?
+        host : host.getRootNode();
 
     if ( !(root instanceof Document || root instanceof ShadowRoot) ) {
         return;

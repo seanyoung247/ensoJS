@@ -90,6 +90,7 @@ Enso.component( 'enso-flat-styles-test', {
 });
 
 
+
 describe('Enso flat dom styling', () => {
 
     let el, root;
@@ -101,7 +102,7 @@ describe('Enso flat dom styling', () => {
         root = el[ROOT];
     });
 
-    it('attaches adopeted stylesheets to document', () => {
+    it('attaches adopted stylesheets to document', () => {
         expect(root).not.toBeInstanceOf(ShadowRoot);
         expect(document.adoptedStyleSheets.length).toBe(1);
         expect(document.adoptedStyleSheets[0].cssRules[0].cssText).toContain('color: red');
