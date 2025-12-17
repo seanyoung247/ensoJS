@@ -3,6 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { ADD_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
+import { lifecycle } from "../../component.js";
 
 //// ATTRIBUTES
 
@@ -40,6 +41,7 @@ export const isAttr = (attribute, prefix, type = null) => {
 // watched:property (namespaced) or
 // @:property (shorthand)
 const bindEx = /(?:this\.watched\.|watched:|@:)([A-Za-z_$][\w$]*)/g;
+const refEx  = /(?:this\.refs\.|ref:|#:)([A-Za-z_$][\w$]*)/g;
 /**
  * Collects bindings from a source string
  * @param {string} source 
@@ -50,7 +52,7 @@ export const getBindings = (source, set) => {
     while ((match = bindEx.exec(source)) !== null) {
         set.add(match[1]);
     }
-    set.add('lifecycle:mount');
+    set.add(lifecycle.mount);
 };
 
 /**
@@ -61,11 +63,14 @@ export const getBindings = (source, set) => {
  * @returns {string}
  */
 export const bindSource = (source, set = null) => {
-    const ret = source.replace(bindEx, (_match, prop) => {
+    // Collect Watched bindings
+    const ret = source.replace(bindEx, (_, prop) => {
         if (set) set.add(prop);
         return `this.watched.${prop}`;
-    });
-    if (set) set.add('lifecycle:mount');    // All Effects need to run at mount
+    })
+    // Collect References
+    .replace(refEx, (_, prop) => (`this.refs.${prop}`));
+    if (set) set.add(lifecycle.mount);    // All Effects need to run at mount
     return ret;
 };
 

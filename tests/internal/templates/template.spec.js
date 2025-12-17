@@ -12,6 +12,7 @@ import {
 import { UUIDRegEx } from '../../shared.js';
 
 import EnsoTemplate from '../../../src/templates/template.js';
+import { lifecycle } from '../../../src/component.js';
 
 
 const getWatchedNodeElement = node => (
@@ -49,7 +50,7 @@ class MockComponent {
         this[BINDINGS].set('childIsVisible', {changed: true, effects: [] });
         this[BINDINGS].set('isActive', { changed: true, effects: [] });
         this[BINDINGS].set('name', { changed: true, effects: [] });
-        this[BINDINGS].set('lifecycle:mount', { changed: true, effects: [] });
+        this[BINDINGS].set(lifecycle.mount, { changed: true, effects: [] });
     }
 
     get component() { return this; }

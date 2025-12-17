@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>43/43</span>
+                <span class='fraction'>44/44</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>25/25</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>36/36</span>
+                <span class='fraction'>38/38</span>
             </div>
         
             
@@ -156,7 +156,13 @@
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
 <a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -198,6 +204,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,18 +226,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
-<span class="cline-any cline-yes">63x</span>
-<span class="cline-any cline-yes">51x</span>
-<span class="cline-any cline-yes">51x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">63x</span>
-<span class="cline-any cline-yes">63x</span>
+<span class="cline-any cline-yes">66x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">66x</span>
+<span class="cline-any cline-yes">66x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
-<span class="cline-any cline-yes">299x</span>
+<span class="cline-any cline-yes">378x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">299x</span>
+<span class="cline-any cline-yes">378x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -254,6 +264,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 &nbsp;
 import { ADD_BINDING, SCHEDULE_EFFECT } from "../../core/symbols.js";
+import { lifecycle } from "../../component.js";
 &nbsp;
 //// ATTRIBUTES
 &nbsp;
@@ -291,6 +302,7 @@ export const isAttr = (attribute, prefix, type = null) =&gt; {
 // watched:property (namespaced) or
 // @:property (shorthand)
 const bindEx = /(?:this\.watched\.|watched:|@:)([A-Za-z_$][\w$]*)/g;
+const refEx  = /(?:this\.refs\.|ref:|#:)([A-Za-z_$][\w$]*)/g;
 /**
  * Collects bindings from a source string
  * @param {string} source 
@@ -301,7 +313,7 @@ export const getBindings = (source, set) =&gt; {
     while ((match = bindEx.exec(source)) !== null) {
         set.add(match[1]);
     }
-    if (set.size === 0) set.add('lifecycle:mount');
+    set.add(lifecycle.mount);
 };
 &nbsp;
 /**
@@ -312,11 +324,14 @@ export const getBindings = (source, set) =&gt; {
  * @returns {string}
  */
 export const bindSource = (source, set = null) =&gt; {
-    const ret = source.replace(bindEx, (_match, prop) =&gt; {
+    // Collect Watched bindings
+    const ret = source.replace(bindEx, (_, prop) =&gt; {
         if (set) set.add(prop);
         return `this.watched.${prop}`;
-    });
-    if (set &amp;&amp; set.size === 0) set.add('lifecycle:mount');
+    })
+    // Collect References
+    .replace(refEx, (_, prop) =&gt; (`this.refs.${prop}`));
+    if (set) set.add(lifecycle.mount);    // All Effects need to run at mount
     return ret;
 };
 &nbsp;
@@ -349,7 +364,7 @@ export const getDirective = (node, short, long) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-14T04:17:50.099Z
+                at 2025-12-17T12:51:48.589Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

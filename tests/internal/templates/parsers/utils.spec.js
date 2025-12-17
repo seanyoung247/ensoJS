@@ -13,6 +13,7 @@ import {
     getDirective
 } from '../../../../src/templates/parsers/utils';
 import { ADD_BINDING, SCHEDULE_EFFECT } from '../../../../src/core/symbols';
+import { lifecycle } from '../../../../src/component';
 
 describe('getName', () => {
 
@@ -32,7 +33,6 @@ describe('getBindings', () => {
         getBindings(source, bindings);
         expect(bindings.size).toBe(4); // test, prop1, prop2 + mount
         expect(bindings.has('prop1')).toBe(true);
-
     });
 
     it('uses default binding if no binding in text source', () => {
@@ -41,7 +41,7 @@ describe('getBindings', () => {
 
         getBindings(source, bindings);
         expect(bindings.size).toBe(1);
-        expect(bindings.has('lifecycle:mount')).toBe(true);
+        expect(bindings.has(lifecycle.mount)).toBe(true);
     });
 
 });
@@ -61,6 +61,44 @@ describe('bindSource', () => {
         );
     });
 
+    it('detects watched bindings inside nested arrow functions', () => {
+        const src = `() => () => @:count + 1`;
+        const bindings = new Set();
+
+        const out = bindSource(src, bindings);
+
+        expect(out).toBe(
+            `() => () => this.watched.count + 1`
+        );
+
+        expect(bindings.has('count')).toBe(true);
+        expect(bindings.has('lifecycle:mount')).toBe(true);
+    });
+
+    it('Resolves namespaced refs', () => {
+        const bindings = new Set();
+        const refs = "{{ this.refs.myRef.value === ref:myRef2.value + #:myRef3.value }}";
+        const transformed = bindSource(refs, bindings);
+        expect(bindings.size).toBe(1);
+        expect(bindings.has('myRef')).toBe(false);
+        expect(transformed).toBe(
+            "{{ this.refs.myRef.value === this.refs.myRef2.value + this.refs.myRef3.value }}"
+        );
+    });
+
+    it('forces mount binding when refs are used in inline callbacks', () => {
+        const src = `() => el => #:button.focus()`;
+        const bindings = new Set();
+
+        const out = bindSource(src, bindings);
+
+        expect(out).toBe(
+            `() => el => this.refs.button.focus()`
+        );
+
+        expect(bindings.has('lifecycle:mount')).toBe(true);
+        expect(bindings.size).toBe(1);
+    });
 });
 
 describe('addBinding', () => {
