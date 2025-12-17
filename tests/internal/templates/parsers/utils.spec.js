@@ -30,7 +30,7 @@ describe('getBindings', () => {
         const source = "{{ this.watched.test === watched:prop1 + @:prop2 }}";
 
         getBindings(source, bindings);
-        expect(bindings.size).toBe(3);
+        expect(bindings.size).toBe(4); // test, prop1, prop2 + mount
         expect(bindings.has('prop1')).toBe(true);
 
     });
@@ -54,7 +54,7 @@ describe('bindSource', () => {
         const source = "{{ this.watched.test === watched:prop1 + @:prop2 }}";
 
         const transformed = bindSource(source, bindings);
-        expect(bindings.size).toBe(3);
+        expect(bindings.size).toBe(4);
         expect(bindings.has('prop1')).toBe(true);
         expect(transformed).toBe(
             '{{ this.watched.test === this.watched.prop1 + this.watched.prop2 }}'

@@ -50,7 +50,7 @@ export const getBindings = (source, set) => {
     while ((match = bindEx.exec(source)) !== null) {
         set.add(match[1]);
     }
-    if (set.size === 0) set.add('lifecycle:mount');
+    set.add('lifecycle:mount');
 };
 
 /**
@@ -65,7 +65,7 @@ export const bindSource = (source, set = null) => {
         if (set) set.add(prop);
         return `this.watched.${prop}`;
     });
-    if (set && set.size === 0) set.add('lifecycle:mount');
+    if (set) set.add('lifecycle:mount');    // All Effects need to run at mount
     return ret;
 };
 

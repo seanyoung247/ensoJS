@@ -34,7 +34,7 @@ const Enso = (()=>{
          *  @param {Object} [props.watched]         - (optional) This component's watched properties
          *  @param {Object} [props.script]          - (Optional) Custom component code implementation
          *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
-         * @returns {typeof Enso} - The newly constructed component class
+         * @returns {Function Object} - A tag function for use in component templates
          * 
          * @example
          * const MyCounter = Enso.component('my-counter', {
@@ -57,7 +57,7 @@ const Enso = (()=>{
 
             if (customElements.get(tag)) {
                 throw new Error(
-                    `[Enso] Component "${tag}" is already defined. 
+                    `[Enso] Component "${tag}" is already defined. \
                     Did you load the component twice?`
                 );
             }

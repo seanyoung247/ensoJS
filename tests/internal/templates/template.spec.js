@@ -49,6 +49,7 @@ class MockComponent {
         this[BINDINGS].set('childIsVisible', {changed: true, effects: [] });
         this[BINDINGS].set('isActive', { changed: true, effects: [] });
         this[BINDINGS].set('name', { changed: true, effects: [] });
+        this[BINDINGS].set('lifecycle:mount', { changed: true, effects: [] });
     }
 
     get component() { return this; }
