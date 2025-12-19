@@ -15,12 +15,6 @@ import './parsers/parsers.js';
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /{{[^]*}}/;
 
-// No parse tags
-const noParseTags = new Set(['SCRIPT']);
-const isNoParseTag = node => (
-    node.nodeType === Node.ELEMENT_NODE &&
-    noParseTags.has(node.tagName)
-);
 // Explicit ignore attribute
 const isIgnoreNode = node => (
     node.nodeType === Node.ELEMENT_NODE &&
@@ -38,10 +32,6 @@ const acceptNode = node => {
     }
     // Ignore children if specified
     if (isIgnoredChild(node)) {
-        return NodeFilter.FILTER_REJECT;
-    }
-    // Ignore no parse tags
-    if (isNoParseTag(node)) {
         return NodeFilter.FILTER_REJECT;
     }
     // Accept all other element nodes
@@ -111,7 +101,6 @@ export default class EnsoTemplate {
             const def = this.#watched.create(node);
             parser.preprocess(def, node);
         }
-        // parser.markRoot(template);
         template.setAttribute(ENSO_PARSED, "");
 
         this.#watched;
@@ -133,8 +122,7 @@ export default class EnsoTemplate {
 
             // Construct and append the template.
             const template = createTemplate(root);
-            //     wrapFragment(root, wrap)
-            // );
+
             template.setAttribute(ENSO_PARSED, "");
             def.directive.template = new EnsoTemplate(template, this.#watched, true);
         }
@@ -154,7 +142,6 @@ export default class EnsoTemplate {
     }
 
     clone() {
-        // const template = cloneTemplate(this.#template);
         const template = this.#template.cloneNode(true);
         return new EnsoTemplate(template, this.#watched);
     }

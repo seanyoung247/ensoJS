@@ -9,21 +9,25 @@
 export const createFragment = html => 
     document.createRange().createContextualFragment(html);
 
-export const createTemplate = html => {
-
-    if (html instanceof HTMLTemplateElement) return html;
-
-    // Don't allow scripts inside text HTML:
-    if (typeof html === "string")
-        html = html.replace(/<script\b[^>]*>.*?<\/script>/gis, '');
-
+const makeTemplate = html => {
     const template = document.createElement('template');
     template.content.appendChild(
-        (typeof html === "string") ? createFragment(html) : html
+        (typeof html === "string") ? 
+            createFragment(html) : html
     );
+    return template;
+}
+
+export const createTemplate = html => {
+
+    const template = (html instanceof HTMLTemplateElement) ?
+        html : makeTemplate(html);
+
+    // Script tags are not allowed within enso templates
+    template.content.querySelectorAll('script')
+        .forEach(script => script.remove());
 
     return template;
-
 };
 
 export const cloneTemplate = template => 
