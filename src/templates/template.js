@@ -14,8 +14,9 @@ import './parsers/parsers.js';
 
 // If node is a text node with handle bars ({{}}) or an element, parse it
 const nodeEx = /{{[^]*}}/;
+
 // No parse tags
-const noParseTags = new Set(['SCRIPT', 'PRE', 'CODE']);
+const noParseTags = new Set(['SCRIPT']);
 const isNoParseTag = node => (
     node.nodeType === Node.ELEMENT_NODE &&
     noParseTags.has(node.tagName)

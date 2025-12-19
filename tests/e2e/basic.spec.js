@@ -65,12 +65,6 @@ describe('Basic Enso Component', () => {
 Enso.component( "enso-ignore-test", {
     template: html`
         <div>
-            <pre>
-                {{ "This should not be parsed" }}
-            </pre>
-            <code>
-                {{ "This should not be parsed" }}
-            </code>
             <script>const x="{{ This should not be parsed }}";</script>
             <p class="ignored" enso:ignore>
                 {{ "This should not be parsed" }}
@@ -101,11 +95,6 @@ describe('Basic Enso ignores', () => {
     });
 
     describe('enso:ignore', () => {
-        it('ignores parsing of text content', () => {
-            const pre = root.querySelector("pre");
-            expect(pre.textContent).toContain("{{ \"This should not be parsed\" }}");
-        });
-
         it('removes script tags from templates', () => {
             const script = root.querySelector("script");
             expect(script).toBeNull();
