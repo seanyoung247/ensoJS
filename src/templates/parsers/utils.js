@@ -41,6 +41,9 @@ export const isAttr = (attribute, prefix, type = null) => {
 // watched:property (namespaced) or
 // @:property (shorthand)
 const bindEx = /(?:this\.watched\.|watched:|@:)([A-Za-z_$][\w$]*)/g;
+// Reference mapping -> this.refs.reference
+// ref:property (namespace) or
+// #:property (shorthand)
 const refEx  = /(?:this\.refs\.|ref:|#:)([A-Za-z_$][\w$]*)/g;
 /**
  * Collects bindings from a source string
