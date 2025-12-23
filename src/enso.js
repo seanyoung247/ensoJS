@@ -13,7 +13,7 @@ import { parseScript } from "./core/watched.js";
 import { Watched } from "./core/watched.js";
 import { VERSION } from "../version.js";
 
-const Enso = (()=>{
+export const Enso = (()=>{
     const defaultSettings = (overrides = {}) => ({
         useShadow: true,
         shadowMode: "open",
@@ -102,5 +102,5 @@ export {
     getWatched, setWatched 
 } from './core/watched.js';
 
-// Component creator and global settings
+// Component creator and global settings - Retained for compatibility
 export default Enso;
