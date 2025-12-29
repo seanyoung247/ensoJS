@@ -53,7 +53,7 @@ describe('#ref parser', () => {
     it('process() attaches element to parent.component.refs', () => {
         const def = { ref: 'myRef' };
         const element = document.createElement('div');
-        const parent = { component: { refs: {} } };
+        const parent = { component: { refs: {} }, isComponent: true };
 
         refParser.process(def, parent, element);
         expect(parent.component.refs.myRef).toBe(element);

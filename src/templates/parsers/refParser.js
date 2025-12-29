@@ -25,13 +25,20 @@ parser.registerAttr({
     },
 
     process(def, parent, element) {
-        if (def.ref) {
-            Object.defineProperty(parent.component.refs, def.ref, {
-                value: element,
-                writable: false,
-                configurable: false,
-            });
+        if (!def.ref) return;
+
+        if (!parent.isComponent) {
+            console.warn(
+                `[Enso] #ref="${def.ref}" ignored: refs are only supported on static elements (not inside *for or *if).`
+            );
+            return;
         }
+
+        Object.defineProperty(parent.component.refs, def.ref, {
+            value: element,
+            writable: false,
+            configurable: false,
+        });
     }
 
 });

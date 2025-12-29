@@ -55,6 +55,7 @@ class MockComponent {
 
     get component() { return this; }
     get isAttached() { return true; }
+    get isComponent() { return true; }
 
     [ADD_CHILD](child) {
         this.children.push(child);
@@ -92,7 +93,7 @@ describe('Template System', () => {
         html = /*html*/ 
             `<div id="if-parent" *if="{{ watched:isVisible === true}}">
                 Hello {{ watched:name }}!
-                <span id="ref" #ref="myRef"></span>
+                <span id="noRef" #ref="noRef"></span>
                 <div id="if-child" #ref="anotherRef" *if="{{ watched:childIsVisible }}">
                     Child Content
                 </div>
@@ -101,7 +102,10 @@ describe('Template System', () => {
             <button id="test-btn" @click="()=>watched:childIsVisible = !watched:childIsVisible">
                 Test Button
             </button>
-            <div id="active" :class="{{ watched:name }}" :data-active="{{ watched:isActive ? 'True' : 'False' }}">
+            <div id="active" #ref="myRef"
+                :class="{{ watched:name }}" 
+                :data-active="{{ watched:isActive ? 'True' : 'False' }}"
+            >
                 Active Content: {{ watched:isActive ? 'True' : 'False' }}
                 <div id="unwatched-2">No Template Directives</div>
             </div>
@@ -185,7 +189,7 @@ describe('Template System', () => {
 
         // Have references been setup
         expect(component.refs.myRef).toBeDefined();
-        expect(component.refs.myRef.id).toBe('ref');
+        expect(component.refs.myRef.id).toBe('active');
     });
 
     it('clone() returns a fresh EnsoTemplate instance', () => {

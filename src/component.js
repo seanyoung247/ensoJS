@@ -63,6 +63,8 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     get isAttached() { return this.#initialised; }
     get watched() { return this.#watched; }
 
+    get isComponent() { return true; }
+
     //// Accessors - Framework internal
     get [ROOT]() { return this.#root; }
     get [ENV]() { return this.#env; }

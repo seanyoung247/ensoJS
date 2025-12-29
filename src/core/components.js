@@ -46,6 +46,8 @@ export const EnsoNode = (Base = Object) => {
             this[MARK_CHANGED] = this[MARK_CHANGED].bind(this);
         }
 
+        get isComponent() { return false; }
+
         //// Accessors - Framework internal
         get [BINDINGS]() { return this.#bindings; }
         set [BINDINGS](bindings) { this.#bindings = bindings; }
