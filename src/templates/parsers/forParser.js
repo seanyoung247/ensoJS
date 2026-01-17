@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 import { parser } from "../parser.js";
 import { EnsoFragment } from "../../core/fragment.js";
-import { addBinding, bindSource, getDirective } from "./utils.js";
+import { addBinding, bindSource, getOperator } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
 import { Action } from "../../core/effects.js";
 import { NODES, CHILDREN, UPDATE, ENV, ANCHOR } from "../../core/symbols.js";
@@ -66,7 +66,7 @@ class ForFragment extends EnsoFragment {
 }
 
 // *for="item in/of items"
-parser.registerNode({
+parser.registerOperator({
     type: 'for',
 
     match(node) {
@@ -78,11 +78,11 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        if (def.directive) return false;
+        if (def.getOperator()) return false;
 
         const binds = new Set();
         const source = bindSource(
-            getDirective(node, '*for', 'enso-for'),
+            getOperator(node, '*for', 'enso-for'),
             binds
         );
         const identifiers = parseFor(source);
@@ -92,19 +92,27 @@ parser.registerNode({
 
         // Create new nodedef for the for directive.
         const forDef = def.map.createRoot(node);
-        forDef.setDirective({type: 'for', action, binds});
-        forDef.attachParser(this);
+        forDef.setOperator(this, {
+            type: 'for', 
+            action, 
+            binds, 
+            template: null
+        });
         
         return true;
     },
 
-    process(def, parent, element) {
-        if (def?.directive?.type === 'for') {
+    fragment(def, template) {
+        def.getOperator().data.template = template;
+    },
+    
+    process(data, parent, element) {
+        if (data?.type === 'for') {
             const fragment = new ForFragment(
-                parent, def.directive.template, element, def.directive.action
+                parent, data.template, element, data.action
             );
 
-            for (const bind of def.directive.binds) {
+            for (const bind of data.binds) {
                 addBinding(parent, bind, fragment);
             }
         }

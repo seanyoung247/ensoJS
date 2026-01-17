@@ -90,12 +90,12 @@ export const createPlaceholder = () => {
     return el;
 };
 
-export const getDirective = (node, short, long) => {
+export const getOperator = (node, short, long) => {
     if (!node) return null;
 
-    const directive = node.getAttributeNode(short) ?? node.getAttributeNode(long);
-    if (directive) {
-        node.removeAttribute(directive.name);
+    const operator = node.getAttributeNode(short) ?? node.getAttributeNode(long);
+    if (operator) {
+        node.removeAttribute(operator.name);
     }
-    return directive?.value ?? null;
+    return operator?.value ?? null;
 };

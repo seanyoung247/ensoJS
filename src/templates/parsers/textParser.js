@@ -19,7 +19,7 @@ class TextEffect extends Effect {
 }
 
 // Textnode parser
-parser.registerNode({
+parser.registerMutator({
     type: 'text',
 
     match(node) {
@@ -34,27 +34,24 @@ parser.registerNode({
         const source = compileValue(
             bindSource(node.nodeValue, binds)
         );
-        def.addContent(
-            node.parentNode,
-            getChildIndex(node.parentNode, node),
-            new Action(source, {}, TextEffect),
+        def.addMutator(this, {
+            parent: node.parentNode,
+            index: getChildIndex(node.parentNode, node),
+            action: new Action(source, {}, TextEffect),
             binds
-        );
-        def.attachParser(this);
+        });
 
         return true;
     },
 
-    process(def, parent, element) {
-        if (def.content) {
-            for (const content of def.content) {
-                const node = element.childNodes[content.index];
-                const effect = content.action.createEffect(parent, node);
-                // Attach effect to all bindings
-                for (const bind of content.binds) {
-                    addBinding(parent, bind, effect);
-                }
+    process(data, parent, element) {
+        for (const text of data) { 
+            const node = element.childNodes[text.index];
+            const effect = text.action.createEffect(parent, node);
+            // Attach effect to all bindings
+            for (const bind of text.binds) {
+                addBinding(parent, bind, effect);
             }
         }
     }
-});
+}, 'node');

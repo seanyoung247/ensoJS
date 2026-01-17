@@ -3,38 +3,40 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
+import { getOperator } from "./utils.js";
 
 // Reference Attribute (#ref) parser
-parser.registerAttr({
+parser.registerOperator({
     type: 'ref',
 
-    match(node, attribute) {
+    match(node) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            (attribute.name === '#ref' || 
-                attribute.name === 'enso-ref')
+            (node.hasAttribute('#ref') || 
+                node.hasAttribute('enso-ref'))
         );
     },
 
-    preprocess(def, node, attribute) {
-        def.ref = attribute.value;
-        node.removeAttribute(attribute.name);
-        def.attachParser(this);
+    preprocess(def, node) {
+        if (def.getOperator()) return false;
+
+        const ref = getOperator(node, '#ref', 'enso-ref');
+        def.setOperator(this, {type: 'ref', name: ref});
 
         return true;
     },
 
-    process(def, parent, element) {
-        if (!def.ref) return;
+    process(data, parent, element) {
+        if (!data || data.type !== 'ref') return;
 
         if (!parent.isComponent) {
             console.warn(
-                `[Enso] #ref="${def.ref}" ignored: refs are only supported on static elements (not inside *for or *if).`
+                `[Enso] #ref="${data.name}" ignored: refs are only supported on static elements (not inside *for or *if).`
             );
             return;
         }
 
-        Object.defineProperty(parent.component.refs, def.ref, {
+        Object.defineProperty(parent.component.refs, data.name, {
             value: element,
             writable: false,
             configurable: false,

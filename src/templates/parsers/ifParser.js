@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { parser } from "../parser.js";
-import { getDirective, addBinding, bindSource } from "./utils.js";
+import { getOperator, addBinding, bindSource } from "./utils.js";
 import { compileValue, Action } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
 // import { NODES } from "../../core/symbols.js";
@@ -29,7 +29,7 @@ class IfFragment extends EnsoFragment {
 }
 
 // *if="{{ <expression> }}"
-parser.registerNode({
+parser.registerOperator({
     type: 'if',
 
     match(node) {
@@ -41,9 +41,9 @@ parser.registerNode({
     },
 
     preprocess(def, node) {
-        if (def.directive) return false;
+        if (def.getOperator()) return false;
         // get and ensure directive matches parser
-        let directive = getDirective(node, '*if', 'enso-if');
+        let directive = getOperator(node, '*if', 'enso-if');
         const binds = new Set();
 
         directive = bindSource(directive, binds);
@@ -51,20 +51,28 @@ parser.registerNode({
 
         // Create new nodedef for the if directive.
         const ifDef = def.map.createRoot(node);
-        ifDef.setDirective({type: 'if', action, binds});
-        ifDef.attachParser(this);
+        ifDef.setOperator(this, {
+            type: 'if', 
+            action, 
+            binds, 
+            template: null
+        });
 
         return true;
     },
 
-    process(def, parent, element) {
-        if (def?.directive?.type === 'if') {
+    fragment(def, template) {
+        def.getOperator().data.template = template;
+    },
+
+    process(data, parent, element) {
+        if (data?.type === 'if') {
             const fragment = new IfFragment(
-                parent, def.directive.template, element, def.directive.action
+                parent, data.template, element, data.action
             );
 
             // Attach effect to all bindings
-            for (const bind of def.directive.binds) {
+            for (const bind of data.binds) {
                 addBinding(parent, bind, fragment);
             }
         }

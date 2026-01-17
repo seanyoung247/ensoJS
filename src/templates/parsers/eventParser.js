@@ -23,7 +23,7 @@ function attachEventListener(parent, element, event) {
 }
 
 // Event Attribute (@<event name>) parser
-parser.registerAttr({
+parser.registerMutator({
     type: 'event',
 
     match(node, attribute) {
@@ -35,22 +35,18 @@ parser.registerAttr({
 
     preprocess(def, node, attribute) {
         const source = bindSource(attribute.value);
-        def.addEvent(
-            getName(attribute),
-            new Action(source)
-        );
+        def.addMutator(this, {
+            name: getName(attribute),
+            action: new Action(source)
+        });
         node.removeAttribute(attribute.name);
-        def.attachParser(this);
 
         return true;
     },
 
-    process(def, parent, element) {
-        // const component = parent.component;
-        if (def.events?.length) {
-            for (const event of def.events) {
-                attachEventListener(parent, element, event);
-            }
+    process(data, parent, element) {
+        for (const event of data) {
+            attachEventListener(parent, element, event);
         }
     }
 

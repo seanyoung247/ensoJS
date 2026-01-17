@@ -5,34 +5,27 @@ import { parser } from "../parser.js";
 import { getName, isAttr, addBinding, bindSource } from "./utils.js";
 import { Effect, Action, compileValue } from "../../core/effects.js";
 
-
-class AttrEffect extends Effect {
-    #attr;
+class PropEffect extends Effect {
+    #prop;
     constructor(parent, element, action) {
         super(parent, element, action);
-        this.#attr = action.data.name;
+        this.#prop = action.data.name;
     }
 
     run() {
         const content = super.run();
-        const el = this.element;
-        if (content) {
-            el.setAttribute(this.#attr, (content === true) ? '' : content);
-        }
-        else {
-            el.removeAttribute(this.#attr);
-        }
+        this.element[this.#prop] = content;
     }
 }
 
-// Attribute binding (:<attribute name>) parser
-parser.registerMutator({
-    type: 'attr',
+// Property binding (.:<property name>) parser
+parser.registerAttr({
+    type: 'prop',
 
     match(node, attribute) {
         return (
             node.nodeType === Node.ELEMENT_NODE &&
-            isAttr(attribute, ':', 'attr')
+            isAttr(attribute, '.','prop')
         );
     },
 
@@ -42,24 +35,24 @@ parser.registerMutator({
         const source = compileValue(
             bindSource(attribute.value, binds)
         );
-        def.addMutator(this, {
-            name, 
-            action: new Action(source, {name}, AttrEffect),
+        def.addAttribute(
+            name,
+            new Action(source, {name}, PropEffect),
             binds
-        });
+        );
         node.removeAttribute(attribute.name);
+        def.attachParser(this);
 
         return true;
     },
 
-    process(data, parent, element) {
-        for (const attr of data) { 
-            const effect = attr.action.createEffect(parent, element);
-            // Attach effect to all bindings
-            for (const bind of attr.binds) {
-                addBinding(parent, bind, effect);
+    process(def, parent, element) {
+        if (def.attributes) {
+            for (const attr of def.attributes) { 
+                const effect = attr.action.createEffect(parent, element);
+                addBinding(attr.binds, effect);
+                effect.run();
             }
         }
     }
-
 });

@@ -8,23 +8,28 @@
 import { ENSO_NODE, ENSO_PARSED, ENSO_ROOT } from "../core/symbols.js";
 
 export const parser = (() => {
+    const operatorParsers = [];
+    const mutatorParsers = [];
     const nodeParsers = [];
-    const attrParsers = [];
 
     return Object.freeze({
         /**
          * Register a new template directive parser
          * @param {Object} parser   - Directive parser code implementation
          */
-        registerNode(parser) {
-            nodeParsers.push(parser);
+        registerOperator(parser) {
+            operatorParsers.push(parser);
         },
         /**
          * Register a new template attribute parser
          * @param {Object} parser   - Attribute parser code implementation
          */
-        registerAttr(parser) {
-            attrParsers.push(parser);
+        registerMutator(parser, target = 'attr') {
+            if (target === 'node') {
+                nodeParsers.push(parser);
+                return;
+            }
+            mutatorParsers.push(parser);
         },
 
         /**
@@ -32,9 +37,9 @@ export const parser = (() => {
          * @param {Node} node       - The node to parse
          * @returns {Object}        - The directive requested
          */
-        getNodeParser(node) {
-            for (const nodeParser of nodeParsers) {
-                if (nodeParser.match(node)) return nodeParser;
+        getOperatorParser(node) {
+            for (const parser of operatorParsers) {
+                if (parser.match(node)) return parser;
             }
             return null;
         },
@@ -45,8 +50,8 @@ export const parser = (() => {
          * @param {Attr} attribute  - The Attribute node to parse     
          * @returns {Object}        - The parser requested
          */
-        getAttrParser(node, attribute) {
-            for (const parser of attrParsers) {
+        getMutatorParser(node, attribute) {
+            for (const parser of mutatorParsers) {
                 if (parser.match(node, attribute)) return parser;
             }
             return null;
@@ -94,15 +99,21 @@ export const parser = (() => {
          */
         preprocess(def, node) {
             let parsed = false;
-            const nodeParser = this.getNodeParser(node);
-            if (nodeParser) {
-                parsed = nodeParser.preprocess(def, node);
+            const opParser = this.getOperatorParser(node);
+            if (opParser) {
+                parsed = opParser.preprocess(def, node);
+            }
+
+            for (const parser of nodeParsers) {
+                if (parser.match(node)) {
+                    parsed = parser.preprocess(def, node) || parsed;
+                }
             }
 
             if (node.attributes?.length) {
                 const attributes = [...node.attributes];
                 for (const attribute of attributes) {
-                    const parser = this.getAttrParser(node, attribute);
+                    const parser = this.getMutatorParser(node, attribute);
                     if (parser) {
                         parsed = parser.preprocess(def, node, attribute) || parsed;
                     }
@@ -119,10 +130,15 @@ export const parser = (() => {
          * @param {HTMLElement} element - Current mutated element
          */
         process(def, parent, element) {
-            // Loop through all the parsers attached to this node
-            for (const parser of def.parsers) {
+            // Apply operator parser first
+            const operator = def.getOperator();
+            if (operator) {
+                operator.parser.process(operator.data, parent, element);
+            }
+            // Loop through all the mutators attached to this node
+            for (const [parser, data] of def.mutators()) {
                 // Process the live node and attach any mutation effects
-                parser.process(def, parent, element);
+                parser.process(data, parent, element);
             }
             element.removeAttribute(ENSO_NODE);
         }

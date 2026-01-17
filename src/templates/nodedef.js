@@ -15,13 +15,9 @@ export class NodeDef {
     #id;
     #map;
     #node;
-    // Watched node properties
-    #ref;               // Name to use for element reference or null (no reference)
-    #attrs = [];        // Attribute mutations
-    #events = [];       // List of event handlers
-    #content = [];      // Content mutations
-    #directive;         // Node mutation
-    #parsers = new Set; // List of required parsers
+
+    #mutators = new Map();
+    #operator = null;
     
     constructor(id, node, map) {
         this.#id = id;
@@ -30,56 +26,26 @@ export class NodeDef {
     }
 
     get id() { return this.#id; }
-    //set node(val) { this.#node = val; }
     get node() { return this.#node; }
     get map() { return this.#map; }
 
-    // References
-    get ref() { return this.#ref; }
-    set ref(val) { 
-        this.#ref = val; 
+    setOperator(parser, data) { 
+        this.#operator = { parser, data };
+    }
+    getOperator() { return this.#operator; }
+
+    addMutator(parser, data) {
+        if (!this.#mutators.has(parser)) {
+            this.#mutators.set(parser, []);
+        }
+        this.#mutators.get(parser).push(data);
         this.markWatched();
     }
-
-    // Events
-    addEvent(name, action) {
-        this.#events.push({ name, action });
-        this.markWatched();
+    getMutators(parser) {
+        return this.#mutators.get(parser) || [];
     }
-    get events() { return this.#events; }
-
-    // Attributes
-    addAttribute(name, action, binds) {
-        this.#attrs.push({ name, action, binds });
-        this.markWatched();
-    }
-    get attributes() { return this.#attrs; }
-
-    // Content
-    addContent(parent, index, action, binds) {
-        this.#content.push({ parent, index, action, binds });
-        this.markWatched();
-    }
-    get content() { return this.#content; }
-
-    // Directive
-    setDirective({
-        type=this.#directive?.type,
-        template=this.#directive?.template, 
-        action=this.#directive?.effect, 
-        binds=this.#directive?.binds
-    }={}) {
-        this.#directive = { type, template, action, binds };
-    }
-    get directive() { return this.#directive; }
-
-    // Parsers
-    attachParser(parser) {
-        this.#parsers.add(parser);
-    }
-
-    get parsers() {
-        return this.#parsers;
+    mutators() {
+        return this.#mutators.entries();
     }
 
     // Node manipulation

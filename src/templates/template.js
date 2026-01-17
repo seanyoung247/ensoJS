@@ -117,14 +117,18 @@ export default class EnsoTemplate {
         while (root = parser.getRoot(rootNode)) {
             // Get node watch parameters and replace with placeholder
             const def = this.#watched.getByRoot(root);
+            const placeholder = createPlaceholder();
             def.unRoot();
-            def.replaceNode( createPlaceholder() );
+            def.replaceNode( placeholder );
 
             // Construct and append the template.
             const template = createTemplate(root);
 
             template.setAttribute(ENSO_PARSED, "");
-            def.directive.template = new EnsoTemplate(template, this.#watched, true);
+            def.getOperator()?.parser?.fragment(
+                def, new EnsoTemplate(template, this.#watched, true),
+                placeholder
+            );
         }
     }
 
