@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -121,9 +121,7 @@
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -131,24 +129,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">231x</span>
-<span class="cline-any cline-yes">231x</span>
-<span class="cline-any cline-yes">229x</span>
+<span class="cline-any cline-yes">225x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">105x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">93x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -165,20 +164,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">203x</span>
-<span class="cline-any cline-yes">202x</span>
-<span class="cline-any cline-yes">218x</span>
-<span class="cline-any cline-yes">218x</span>
+<span class="cline-any cline-yes">197x</span>
+<span class="cline-any cline-yes">213x</span>
+<span class="cline-any cline-yes">213x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">218x</span>
-<span class="cline-any cline-yes">247x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">213x</span>
+<span class="cline-any cline-yes">239x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -197,6 +193,7 @@ const nodeEx = /({{(.|\n)*}})/;
 class TextEffect extends Effect {
     run() {
         const content = super.run();
+        /* v8 ignore next */
         if (this.element &amp;&amp; content) {
             this.element.textContent = content;
         }
@@ -204,7 +201,7 @@ class TextEffect extends Effect {
 }
 &nbsp;
 // Textnode parser
-parser.registerNode({
+parser.registerMutator({
     type: 'text',
 &nbsp;
     match(node) {
@@ -219,30 +216,27 @@ parser.registerNode({
         const source = compileValue(
             bindSource(node.nodeValue, binds)
         );
-        def.addContent(
-            node.parentNode,
-            getChildIndex(node.parentNode, node),
-            new Action(source, {}, TextEffect),
+        def.addMutator(this, {
+            parent: node.parentNode,
+            index: getChildIndex(node.parentNode, node),
+            action: new Action(source, {}, TextEffect),
             binds
-        );
-        def.attachParser(this);
+        });
 &nbsp;
         return true;
     },
 &nbsp;
-    process(def, parent, element) {
-        if (def.content) {
-            for (const content of def.content) {
-                const node = element.childNodes[content.index];
-                const effect = content.action.createEffect(parent, node);
-                // Attach effect to all bindings
-                for (const bind of content.binds) {
-                    addBinding(parent, bind, effect);
-                }
+    process(data, parent, element) {
+        for (const text of data) { 
+            const node = element.childNodes[text.index];
+            const effect = text.action.createEffect(parent, node);
+            // Attach effect to all bindings
+            for (const bind of text.binds) {
+                addBinding(parent, bind, effect);
             }
         }
     }
-});
+}, 'node');
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -250,7 +244,7 @@ parser.registerNode({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-29T18:04:35.759Z
+                at 2026-01-18T14:34:30.102Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

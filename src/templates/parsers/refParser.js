@@ -22,6 +22,7 @@ parser.registerOperator({
 
         const ref = getOperator(node, '#ref', 'enso-ref');
         def.setOperator(this, {type: 'ref', name: ref});
+        def.markWatched();
 
         return true;
     },

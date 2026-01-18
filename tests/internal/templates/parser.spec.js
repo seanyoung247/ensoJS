@@ -24,11 +24,11 @@ describe('Template Parser', () => {
             preprocess() { return true; },
             process() { return true; }
         };
-        parser.registerNode(testParser);
+        parser.registerOperator(testParser);
 
         const testNode = document.createElement('test');
-        expect(parser.getNodeParser(testNode)).toBe(testParser);
-        expect(parser.getNodeParser(div)).toBe(null);
+        expect(parser.getOperatorParser(testNode)).toBe(testParser);
+        expect(parser.getOperatorParser(div)).toBe(null);
     });
 
     it('can register and retrieve attribute parsers', () => {
@@ -38,12 +38,12 @@ describe('Template Parser', () => {
             preprocess() { return true; },
             process() { return true; }
         };
-        parser.registerAttr(testAttrParser);
+        parser.registerMutator(testAttrParser);
         div.setAttribute('test-attr', 'value');
 
         const attr = div.getAttributeNode('test-attr');
-        expect(parser.getAttrParser(div, attr)).toBe(testAttrParser);
-        expect(parser.getAttrParser(div, document.createAttribute('other-attr'))).toBe(null);
+        expect(parser.getMutatorParser(div, attr)).toBe(testAttrParser);
+        expect(parser.getMutatorParser(div, document.createAttribute('other-attr'))).toBe(null);
     });
 
     it('marks root elements correctly', () => {
@@ -80,7 +80,7 @@ describe('Template Parser', () => {
     });
 
     it('preprocessor deals with parser failure', () => {
-        parser.registerAttr({
+        parser.registerMutator({
             type: 'failAttr',
             match() { return true; },
             preprocess() { return false; },

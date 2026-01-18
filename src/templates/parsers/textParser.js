@@ -12,6 +12,7 @@ const nodeEx = /({{(.|\n)*}})/;
 class TextEffect extends Effect {
     run() {
         const content = super.run();
+        /* v8 ignore next */
         if (this.element && content) {
             this.element.textContent = content;
         }

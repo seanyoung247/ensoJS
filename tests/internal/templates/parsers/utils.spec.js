@@ -10,7 +10,7 @@ import {
     addBinding,
     isAttr,
     createPlaceholder, 
-    getDirective
+    getOperator
 } from '../../../../src/templates/parsers/utils';
 import { ADD_BINDING, SCHEDULE_EFFECT } from '../../../../src/core/symbols';
 import { lifecycle } from '../../../../src/component';
@@ -163,12 +163,12 @@ describe('getDirective', () => {
     });
 
     it('handles no directives', () => {
-        expect(getDirective(noDir),'*if','enso-if').toBeNull();
-        expect(getDirective(null)).toBeNull();
+        expect(getOperator(noDir),'*if','enso-if').toBeNull();
+        expect(getOperator(null)).toBeNull();
     });
 
     it('Handles single directives', () => {
-        const dir = getDirective(single,'*if','enso-if');
+        const dir = getOperator(single,'*if','enso-if');
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
@@ -176,7 +176,7 @@ describe('getDirective', () => {
     });
 
     it('handles multiple directives', () => {
-        const dir = getDirective(multi,'*if','enso-if');
+        const dir = getOperator(multi,'*if','enso-if');
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned

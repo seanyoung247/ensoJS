@@ -8,7 +8,7 @@ Enso.component('test-component', {
     },
     expose: { range },
     template: html`
-        <div>
+        <div id="test" #ref="root">
             <div *if="{{ @:show }}">
                 Count is: {{ @:count }}
             </div>

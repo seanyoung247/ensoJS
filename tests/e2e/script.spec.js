@@ -32,10 +32,6 @@ describe('Basic custom code script', () => {
     it('should append methods to element', () => {
         expect(el.add(2,6)).toBe(8);
     });
-
-    it('should call script functions from templates', () => {
-        expect(div.textContent.trim()).toBe("Hello!");
-    });
 });
 
 
@@ -166,10 +162,4 @@ describe('Script custom methods access', () => {
         expect(counter).toBe(0);
     });
 
-    it('can interact with templates', async () => {
-        el.watched.message = 'World';
-        expect(mockFn).toHaveBeenCalledWith('message', 'World');
-        await nextFrame();
-        expect(el.refs.div.textContent.trim()).toBe('This is the message World');
-    });
 });

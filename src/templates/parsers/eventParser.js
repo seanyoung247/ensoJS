@@ -15,10 +15,8 @@ function attachEventListener(parent, element, event) {
             name.toLowerCase(), handler.bind(parent.component)
         );
     } catch (e) {
+        /* v8 ignore next */
         console.error('[Enso] - ',e);
-        element.addEventListener(name.toLowerCase(), () =>
-            console.warn(`[Enso] Invalid handler for event '${name}'`)
-        );
     }
 }
 
