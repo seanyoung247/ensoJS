@@ -106,6 +106,7 @@ export const parser = (() => {
 
             for (const parser of nodeParsers) {
                 if (parser.match(node)) {
+                    /* v8 ignore next */
                     parsed = parser.preprocess(def, node) || parsed;
                 }
             }

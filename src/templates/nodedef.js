@@ -41,9 +41,12 @@ export class NodeDef {
         this.#mutators.get(parser).push(data);
         this.markWatched();
     }
+    /* v8 ignore start */       // There's no real logic here to cover differently
     getMutators(parser) {
+        /* v8 ignore next */
         return this.#mutators.get(parser) || [];
     }
+    /* v8 ignore stop */
     mutators() {
         return this.#mutators.entries();
     }

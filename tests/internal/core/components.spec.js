@@ -83,6 +83,9 @@ describe("EnsoNode", () => {
         expect(instance[CHILDREN]).toEqual([]);
     });
 
+    it("isn't a component by default", () => {
+        expect(instance.isComponent).toBe(false);
+    });
 
     it("ADD_BINDING adds effect to existing binding", () => {
         const effect = { run: vi.fn() };

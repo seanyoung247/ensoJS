@@ -5,6 +5,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { NodeDef, NodeDefMap } from '../../../src/templates/nodedef.js';
 import { ENSO_NODE, ENSO_ROOT } from '../../../src/core/symbols.js';
 
+import { createNodeDef } from '../../mockNodeDef.js';
+
 describe('NodeDef', () => {
     let node, map, def, parser;
     beforeEach(() => {
@@ -82,6 +84,11 @@ describe('NodeDef', () => {
         expect(def.node).toBe(newNode);
         expect(newNode.hasAttribute(ENSO_NODE)).toBe(true);
         expect(newNode.getAttribute(ENSO_NODE)).toBe(def.id);
+    });
+
+    it('getMutators returns an empty array when none exist', () => {
+        const def = createNodeDef(document.createElement('div'));
+        expect(def.getMutators({})).toEqual([]);
     });
 });
 
