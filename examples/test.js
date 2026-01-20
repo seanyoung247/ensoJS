@@ -1,4 +1,4 @@
-import { Enso, html, attr } from "ensojs";
+import { Enso, html, attr, prop, watches } from "ensojs";
 import { range } from "ensojs/helpers";
 
 Enso.component('test-component', {
@@ -15,6 +15,21 @@ Enso.component('test-component', {
             <div *for="item of range(@:count)">
                 Item {{ item + 1 }}
             </div>
+            <nested-test .list="{{ this._list }}"></nested-test>
+        </div>
+    `,
+    script: {
+        _list: ['Apple', 'Banana', 'Cherry']
+    }
+});
+
+Enso.component('nested-test', {
+    watched: {
+        list: prop([], true),
+    },
+    template: html`
+        <div *for="item of @:list">
+            {{ item }}
         </div>
     `,
 });

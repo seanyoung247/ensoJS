@@ -12,14 +12,13 @@
 
     <button id="test-btn">Show</button><input type="number" id="count-input" value="0" min="0" />
     <test-component id="test"></test-component>
-
-    
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('test-btn');
         const countInput = document.getElementById('count-input');
         const testComp = document.getElementById('test');
+        const testNest = document.getElementById('test-nest');
 
         btn.addEventListener('click', () => {
             testComp.watched.show = !testComp.watched.show;

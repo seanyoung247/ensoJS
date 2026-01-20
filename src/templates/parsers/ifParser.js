@@ -6,7 +6,6 @@ import { parser } from "../parser.js";
 import { getOperator, addBinding, bindSource } from "./utils.js";
 import { compileValue, Action } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
-// import { NODES } from "../../core/symbols.js";
 
 
 class IfFragment extends EnsoFragment {

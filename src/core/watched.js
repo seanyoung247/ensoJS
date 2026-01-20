@@ -198,6 +198,7 @@ export class Watched {
                 value: () => false,
                 attribute: false,
                 watchers: watchers[lifecycle] ?? [],
+                lifecycle: true,
             };
         }
         Object.freeze(cls.defs);
@@ -215,13 +216,26 @@ export class Watched {
         for (const defName in this._defs) {
             const prop = this._defs[defName];
             let value = prop.value();
+            // Add accessors to component instance, and upgrade values if needed
+            if (!prop.lifecycle) {
+                if (component.hasOwnProperty(prop.name)) {
+                    value = component[prop.name];
+                }
+                Object.defineProperty(component, prop.name, {
+                    configurable: true,
+                    enumerable: true,
+                    get: () => this._getProp(prop),
+                    set: v => this._setProp(prop, v),
+                });
+            }
+
             // Wrap value in proxy if deep reactivity requested
             if (prop.deep && typeof value === 'object' && value !== null) {
                 value = watch(value, prop.name, component[MARK_CHANGED]);
             }
             // Add to values map
             this.#values.set(defName, value);
-            // create binding
+            // Create binding
             this.#bindings.set(defName, {
                 changed: false,             // Has value changed?
                 watchers: prop.watchers,    // List of functions to notify of changes
@@ -268,5 +282,5 @@ export class Watched {
                 this._setProp(this._defs[val], values[val]);
             }
         }
-    } 
+    }
 }
