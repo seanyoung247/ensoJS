@@ -1,22 +1,19 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-// import { parser } from "../parser.js";
-import { getName, isAttr, /*addBinding, bindSource*/ } from "./utils.js";
-// import { Effect, Action } from "../../core/effects.js";
-import { registerMutator } from "./test.js";
+import { getName, isAttr, addBinding, bindSource } from "./utils.js";
+import { Effect, Action } from "../../core/effects.js";
 
 
-const compileValue = code => (
-    /*js*/
-    `(()=>${code
-        .replaceAll('{{', '')
-        .replaceAll('}}', '')
-        .trim()})`
-);
+export default function register(parser) {
 
-registerMutator(ctx => {
-    const { addBinding, bindSource, Action, Effect } = ctx;
+    const compileValue = code => (
+        /*js*/
+        `(()=>${code
+            .replaceAll('{{', '')
+            .replaceAll('}}', '')
+            .trim()})`
+    );
 
     class PropEffect extends Effect {
         #prop;
@@ -34,13 +31,13 @@ registerMutator(ctx => {
     }
 
     // Property binding (.:<property name>) parser
-    return {
-        type: 'prop',
+    parser.register({
+        type: 'enso:prop',
 
         match(node, attribute) {
             return (
                 node.nodeType === Node.ELEMENT_NODE &&
-                isAttr(attribute, '.', 'prop')
+                isAttr(attribute, '.', 'enso-prop')
             );
         },
 
@@ -68,5 +65,5 @@ registerMutator(ctx => {
                 }
             }
         }
-    };
-});
+    }, 'attribute');
+}

@@ -1,7 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { parser } from "../parser.js";
 import { bindSource, getName, isAttr } from "./utils.js";
 import { Action } from "../../core/effects.js";
 
@@ -20,32 +19,36 @@ function attachEventListener(parent, element, event) {
     }
 }
 
-// Event Attribute (@<event name>) parser
-parser.registerMutator({
-    type: 'event',
+export default function register(parser) {
 
-    match(node, attribute) {
-        return (
-            node.nodeType === Node.ELEMENT_NODE &&
-            isAttr(attribute, '@', 'evt')
-        );
-    },
+    // Event Attribute (@<event name>) parser
+    parser.register({
+        type: 'event',
 
-    preprocess(def, node, attribute) {
-        const source = bindSource(attribute.value);
-        def.addMutator(this, {
-            name: getName(attribute),
-            action: new Action(source)
-        });
-        node.removeAttribute(attribute.name);
+        match(node, attribute) {
+            return (
+                node.nodeType === Node.ELEMENT_NODE &&
+                isAttr(attribute, '@', 'evt')
+            );
+        },
 
-        return true;
-    },
+        preprocess(def, node, attribute) {
+            const source = bindSource(attribute.value);
+            def.addMutator(this, {
+                name: getName(attribute),
+                action: new Action(source)
+            });
+            node.removeAttribute(attribute.name);
 
-    process(data, parent, element) {
-        for (const event of data) {
-            attachEventListener(parent, element, event);
+            return true;
+        },
+
+        process(data, parent, element) {
+            for (const event of data) {
+                attachEventListener(parent, element, event);
+            }
         }
-    }
 
-});
+    }, 'attribute');
+
+}

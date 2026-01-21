@@ -3,7 +3,9 @@ import { parser } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
-import '../../../../src/templates/parsers/textParser.js';
+import textParser from '../../../../src/templates/parsers/textParser.js';
+textParser(parser);
+
 
 const getTextNode = (el) =>
     [...el.childNodes].find(n => n.nodeType === Node.TEXT_NODE);

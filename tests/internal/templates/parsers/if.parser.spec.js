@@ -3,7 +3,8 @@ import { parser } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
-import '../../../../src/templates/parsers/ifParser.js';
+import ifParser from '../../../../src/templates/parsers/ifParser.js';
+ifParser(parser);
 
 // If you don’t already have this: small helper to make a dummy template
 const createDummyTemplate = () => ({ __dummy: true });
@@ -16,7 +17,7 @@ describe('if operator parser', () => {
 
     it('matches elements with *if shorthand', () => {
         const el = getTestElement('*if', '{{ watched:visible }}');
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         expect(op).toBeDefined();
         expect(op.type).toBe('if');
@@ -24,7 +25,7 @@ describe('if operator parser', () => {
 
     it('matches elements with enso-if longhand', () => {
         const el = getTestElement('enso-if', '{{ watched:visible }}');
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         expect(op).toBeDefined();
         expect(op.type).toBe('if');
@@ -36,7 +37,7 @@ describe('if operator parser', () => {
         // NOTE: createNodeDef should create def in a NodeDefMap so def.map exists.
         const def = createNodeDef(el);
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         const parsed = op.preprocess(def, el);
 
         expect(parsed).toBe(true);
@@ -70,7 +71,7 @@ describe('if operator parser', () => {
         const el = getTestElement('*if', '{{ watched:visible }}');
         const def = createNodeDef(el);
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         // Simulate an existing operator
         def.setOperator(op, { type: 'dummy' });
@@ -83,7 +84,7 @@ describe('if operator parser', () => {
         const el = getTestElement('*if', '{{ watched:visible }}');
         const def = createNodeDef(el);
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         op.preprocess(def, el);
 
         const ifDef = def.map.getByRoot(el);
@@ -97,7 +98,7 @@ describe('if operator parser', () => {
     it('process does nothing when data is null', () => {
         const el = getTestElement('*if', '');
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         expect(op).toBeDefined();
 
         expect(() => {
@@ -108,7 +109,7 @@ describe('if operator parser', () => {
     it('process does nothing when data.type is not "if"', () => {
         const el = getTestElement('*if', '');
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         expect(op).toBeDefined();
 
         expect(() => {

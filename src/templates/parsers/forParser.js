@@ -1,7 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { parser } from "../parser.js";
 import { EnsoFragment } from "../../core/fragment.js";
 import { addBinding, bindSource, getOperator } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
@@ -65,57 +64,58 @@ class ForFragment extends EnsoFragment {
     }
 }
 
-// *for="item in/of items"
-parser.registerOperator({
-    type: 'for',
+export default function register(parser) {
+    // *for="item in/of items"
+    parser.register({
+        type: 'for',
 
-    match(node) {
-        return (
-            node.nodeType === Node.ELEMENT_NODE &&
-            (node.hasAttribute('*for') || 
-                node.hasAttribute('enso-for'))
-        );
-    },
+        match(node) {
+            return (
+                node.nodeType === Node.ELEMENT_NODE &&
+                (node.hasAttribute('*for') || 
+                    node.hasAttribute('enso-for'))
+            );
+        },
 
-    preprocess(def, node) {
-        if (def.getOperator()) return false;
+        preprocess(def, node) {
+            if (def.getOperator()) return false;
 
-        const binds = new Set();
-        const source = bindSource(
-            getOperator(node, '*for', 'enso-for'),
-            binds
-        );
-        const identifiers = parseFor(source);
-        const action = new Action(
-            createForFunction(source, identifiers),
-        );
-
-        // Create new nodedef for the for directive.
-        const forDef = def.map.createRoot(node);
-        forDef.setOperator(this, {
-            type: 'for', 
-            action, 
-            binds, 
-            template: null
-        });
-        
-        return true;
-    },
-
-    fragment(def, template) {
-        def.getOperator().data.template = template;
-    },
-    
-    process(data, parent, element) {
-        if (data?.type === 'for') {
-            const fragment = new ForFragment(
-                parent, data.template, element, data.action
+            const binds = new Set();
+            const source = bindSource(
+                getOperator(node, '*for', 'enso-for'),
+                binds
+            );
+            const identifiers = parseFor(source);
+            const action = new Action(
+                createForFunction(source, identifiers),
             );
 
-            for (const bind of data.binds) {
-                addBinding(parent, bind, fragment);
-            }
-        }
-    },
-});
+            // Create new nodedef for the for directive.
+            const forDef = def.map.createRoot(node);
+            forDef.setOperator(this, {
+                type: 'for', 
+                action, 
+                binds, 
+                template: null
+            });
+            
+            return true;
+        },
 
+        fragment(def, template) {
+            def.getOperator().data.template = template;
+        },
+        
+        process(data, parent, element) {
+            if (data?.type === 'for') {
+                const fragment = new ForFragment(
+                    parent, data.template, element, data.action
+                );
+
+                for (const bind of data.binds) {
+                    addBinding(parent, bind, fragment);
+                }
+            }
+        },
+    }, 'generator');
+}

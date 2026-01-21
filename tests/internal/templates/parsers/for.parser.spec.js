@@ -3,14 +3,16 @@ import { parser } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
-import '../../../../src/templates/parsers/forParser.js';
+import forParser from '../../../../src/templates/parsers/forParser.js';
+forParser(parser);
+
 
 describe('for operator parser', () => {
 
     it('matches *for shorthand', () => {
         const el = getTestElement('*for', 'item of items');
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         expect(op).toBeDefined();
         expect(op.type).toBe('for');
     });
@@ -18,7 +20,7 @@ describe('for operator parser', () => {
     it('matches enso-for longhand', () => {
         const el = getTestElement('enso-for', 'item of items');
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         expect(op).toBeDefined();
         expect(op.type).toBe('for');
     });
@@ -27,7 +29,7 @@ describe('for operator parser', () => {
         const el = getTestElement('*for', 'item of items');
         const def = createNodeDef(el);
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         const result = op.preprocess(def, el);
 
         expect(result).toBe(true);
@@ -52,7 +54,7 @@ describe('for operator parser', () => {
         const el = getTestElement('*for', 'item of items');
         const def = createNodeDef(el);
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         // Manually seed an operator to simulate "already processed"
         def.setOperator(op, { type: 'for' });
@@ -62,7 +64,7 @@ describe('for operator parser', () => {
 
     it('process does nothing when data is null', () => {
         const el = getTestElement('*for', 'item of items');
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         expect(() => {
             op.process(null, {}, el);
@@ -71,7 +73,7 @@ describe('for operator parser', () => {
 
     it('process does nothing when data.type is not "for"', () => {
         const el = getTestElement('*for', 'item of items');
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         expect(() => {
             op.process({ type: 'not-for' }, {}, el);

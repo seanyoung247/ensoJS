@@ -205,3 +205,46 @@ describe('Complex watched properties', () => {
         expect(list.textContent).toBe('List length = 5');
     });
 });
+
+
+describe('Watched Property accessors', () => {
+
+    it('Properties upgrade on instantiation', async () => {
+
+        const upgradeWatched = 'enso-upgrade-watched-test';
+        const [el] = setup(upgradeWatched);
+
+        el.name = 'Enso!';
+
+        Enso.component(upgradeWatched, {
+            watched: { name: prop('World') },
+            template: html`<div #ref="root">Hello {{@:name}}</div>`
+        });
+
+        await nextFrame();
+
+        expect(el.name).toBe('Enso!');
+        expect(el.refs.root.textContent).toBe('Hello Enso!');
+
+    });
+
+    it('Has reactive accessors on component', async () => {
+
+        const accessorTest = 'enso-accessor-test';
+        Enso.component(accessorTest, {
+            watched: { name: prop('World') },
+            template: html`<div #ref="root">Hello {{@:name}}</div>`
+        });
+        const [el] = setup(accessorTest);
+
+        expect(el.refs.root.textContent).toBe('Hello World');
+        el.name = "Enso!";
+
+        await nextFrame();
+
+        expect(el.name).toBe('Enso!');
+        expect(el.refs.root.textContent).toBe('Hello Enso!');
+        
+    });
+
+});

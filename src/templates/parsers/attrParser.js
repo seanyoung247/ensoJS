@@ -1,7 +1,6 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { parser } from "../parser.js";
 import { getName, isAttr, addBinding, bindSource } from "./utils.js";
 import { Effect, Action, compileValue } from "../../core/effects.js";
 
@@ -25,41 +24,43 @@ class AttrEffect extends Effect {
     }
 }
 
-// Attribute binding (:<attribute name>) parser
-parser.registerMutator({
-    type: 'attr',
+export default function register(parser) {
+    // Attribute binding (:<attribute name>) parser
+    parser.register({
+        type: 'attr',
 
-    match(node, attribute) {
-        return (
-            node.nodeType === Node.ELEMENT_NODE &&
-            isAttr(attribute, ':', 'attr')
-        );
-    },
+        match(node, attribute) {
+            return (
+                node.nodeType === Node.ELEMENT_NODE &&
+                isAttr(attribute, ':', 'attr')
+            );
+        },
 
-    preprocess(def, node, attribute) {
-        const name = getName(attribute);
-        const binds = new Set();
-        const source = compileValue(
-            bindSource(attribute.value, binds)
-        );
-        def.addMutator(this, {
-            name, 
-            action: new Action(source, {name}, AttrEffect),
-            binds
-        });
-        node.removeAttribute(attribute.name);
+        preprocess(def, node, attribute) {
+            const name = getName(attribute);
+            const binds = new Set();
+            const source = compileValue(
+                bindSource(attribute.value, binds)
+            );
+            def.addMutator(this, {
+                name, 
+                action: new Action(source, {name}, AttrEffect),
+                binds
+            });
+            node.removeAttribute(attribute.name);
 
-        return true;
-    },
+            return true;
+        },
 
-    process(data, parent, element) {
-        for (const attr of data) { 
-            const effect = attr.action.createEffect(parent, element);
-            // Attach effect to all bindings
-            for (const bind of attr.binds) {
-                addBinding(parent, bind, effect);
+        process(data, parent, element) {
+            for (const attr of data) { 
+                const effect = attr.action.createEffect(parent, element);
+                // Attach effect to all bindings
+                for (const bind of attr.binds) {
+                    addBinding(parent, bind, effect);
+                }
             }
         }
-    }
 
-});
+    }, 'attribute');
+}

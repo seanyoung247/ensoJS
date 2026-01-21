@@ -4,7 +4,8 @@ import { createNodeDef } from '../../../mockNodeDef.js';
 import { createMockComponent } from '../../../mockComponent.js';
 import { getTestElement } from '../../../shared.js';
 
-import '../../../../src/templates/parsers/refParser.js';
+import refParser from '../../../../src/templates/parsers/refParser.js';
+refParser(parser);
 
 
 describe('ref operator parser', () => {
@@ -12,7 +13,7 @@ describe('ref operator parser', () => {
     it('matches elements with #ref shorthand', () => {
         const el = getTestElement('#ref', 'myRef');
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         expect(op).toBeDefined();
         expect(op.type).toBe('ref');
     });
@@ -20,7 +21,7 @@ describe('ref operator parser', () => {
     it('matches elements with enso-ref longhand', () => {
         const el = getTestElement('enso-ref', 'myRef');
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
         expect(op).toBeDefined();
         expect(op.type).toBe('ref');
     });
@@ -28,7 +29,7 @@ describe('ref operator parser', () => {
     it('preprocess extracts ref name, consumes attribute, and marks watched', () => {
         const el = getTestElement('#ref', 'myRef');
         const def = createNodeDef(el);
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         const result = op.preprocess(def, el);
 
@@ -52,7 +53,7 @@ describe('ref operator parser', () => {
     it('process attaches ref to component instance', () => {
         const el = getTestElement('#ref', 'myRef');
         const def = createNodeDef(el);
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         op.preprocess(def, el);
 
@@ -67,7 +68,7 @@ describe('ref operator parser', () => {
 
         const el = getTestElement('#ref', 'myRef');
         const def = createNodeDef(el);
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         op.preprocess(def, el);
 
@@ -82,7 +83,7 @@ describe('ref operator parser', () => {
         const el = getTestElement('#ref', 'myRef');
         const def = createNodeDef(el);
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         // Fake an existing operator
         def.setOperator(op, { type: 'if' });
@@ -95,7 +96,7 @@ describe('ref operator parser', () => {
         const el = getTestElement('#ref', 'true');
         const parent = createMockComponent();
 
-        const op = parser.getOperatorParser(el);
+        const op = parser.getGeneratorParser(el);
 
         expect(() => {
             op.process(null, parent, el);

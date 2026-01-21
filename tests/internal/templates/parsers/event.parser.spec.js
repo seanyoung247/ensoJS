@@ -4,7 +4,8 @@ import { parser } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
-import '../../../../src/templates/parsers/eventParser.js';
+import eventParser from '../../../../src/templates/parsers/eventParser.js';
+eventParser(parser);
 
 
 const silenceConsole = () => {

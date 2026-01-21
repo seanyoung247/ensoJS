@@ -17,33 +17,33 @@ describe('Template Parser', () => {
         expect(div.hasAttribute('enso-node')).toBe(false);
     });
 
-    it('can register and retrieve node parsers', () => {
+    it('can register and retrieve generator parsers', () => {
         const testParser = {
             type: 'test',
             match(node) { return node.tagName === 'TEST'; },
             preprocess() { return true; },
             process() { return true; }
         };
-        parser.registerOperator(testParser);
+        parser.register(testParser, generator);
 
         const testNode = document.createElement('test');
-        expect(parser.getOperatorParser(testNode)).toBe(testParser);
-        expect(parser.getOperatorParser(div)).toBe(null);
+        expect(parser.get('generator', testNode)).toBe(testParser);
+        expect(parser.get('generator', div)).toBe(null);
     });
 
-    it('can register and retrieve attribute parsers', () => {
+    it('can register and retrieve mutator parsers', () => {
         const testAttrParser = {
             type: 'testAttr',
             match(node, attr) { return attr.name === 'test-attr'; },
             preprocess() { return true; },
             process() { return true; }
         };
-        parser.registerMutator(testAttrParser);
+        parser.register(testAttrParser);
         div.setAttribute('test-attr', 'value');
 
         const attr = div.getAttributeNode('test-attr');
-        expect(parser.getMutatorParser(div, attr)).toBe(testAttrParser);
-        expect(parser.getMutatorParser(div, document.createAttribute('other-attr'))).toBe(null);
+        expect(parser.get('attribute', div, attr)).toBe(testAttrParser);
+        expect(parser.get('attribute', div, document.createAttribute('other-attr'))).toBe(null);
     });
 
     it('marks root elements correctly', () => {
@@ -80,7 +80,7 @@ describe('Template Parser', () => {
     });
 
     it('preprocessor deals with parser failure', () => {
-        parser.registerMutator({
+        parser.register({
             type: 'failAttr',
             match() { return true; },
             preprocess() { return false; },

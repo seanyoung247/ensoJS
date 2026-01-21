@@ -17,7 +17,7 @@ export class NodeDef {
     #node;
 
     #mutators = new Map();
-    #operator = null;
+    #generator = null;
     
     constructor(id, node, map) {
         this.#id = id;
@@ -29,10 +29,10 @@ export class NodeDef {
     get node() { return this.#node; }
     get map() { return this.#map; }
 
-    setOperator(parser, data) { 
-        this.#operator = { parser, data };
+    setGenerator(parser, data) { 
+        this.#generator = { parser, data };
     }
-    getOperator() { return this.#operator; }
+    getGenerator() { return this.#generator; }
 
     addMutator(parser, data) {
         if (!this.#mutators.has(parser)) {

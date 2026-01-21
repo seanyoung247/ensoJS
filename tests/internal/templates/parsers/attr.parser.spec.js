@@ -4,7 +4,8 @@ import { parser } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
-import '../../../../src/templates/parsers/attrParser.js';
+import attrParser from '../../../../src/templates/parsers/attrParser.js';
+attrParser(parser);
 
 describe('attribute mutator parser', () => {
 

@@ -29,7 +29,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --no-cache",
     "test:build": "BUILD=1 vitest run",
     "coverage": "vitest run --coverage",
     "test:browser": "vitest --config=vitest.browser.config.js"
