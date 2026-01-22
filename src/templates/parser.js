@@ -43,10 +43,11 @@ export const parser = (() => {
          */
         register(parser, type) {
             const registry = parsers[type];
-        
             if (!registry) throw Error(`[Enso] - Unknown parser type ${type}`);
+
             registry.set(parser);
         },
+
         get(type, node, attribute=null) {
             const registry = parsers[type];
             if (registry) {

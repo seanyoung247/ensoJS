@@ -5,21 +5,21 @@ import { bindSource, getName, isAttr } from "./utils.js";
 import { Action } from "../../core/effects.js";
 
 
-function attachEventListener(parent, element, event) {
-    const { name, action } = event;
-
-    try {
-        const handler = action.createFunc(parent);
-        element.addEventListener(
-            name.toLowerCase(), handler.bind(parent.component)
-        );
-    } catch (e) {
-        /* v8 ignore next */
-        console.error('[Enso] - ',e);
-    }
-}
-
 export default function register(parser) {
+
+    function attachEventListener(parent, element, event) {
+        const { name, action } = event;
+
+        try {
+            const handler = action.createFunc(parent);
+            element.addEventListener(
+                name.toLowerCase(), handler.bind(parent.component)
+            );
+        } catch (e) {
+            /* v8 ignore next */
+            console.error('[Enso] - ',e);
+        }
+    }
 
     // Event Attribute (@<event name>) parser
     parser.register({

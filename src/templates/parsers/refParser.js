@@ -20,10 +20,10 @@ export default function register(parser) {
         },
 
         preprocess(def, node) {
-            if (def.getOperator()) return false;
+            if (def.getGenerator()) return false;
 
             const ref = getOperator(node, '#ref', 'enso-ref');
-            def.setOperator(this, {type: 'ref', name: ref});
+            def.setGenerator(this, {type: 'ref', name: ref});
             def.markWatched();
 
             return true;
@@ -46,5 +46,5 @@ export default function register(parser) {
             });
         }
 
-    }, 'attribute');
+    }, 'generator');
 }

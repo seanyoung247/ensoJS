@@ -7,30 +7,30 @@ import { compileValue, Action } from "../../core/effects.js";
 import { EnsoFragment } from "../../core/fragment.js";
 
 
-class IfFragment extends EnsoFragment {
-    #effect;
-    constructor(parent, template, placeholder, action) {
-        super(parent, template, placeholder);
-        this.#effect = action.createEffect(parent, null);
-    }
+export default function register(parser) {
 
-    get tag() { return "enso:if"; }
+    class IfFragment extends EnsoFragment {
+        #effect;
+        constructor(parent, template, placeholder, action) {
+            super(parent, template, placeholder);
+            this.#effect = action.createEffect(parent, null);
+        }
 
-    run() {
-        const show = this.#effect.run();
-        if (show) {
-            this.mount();
-        } else {
-            this.unmount();
+        get tag() { return "enso:if"; }
+
+        run() {
+            const show = this.#effect.run();
+            if (show) {
+                this.mount();
+            } else {
+                this.unmount();
+            }
         }
     }
-}
 
-
-export default function register(parser) {
     // *if="{{ <expression> }}"
     parser.register({
-        type: 'if',
+        type: 'enso:if',
 
         match(node) {
             return (
@@ -41,7 +41,7 @@ export default function register(parser) {
         },
 
         preprocess(def, node) {
-            if (def.getOperator()) return false;
+            if (def.getGenerator()) return false;
             // get and ensure directive matches parser
             let directive = getOperator(node, '*if', 'enso-if');
             const binds = new Set();
@@ -51,7 +51,7 @@ export default function register(parser) {
 
             // Create new nodedef for the if directive.
             const ifDef = def.map.createRoot(node);
-            ifDef.setOperator(this, {
+            ifDef.setGenerator(this, {
                 type: 'if', 
                 action, 
                 binds, 
@@ -62,7 +62,7 @@ export default function register(parser) {
         },
 
         fragment(def, template) {
-            def.getOperator().data.template = template;
+            def.getGenerator().data.template = template;
         },
 
         process(data, parent, element) {

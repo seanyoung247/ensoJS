@@ -14,10 +14,10 @@ describe('property mutator parser', () => {
         const el = getTestElement('.name', 'value');
 
         const attr = el.attributes[0];
-        const matched = parser.getMutatorParser(el, attr);
+        const matched = parser.get('attribute', el, attr);
         
         expect(matched).toBeDefined();
-        expect(matched.type).toBe('prop');
+        expect(matched.type).toBe('enso:prop');
     });
 
     it('preprocesses, registers, and removes attribute', () => {
@@ -25,7 +25,7 @@ describe('property mutator parser', () => {
         const attr = el.attributes[0];
 
         const def = createNodeDef(el);
-        const parserImpl = parser.getMutatorParser(el, attr);
+        const parserImpl = parser.get('attribute', el, attr);
 
         const parsed = parserImpl.preprocess(def, el, attr);
         expect(parsed).toBe(true);

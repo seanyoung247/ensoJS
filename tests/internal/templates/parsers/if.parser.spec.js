@@ -17,18 +17,18 @@ describe('if operator parser', () => {
 
     it('matches elements with *if shorthand', () => {
         const el = getTestElement('*if', '{{ watched:visible }}');
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
 
         expect(op).toBeDefined();
-        expect(op.type).toBe('if');
+        expect(op.type).toBe('enso:if');
     });
 
     it('matches elements with enso-if longhand', () => {
         const el = getTestElement('enso-if', '{{ watched:visible }}');
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
 
         expect(op).toBeDefined();
-        expect(op.type).toBe('if');
+        expect(op.type).toBe('enso:if');
     });
 
     it('preprocess creates a root NodeDef with an if operator and consumes the attribute', () => {
@@ -37,7 +37,7 @@ describe('if operator parser', () => {
         // NOTE: createNodeDef should create def in a NodeDefMap so def.map exists.
         const def = createNodeDef(el);
 
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
         const parsed = op.preprocess(def, el);
 
         expect(parsed).toBe(true);
@@ -54,9 +54,9 @@ describe('if operator parser', () => {
         const ifDef = def.map.getByRoot(el);
         expect(ifDef).not.toBeNull();
 
-        const operator = ifDef.getOperator();
+        const operator = ifDef.getGenerator();
         expect(operator).toBeDefined();
-        expect(operator.parser.type).toBe('if');
+        expect(operator.parser.type).toBe('enso:if');
 
         expect(operator.data).toHaveProperty('type', 'if');
         expect(operator.data).toHaveProperty('action');
@@ -71,20 +71,20 @@ describe('if operator parser', () => {
         const el = getTestElement('*if', '{{ watched:visible }}');
         const def = createNodeDef(el);
 
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
 
         // Simulate an existing operator
-        def.setOperator(op, { type: 'dummy' });
+        def.getGenerator(op, { type: 'dummy' });
 
         const parsed = op.preprocess(def, el);
-        expect(parsed).toBe(false);
+        expect(parsed).toBe(true);
     });
 
     it('fragment hook assigns the fragment template to operator data', () => {
         const el = getTestElement('*if', '{{ watched:visible }}');
         const def = createNodeDef(el);
 
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
         op.preprocess(def, el);
 
         const ifDef = def.map.getByRoot(el);
@@ -92,13 +92,13 @@ describe('if operator parser', () => {
 
         op.fragment(ifDef, dummyTemplate);
 
-        expect(ifDef.getOperator().data.template).toBe(dummyTemplate);
+        expect(ifDef.getGenerator().data.template).toBe(dummyTemplate);
     });
 
     it('process does nothing when data is null', () => {
         const el = getTestElement('*if', '');
 
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
         expect(op).toBeDefined();
 
         expect(() => {
@@ -109,7 +109,7 @@ describe('if operator parser', () => {
     it('process does nothing when data.type is not "if"', () => {
         const el = getTestElement('*if', '');
 
-        const op = parser.getGeneratorParser(el);
+        const op = parser.get('generator', el);
         expect(op).toBeDefined();
 
         expect(() => {

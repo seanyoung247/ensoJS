@@ -37,7 +37,7 @@ export default function register(parser) {
         match(node, attribute) {
             return (
                 node.nodeType === Node.ELEMENT_NODE &&
-                isAttr(attribute, '.', 'enso-prop')
+                isAttr(attribute, '.', 'prop')
             );
         },
 
