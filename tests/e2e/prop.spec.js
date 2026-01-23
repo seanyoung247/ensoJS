@@ -73,4 +73,18 @@ describe('Enso properties', () => {
         expect(list.children.length).toBe(4);
     });
 
+    it('refuses undefined values', async () => {
+        wrapper.items = [{ name: 'one', value: 1 }];
+        await nextFrame();
+
+        expect(el.items.length).toBe(1);
+        expect(list.children.length).toBe(1);
+        wrapper.items = undefined;
+        await nextFrame();
+
+        expect(el.items).toBeDefined();
+        expect(el.items.length).toBe(1);
+        expect(list.children.length).toBe(1);
+    });
+
 });

@@ -81,6 +81,33 @@ describe("Watched class", () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
+    it('can add watchers', () => {
+        const component = {}; // dummy
+        const watched = new Watched(component);
+        const spy = vi.fn();
+
+        watched[BINDINGS].set('prop', {
+            changed: false,
+            watchers: [],
+            effects: []
+        });
+        watched._addWatcher('prop', spy);
+        watched._notify('prop');
+
+        expect(spy).toBeCalled();
+    });
+
+    it('does nothing when adding to an unknown prop', () => {
+        const component = {}; // dummy
+        const watched = new Watched(component);
+        const spy = vi.fn();
+
+        watched._addWatcher('unknown', spy);
+        watched._notify('unknown');
+
+        expect(spy).not.toBeCalled();
+    });
+
     it('does nothing when notifying an unknown prop', () => {
         const component = {}; // dummy
         const watched = new Watched(component);

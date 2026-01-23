@@ -74,6 +74,13 @@ describe("EnsoNode", () => {
 
         // Mock SCHEDULE_UPDATE so we can detect calls
         instance[SCHEDULE_UPDATE] = vi.fn();
+
+        // Mock the watched notification system;
+        Node.prototype.component = {
+            watched: {
+                _notify: vi.fn()
+            }
+        };
     });
 
 

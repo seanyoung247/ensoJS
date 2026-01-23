@@ -1,7 +1,8 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { getName, isAttr, addBinding, bindSource, addWatcher } from "./utils.js";
+
+import { getName, isAttr, bindSource, addWatcher } from "./utils.js";
 import { Effect, Action } from "../../core/effects.js";
 
 

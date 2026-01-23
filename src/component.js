@@ -11,6 +11,7 @@ import { EnsoNode } from "./core/components.js";
 import { 
     ENV, ROOT, ATTACH_TEMPLATE, BINDINGS, 
     UPDATE, SCHEDULE_UPDATE, ENSO_INTERNAL,
+    MARK_CHANGED,
 } from "./core/symbols.js";
 
 
@@ -110,6 +111,12 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     //// Lifecycle
+    [MARK_CHANGED](prop) {
+        super[MARK_CHANGED](prop);
+        
+        this.watched._notify(prop);
+    }
+
     [ATTACH_TEMPLATE](DOM) {
         const nodes = Array.from(DOM.firstElementChild.childNodes);
         this[ROOT].append(...nodes);
