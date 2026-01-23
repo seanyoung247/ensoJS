@@ -24,7 +24,7 @@ describe('Template Parser', () => {
             preprocess() { return true; },
             process() { return true; }
         };
-        parser.register(testParser, generator);
+        parser.register(testParser, 'generator');
 
         const testNode = document.createElement('test');
         expect(parser.get('generator', testNode)).toBe(testParser);

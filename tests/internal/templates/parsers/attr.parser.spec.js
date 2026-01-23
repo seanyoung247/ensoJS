@@ -13,7 +13,7 @@ describe('attribute mutator parser', () => {
         const el = getTestElement(':class', 'value');
 
         const attr = el.attributes[0];
-        const matched = parser.getMutatorParser(el, attr);
+        const matched = parser.get('attribute', el, attr);
 
         expect(matched).toBeDefined();
         expect(matched.type).toBe('attr');
@@ -23,7 +23,7 @@ describe('attribute mutator parser', () => {
         const el = getTestElement('class', 'value');
 
         const attr = el.attributes[0];
-        const matched = parser.getMutatorParser(el, attr);
+        const matched = parser.get('attribute', el, attr);
 
         expect(matched).toBeNull();
     });
@@ -33,7 +33,7 @@ describe('attribute mutator parser', () => {
         const attr = el.attributes[0];
 
         const def = createNodeDef(el);
-        const parserImpl = parser.getMutatorParser(el, attr);
+        const parserImpl = parser.get('attribute', el, attr);
 
         const parsed = parserImpl.preprocess(def, el, attr);
         expect(parsed).toBe(true);
@@ -61,7 +61,7 @@ describe('attribute mutator parser', () => {
         const def = createNodeDef(node);
 
         for (const attr of [...node.attributes]) {
-            const p = parser.getMutatorParser(node, attr);
+            const p = parser.get('attribute', node, attr);
             if (p) p.preprocess(def, node, attr);
         }
 

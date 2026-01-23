@@ -41,9 +41,9 @@ export const parser = (() => {
          * @param {object} parser 
          * @param {string} type 
          */
-        register(parser, type) {
+        register(parser, type = "attribute") {
             const registry = parsers[type];
-            if (!registry) throw Error(`[Enso] - Unknown parser type ${type}`);
+            if (!registry) throw new Error(`[Enso] - Unknown parser type ${type}`);
 
             registry.set(parser);
         },

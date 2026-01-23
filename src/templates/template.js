@@ -125,7 +125,7 @@ export default class EnsoTemplate {
             const template = createTemplate(root);
 
             template.setAttribute(ENSO_PARSED, "");
-            def.getOperator()?.parser?.fragment(
+            def.getGenerator()?.parser?.fragment(
                 def, new EnsoTemplate(template, this.#watched, true),
                 placeholder
             );

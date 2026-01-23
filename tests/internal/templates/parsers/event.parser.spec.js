@@ -24,7 +24,7 @@ describe('event mutator parser', () => {
         const el = getTestElement('@click', 'handler');
 
         const attr = el.attributes[0];
-        const matched = parser.getMutatorParser(el, attr);
+        const matched = parser.get('attribute', el, attr);
 
         expect(matched).toBeDefined();
         expect(matched.type).toBe('event');
@@ -34,7 +34,7 @@ describe('event mutator parser', () => {
         const el = getTestElement('class', 'value');
 
         const attr = el.attributes[0];
-        const matched = parser.getMutatorParser(el, attr);
+        const matched = parser.get('attribute', el, attr);
 
         expect(matched).toBeNull();
     });
@@ -44,7 +44,7 @@ describe('event mutator parser', () => {
         const attr = el.attributes[0];
 
         const def = createNodeDef(el);
-        const parserImpl = parser.getMutatorParser(el, attr);
+        const parserImpl = parser.get('attribute', el, attr);
 
         const parsed = parserImpl.preprocess(def, el, attr);
         expect(parsed).toBe(true);
@@ -71,7 +71,7 @@ describe('event mutator parser', () => {
         const attr = el.attributes[0];
         const def = createNodeDef(el);
 
-        const parserImpl = parser.getMutatorParser(el, attr);
+        const parserImpl = parser.get('attribute', el, attr);
         parserImpl.preprocess(def, el, attr);
 
         const [, dataList] = [...def.mutators()][0];
@@ -92,7 +92,7 @@ describe('event mutator parser', () => {
         const attr = el.attributes[0];
         const def = createNodeDef(el);
 
-        const parserImpl = parser.getMutatorParser(el, attr);
+        const parserImpl = parser.get('attribute', el, attr);
         parserImpl.preprocess(def, el, attr);
 
         const [, dataList] = [...def.mutators()][0];

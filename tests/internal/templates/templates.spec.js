@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest';
 
 import EnsoTemplate from '../../../src/templates/template.js';
-import { ENSO_NODE, ENSO_PARSED, ENSO_FRAGMENT } from '../../../src/core/symbols.js';
+import { ENSO_NODE, ENSO_PARSED } from '../../../src/core/symbols.js';
 
 describe('EnsoTemplate', () => {
 

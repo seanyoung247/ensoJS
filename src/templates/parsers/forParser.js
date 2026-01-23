@@ -83,7 +83,7 @@ export default function register(parser) {
 
             const binds = new Set();
             const source = bindSource(
-                getGenerator(node, '*for', 'enso-for'),
+                getOperator(node, '*for', 'enso-for'),
                 binds
             );
             const identifiers = parseFor(source);
