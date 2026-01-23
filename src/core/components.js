@@ -85,6 +85,8 @@ export const EnsoNode = (Base = Object) => {
             for (const child of this.#children) {
                 child[MARK_CHANGED](prop);
             }
+
+            this.component.watched._notify(prop);
         }
 
         [UPDATE]() {

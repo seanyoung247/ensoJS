@@ -248,6 +248,12 @@ export class Watched {
     get [VALUES]() { return Object.fromEntries(this.#values); }
     get _defs() { return this.constructor.defs; }
 
+    _addWatcher(prop, fn) {
+        if (this.#bindings.has(prop)) {
+            this.#bindings.get(prop).watchers.push(fn);
+        }
+    }
+
     _notify(prop) {
         if (this.#bindings.has(prop)) {
             const { watchers } = this.#bindings.get(prop);
@@ -264,6 +270,7 @@ export class Watched {
     _getProp(prop) {
         return this.#values.get(prop.name);
     }
+
     _setProp(prop, value) {
         if (prop.deep && typeof value === 'object' && value !== null) {
             value = watch(value, prop.name, this.#component[MARK_CHANGED]);
@@ -273,7 +280,6 @@ export class Watched {
         this.#component[MARK_CHANGED](prop.name);
 
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
-        this._notify(prop.name);
     }
 
     _update(values) {

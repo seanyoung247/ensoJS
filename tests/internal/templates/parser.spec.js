@@ -90,5 +90,10 @@ describe('Template Parser', () => {
         const def = new NodeDef('test', div, null);
         expect(parser.preprocess(def, div)).toBe(false);
     });
+
+    it('throws with bad input', () => {
+        expect(()=>parser.register(null, 'badType')).toThrow();
+        expect(()=>parser.get('badType', null, null)).toThrow();
+    });
 });
 

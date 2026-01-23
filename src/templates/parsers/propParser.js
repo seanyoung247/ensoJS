@@ -1,7 +1,7 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { getName, isAttr, addBinding, bindSource } from "./utils.js";
+import { getName, isAttr, addBinding, bindSource, addWatcher } from "./utils.js";
 import { Effect, Action } from "../../core/effects.js";
 
 
@@ -61,7 +61,7 @@ export default function register(parser) {
             for (const prop of data) { 
                 const effect = prop.action.createEffect(parent, element);
                 for (const bind of prop.binds) {
-                    addBinding(parent, bind, effect);
+                    addWatcher(parent, bind, ()=>effect.run());
                 }
             }
         }

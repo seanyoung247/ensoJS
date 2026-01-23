@@ -50,10 +50,9 @@ export const parser = (() => {
 
         get(type, node, attribute=null) {
             const registry = parsers[type];
-            if (registry) {
-                return registry.get(node, attribute);
-            }
-            return null;
+            if (!registry) throw new Error(`[Enso] - Unknown parser type ${type}`);
+            
+            return registry.get(node, attribute);
         },
         /**
          * Tags a node as the root of an enso template/fragment

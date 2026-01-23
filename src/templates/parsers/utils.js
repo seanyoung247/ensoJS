@@ -83,6 +83,12 @@ export const addBinding = (parent, bind, effect) => {
     parent[SCHEDULE_EFFECT](effect);
 };
 
+export const addWatcher = (parent, bind, fn) => {
+    parent.watched._addWatcher(bind, fn);
+    const value = parent.watched._getProp(bind);
+    fn.call(parent, bind, value);
+}
+
 //// DIRECTIVES
 
 export const createPlaceholder = () => {

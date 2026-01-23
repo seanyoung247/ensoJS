@@ -74,10 +74,10 @@ describe('if operator parser', () => {
         const op = parser.get('generator', el);
 
         // Simulate an existing operator
-        def.getGenerator(op, { type: 'dummy' });
+        def.setGenerator(op, { type: 'dummy' });
 
         const parsed = op.preprocess(def, el);
-        expect(parsed).toBe(true);
+        expect(parsed).toBe(false);
     });
 
     it('fragment hook assigns the fragment template to operator data', () => {
