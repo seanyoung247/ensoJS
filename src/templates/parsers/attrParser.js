@@ -1,33 +1,38 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { getName, isAttr, addBinding, bindSource } from "./utils.js";
-import { Effect, Action, compileValue } from "../../core/effects.js";
+import { getName, isAttr } from "./utils.js";
 
 
-class AttrEffect extends Effect {
-    #attr;
-    constructor(parent, element, action) {
-        super(parent, element, action);
-        this.#attr = action.data.name;
+export default function register(register, ctx) {
+
+    const {
+        addBinding, bindSource, 
+        Effect, Action, compileValue
+    } = ctx;
+
+    class AttrEffect extends Effect {
+        #attr;
+        constructor(parent, element, action) {
+            super(parent, element, action);
+            this.#attr = action.data.name;
+        }
+
+        run() {
+            const content = super.run();
+            const el = this.element;
+            if (content) {
+                el.setAttribute(this.#attr, (content === true) ? '' : content);
+            }
+            else {
+                el.removeAttribute(this.#attr);
+            }
+        }
     }
 
-    run() {
-        const content = super.run();
-        const el = this.element;
-        if (content) {
-            el.setAttribute(this.#attr, (content === true) ? '' : content);
-        }
-        else {
-            el.removeAttribute(this.#attr);
-        }
-    }
-}
-
-export default function register(parser) {
     // Attribute binding (:<attribute name>) parser
-    parser.register({
-        type: 'attr',
+    register.attribute({
+        type: 'enso:attr',
 
         match(node, attribute) {
             return (
@@ -62,5 +67,5 @@ export default function register(parser) {
             }
         }
 
-    }, 'attribute');
+    });
 }

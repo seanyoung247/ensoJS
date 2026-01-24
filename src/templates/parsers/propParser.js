@@ -2,11 +2,14 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { getName, isAttr, bindSource, addWatcher } from "./utils.js";
-import { Effect, Action } from "../../core/effects.js";
+import { getName, isAttr } from "./utils.js";
 
 
-export default function register(parser) {
+export default function register(register, ctx) {
+    const {
+        bindSource, addWatcher,
+        Effect, Action
+    } = ctx;
 
     const compileValue = code => (
         /*js*/
@@ -32,7 +35,7 @@ export default function register(parser) {
     }
 
     // Property binding (.:<property name>) parser
-    parser.register({
+    register.attribute({
         type: 'enso:prop',
 
         match(node, attribute) {
@@ -66,5 +69,5 @@ export default function register(parser) {
                 }
             }
         }
-    }, 'attribute');
+    });
 }

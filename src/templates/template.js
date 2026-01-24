@@ -9,8 +9,6 @@ import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
 import { ENSO_PARSED, ENSO_FRAGMENT, ENSO_ROOT } from "../core/symbols.js";
 
-import { registerParsers } from './parsers/parsers.js';
-registerParsers(parser);
 
 // If node is a text node with handle bars ( {{ }} ) or an element, parse it
 const nodeEx = /{{[^]*}}/;

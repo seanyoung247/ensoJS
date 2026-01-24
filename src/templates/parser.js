@@ -7,6 +7,14 @@
 
 import { ENSO_NODE, ENSO_PARSED, ENSO_ROOT } from "../core/symbols.js";
 
+import { registerCoreParsers } from './parsers/parsers.js';
+import { Action, compileValue, Effect } from "../core/effects.js";
+import { EnsoFragment } from "../core/fragment.js";
+import { 
+    addBinding, addWatcher, 
+    bindSource, getBindings 
+} from "./parsers/utils.js";
+
 
 const createRegistry = () => {
     const map = new Map();
@@ -82,7 +90,7 @@ export const parser = (() => {
 
         /**
          * Returns first child element tagged as watched from given root
-         * @param {HTMLElement/DocumentFragment} root - Root element
+         * @param {HTMLElement || DocumentFragment} root - Root element
          */
         getWatched(root) {
             return root.querySelector(`[${ENSO_NODE}]`);
@@ -143,3 +151,23 @@ export const parser = (() => {
     });
 })();
 
+export const ctx = Object.freeze({
+    Effect, Action, compileValue,
+    addBinding, addWatcher,
+    bindSource, getBindings,
+    EnsoFragment,
+});
+
+export const register = {
+    generator(plugin) {
+        parser.register(plugin, 'generator');
+    },
+    attribute(plugin) {
+        parser.register(plugin, 'attribute');
+    },
+    content(plugin) {
+        parser.register(plugin, 'content');
+    }
+};
+
+registerCoreParsers(register, ctx);

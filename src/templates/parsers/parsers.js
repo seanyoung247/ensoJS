@@ -10,12 +10,13 @@ import refParser from './refParser.js';
 import forParser from './forParser.js';
 import ifParser from './ifParser.js';
 
-export function registerParsers(parser) {
-    eventParser(parser);
-    textParser(parser);
-    attrParser(parser);
-    propParser(parser);
-    refParser(parser);
-    forParser(parser);
-    ifParser(parser);
+
+export function registerCoreParsers(register, ctx) {
+    eventParser(register, ctx);
+    textParser(register, ctx);
+    attrParser(register, ctx);
+    propParser(register, ctx);
+    refParser(register, ctx);
+    forParser(register, ctx);
+    ifParser(register, ctx);
 }

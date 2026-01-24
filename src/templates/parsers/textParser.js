@@ -1,13 +1,14 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { addBinding, bindSource } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
-import { Effect, Action, compileValue } from "../../core/effects.js";
 
 
-export default function register(parser) {
-    
+export default function register(register, ctx) {
+    const {
+        addBinding, bindSource,
+        Effect, Action, compileValue
+    } = ctx;
     const nodeEx = /({{(.|\n)*}})/;
 
     class TextEffect extends Effect {
@@ -21,7 +22,7 @@ export default function register(parser) {
     }
 
     // Textnode parser
-    parser.register({
+    register.content({
         type: 'enso:text',
 
         match(node) {
@@ -56,5 +57,5 @@ export default function register(parser) {
                 }
             }
         }
-    }, 'content');
+    });
 }

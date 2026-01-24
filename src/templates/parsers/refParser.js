@@ -5,10 +5,10 @@
 import { getOperator } from "./utils.js";
 
 
-export default function register(parser) {
+export default function register(register) {
 
     // Reference Attribute (#ref) parser
-    parser.register({
+    register.generator({
         type: 'enso:ref',
 
         match(node) {
@@ -46,5 +46,5 @@ export default function register(parser) {
             });
         }
 
-    }, 'generator');
+    });
 }

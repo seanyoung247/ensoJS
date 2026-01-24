@@ -2,12 +2,15 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { getOperator, addBinding, bindSource } from "./utils.js";
-import { compileValue, Action } from "../../core/effects.js";
-import { EnsoFragment } from "../../core/fragment.js";
+import { getOperator } from "./utils.js";
 
 
-export default function register(parser) {
+export default function register(register, ctx) {
+    const {
+        addBinding, bindSource,
+        compileValue, Action,
+        EnsoFragment
+    } = ctx;
 
     class IfFragment extends EnsoFragment {
         #effect;
@@ -29,7 +32,7 @@ export default function register(parser) {
     }
 
     // *if="{{ <expression> }}"
-    parser.register({
+    register.generator({
         type: 'enso:if',
 
         match(node) {
@@ -77,5 +80,5 @@ export default function register(parser) {
                 }
             }
         }
-    }, 'generator');
+    });
 }

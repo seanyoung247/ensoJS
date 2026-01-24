@@ -9,6 +9,7 @@ import { parseScript } from "./watched.js";
 import { Watched } from "./watched.js";
 import { VERSION } from "../../version.js";
 
+import { register, ctx } from "../templates/parser.js";
 
 const defaultSettings = (overrides = {}) => ({
     useShadow: true,
@@ -83,4 +84,12 @@ export const API = {
         customElements.define(tag, component);
         return createComponentTag(tag, component);
     },
+
+    /**
+     * Adds a custom template parser.
+     * @param {(register, ctx)=>void} plugin - Custom parser registration function
+     */
+    use(plugin) {
+        plugin(register, ctx);
+    }
 };

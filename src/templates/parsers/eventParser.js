@@ -1,11 +1,11 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { bindSource, getName, isAttr } from "./utils.js";
-import { Action } from "../../core/effects.js";
+import { getName, isAttr } from "./utils.js";
 
 
-export default function register(parser) {
+export default function register(register, ctx) {
+    const { Action, bindSource } = ctx;
 
     function attachEventListener(parent, element, event) {
         const { name, action } = event;
@@ -22,8 +22,8 @@ export default function register(parser) {
     }
 
     // Event Attribute (@<event name>) parser
-    parser.register({
-        type: 'event',
+    register.attribute({
+        type: 'enso:event',
 
         match(node, attribute) {
             return (
@@ -49,6 +49,5 @@ export default function register(parser) {
             }
         }
 
-    }, 'attribute');
-
+    });
 }

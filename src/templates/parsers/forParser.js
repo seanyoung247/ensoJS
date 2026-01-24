@@ -1,26 +1,27 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { EnsoFragment } from "../../core/fragment.js";
-import { addBinding, bindSource, getOperator } from "./utils.js";
+import { getOperator } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
-import { Action } from "../../core/effects.js";
-import { NODES, CHILDREN, UPDATE, ENV, ANCHOR } from "../../core/symbols.js";
 
 
-export default function register(parser) {
+export default function register(register, ctx) {
+    const {
+        addBinding, bindSource,
+        EnsoFragment, Action
+    } = ctx;
     
     class ItemFragment extends EnsoFragment {
         constructor(parent, template, item) {
             super(parent);
-            this[ENV] = item;
+            this._setENV(item);
             this._processTemplate(template);
         }
         mount() {
             this.isAttached = true;
-            this[UPDATE]();
+            this._requestUpdate();
             this._getChildren();
-            return this[NODES];
+            return this._getNodes();
         }
     }
 
@@ -52,23 +53,23 @@ export default function register(parser) {
                 // Mount
                 elements.push(...child.mount());
             }
-            this[ANCHOR].after(...elements);
+            this._insertAfterAnchor(...elements);
             this.isAttached = true;
-            this[UPDATE]();
+            this._requestUpdate();
         }
 
         unmount() {
-            for (const child of this[CHILDREN]) {
+            for (const child of this._getChildFragments()) {
                 child.unmount();
             }
-            this[CHILDREN].length = 0;
+            this._getChildFragments().length = 0;
             this.isAttached = false;
         }
     }
 
     // *for="item in/of items"
-    parser.register({
-        type: 'for',
+    register.generator({
+        type: 'enso:for',
 
         match(node) {
             return (
@@ -118,5 +119,5 @@ export default function register(parser) {
                 }
             }
         },
-    }, 'generator');
+    });
 }
