@@ -4,7 +4,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { parser } from '../../../src/templates/parser.js';
 import { NodeDef } from '../../../src/templates/nodedef.js';
+import { Enso } from '../../../src/enso.js';
+
 import { ENSO_NODE, ENSO_PARSED, ENSO_ROOT } from '../../../src/core/symbols.js';
+import { parseSource, getName } from '../../../src/templates/parsers/utils.js';
+import { compileValue } from '../../../src/core/effects.js';
+
 
 describe('Template Parser', () => {
     let div;
@@ -95,5 +100,42 @@ describe('Template Parser', () => {
         expect(()=>parser.register(null, 'badType')).toThrow();
         expect(()=>parser.get('badType', null, null)).toThrow();
     });
+
+    it('can add custom parsers', () => {
+        Enso.use(function(register, ctx) {
+            register.attribute({
+                type: 'test:parser',
+                match(node, attribute) {
+                    return (
+                        node.nodeType === Node.ELEMENT_NODE &&
+                        isAttr(attribute, '^', 'test')
+                    );
+                },
+                preprocess(def, node, attribute) {
+                    const name = getName(attribute);
+                    const binds = new Set();
+                    const source = compileValue(
+                        parseSource(attribute.value, binds)
+                    );
+                    def.addMutator(this, {
+                        name, binds
+                    });
+                    node.removeAttribute(attribute.name);
+                    return true;
+                },
+                process(data, _, element) {
+                    for (const attr of data) {
+                        for (const bind of attr.binds) {
+                            element.setAttribute('data-test', 'true');
+                        }
+                    }
+                }
+            });
+        });
+
+        div.setAttribute('enso-test', '');
+    });
+
+    expect(()=>parser.get('attribute', div, div.attributes[0])).toBeDefined();
 });
 

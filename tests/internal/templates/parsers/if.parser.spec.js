@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
 import ifParser from '../../../../src/templates/parsers/ifParser.js';
-ifParser(parser);
+ifParser(register, ctx);
 
 // If you don’t already have this: small helper to make a dummy template
 const createDummyTemplate = () => ({ __dummy: true });

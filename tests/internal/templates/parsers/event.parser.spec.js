@@ -1,11 +1,11 @@
 
 import { describe, it, expect, vi } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
 import eventParser from '../../../../src/templates/parsers/eventParser.js';
-eventParser(parser);
+eventParser(register, ctx);
 
 
 const silenceConsole = () => {
@@ -27,7 +27,7 @@ describe('event mutator parser', () => {
         const matched = parser.get('attribute', el, attr);
 
         expect(matched).toBeDefined();
-        expect(matched.type).toBe('event');
+        expect(matched.type).toBe('enso:event');
     });
 
     it('does not match normal attributes', () => {

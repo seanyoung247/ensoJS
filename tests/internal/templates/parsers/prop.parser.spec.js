@@ -1,11 +1,11 @@
 
 import { describe, it, expect } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { register, ctx, parser } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
 import propParser from '../../../../src/templates/parsers/propParser.js'
-propParser(parser);
+propParser(register, ctx);
 
 
 describe('property mutator parser', () => {

@@ -5,8 +5,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { 
     getName, 
-    getBindings,
-    bindSource,
+    collectBindings,
+    parseSource,
     addBinding,
     isAttr,
     createPlaceholder, 
@@ -24,13 +24,13 @@ describe('getName', () => {
 
 });
 
-describe('getBindings', () => {
+describe('collectBindings', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
         const source = "{{ this.watched.test === watched:prop1 + @:prop2 }}";
 
-        getBindings(source, bindings);
+        collectBindings(source, bindings);
         expect(bindings.size).toBe(4); // test, prop1, prop2 + mount
         expect(bindings.has('prop1')).toBe(true);
     });
@@ -39,7 +39,7 @@ describe('getBindings', () => {
         const bindings = new Set();
         const source = "{{ this.method() }}";
 
-        getBindings(source, bindings);
+        collectBindings(source, bindings);
         expect(bindings.size).toBe(1);
         expect(bindings.has(lifecycle.mount)).toBe(true);
     });
@@ -47,13 +47,13 @@ describe('getBindings', () => {
 });
 
 
-describe('bindSource', () => {
+describe('parseSource', () => {
 
     it('returns potential binding names from a text source', () => {
         const bindings = new Set();
         const source = "{{ this.watched.test === watched:prop1 + @:prop2 }}";
 
-        const transformed = bindSource(source, bindings);
+        const transformed = parseSource(source, bindings);
         expect(bindings.size).toBe(4);
         expect(bindings.has('prop1')).toBe(true);
         expect(transformed).toBe(
@@ -65,7 +65,7 @@ describe('bindSource', () => {
         const src = `() => () => @:count + 1`;
         const bindings = new Set();
 
-        const out = bindSource(src, bindings);
+        const out = parseSource(src, bindings);
 
         expect(out).toBe(
             `() => () => this.watched.count + 1`
@@ -78,7 +78,7 @@ describe('bindSource', () => {
     it('Resolves namespaced refs', () => {
         const bindings = new Set();
         const refs = "{{ this.refs.myRef.value === ref:myRef2.value + #:myRef3.value }}";
-        const transformed = bindSource(refs, bindings);
+        const transformed = parseSource(refs, bindings);
         expect(bindings.size).toBe(1);
         expect(bindings.has('myRef')).toBe(false);
         expect(transformed).toBe(
@@ -90,7 +90,7 @@ describe('bindSource', () => {
         const src = `() => el => #:button.focus()`;
         const bindings = new Set();
 
-        const out = bindSource(src, bindings);
+        const out = parseSource(src, bindings);
 
         expect(out).toBe(
             `() => el => this.refs.button.focus()`

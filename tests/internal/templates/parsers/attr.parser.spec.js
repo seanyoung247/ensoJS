@@ -1,11 +1,11 @@
 
 import { describe, it, expect } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
 import attrParser from '../../../../src/templates/parsers/attrParser.js';
-attrParser(parser);
+attrParser(register, ctx);
 
 describe('attribute mutator parser', () => {
 
@@ -16,7 +16,7 @@ describe('attribute mutator parser', () => {
         const matched = parser.get('attribute', el, attr);
 
         expect(matched).toBeDefined();
-        expect(matched.type).toBe('attr');
+        expect(matched.type).toBe('enso:attr');
     });
 
     it('does not match normal attributes', () => {

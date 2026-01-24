@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
 import textParser from '../../../../src/templates/parsers/textParser.js';
-textParser(parser);
+textParser(register, ctx);
 
 
 const getTextNode = (el) =>

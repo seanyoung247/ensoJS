@@ -7,7 +7,7 @@ import { getName, isAttr } from "./utils.js";
 
 export default function register(register, ctx) {
     const {
-        bindSource, addWatcher,
+        parseSource, addWatcher,
         Effect, Action
     } = ctx;
 
@@ -49,7 +49,7 @@ export default function register(register, ctx) {
             const name = getName(attribute);
             const binds = new Set();
             const source = compileValue(
-                bindSource(attribute.value, binds)
+                parseSource(attribute.value, binds)
             );
             def.addMutator(this, {
                 name,

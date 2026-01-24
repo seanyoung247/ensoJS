@@ -6,7 +6,7 @@ import { getChildIndex } from "../../utils/dom.js";
 
 export default function register(register, ctx) {
     const {
-        addBinding, bindSource,
+        addBinding, parseSource,
         Effect, Action, compileValue
     } = ctx;
     const nodeEx = /({{(.|\n)*}})/;
@@ -35,7 +35,7 @@ export default function register(register, ctx) {
         preprocess(def, node) {
             const binds = new Set();
             const source = compileValue(
-                bindSource(node.nodeValue, binds)
+                parseSource(node.nodeValue, binds)
             );
             def.addMutator(this, {
                 parent: node.parentNode,

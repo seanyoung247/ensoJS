@@ -7,7 +7,7 @@ import { getOperator } from "./utils.js";
 
 export default function register(register, ctx) {
     const {
-        addBinding, bindSource,
+        addBinding, parseSource,
         compileValue, Action,
         EnsoFragment
     } = ctx;
@@ -49,7 +49,7 @@ export default function register(register, ctx) {
             let directive = getOperator(node, '*if', 'enso-if');
             const binds = new Set();
 
-            directive = bindSource(directive, binds);
+            directive = parseSource(directive, binds);
             const action = new Action(compileValue(directive));
 
             // Create new nodedef for the if directive.

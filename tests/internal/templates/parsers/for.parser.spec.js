@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
 
 import forParser from '../../../../src/templates/parsers/forParser.js';
-forParser(parser);
+forParser(register, ctx);
 
 
 describe('for operator parser', () => {
@@ -14,7 +14,7 @@ describe('for operator parser', () => {
 
         const op = parser.get('generator', el);
         expect(op).toBeDefined();
-        expect(op.type).toBe('for');
+        expect(op.type).toBe('enso:for');
     });
 
     it('matches enso-for longhand', () => {
@@ -22,7 +22,7 @@ describe('for operator parser', () => {
 
         const op = parser.get('generator', el);
         expect(op).toBeDefined();
-        expect(op.type).toBe('for');
+        expect(op.type).toBe('enso:for');
     });
 
     it('preprocess consumes attribute and registers operator', () => {

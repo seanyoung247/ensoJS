@@ -7,7 +7,7 @@ import { parseFor, createForFunction } from "./forUtils.js";
 
 export default function register(register, ctx) {
     const {
-        addBinding, bindSource,
+        addBinding, parseSource,
         EnsoFragment, Action
     } = ctx;
     
@@ -83,7 +83,7 @@ export default function register(register, ctx) {
             if (def.getGenerator()) return false;
 
             const binds = new Set();
-            const source = bindSource(
+            const source = parseSource(
                 getOperator(node, '*for', 'enso-for'),
                 binds
             );

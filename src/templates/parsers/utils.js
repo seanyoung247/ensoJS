@@ -50,7 +50,7 @@ const refEx  = /(?:this\.refs\.|ref:|#:)([A-Za-z_$][\w$]*)/g;
  * @param {string} source 
  * @param {Set} set 
  */
-export const getBindings = (source, set) => {
+export const collectBindings = (source, set) => {
     let match;
     while ((match = bindEx.exec(source)) !== null) {
         set.add(match[1]);
@@ -65,7 +65,7 @@ export const getBindings = (source, set) => {
  * @param {Set} set 
  * @returns {string}
  */
-export const bindSource = (source, set = null) => {
+export const parseSource = (source, set = null) => {
     // Collect Watched bindings
     const ret = source.replace(bindEx, (_, prop) => {
         if (set) set.add(prop);

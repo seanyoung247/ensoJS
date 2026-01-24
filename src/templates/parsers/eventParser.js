@@ -5,7 +5,7 @@ import { getName, isAttr } from "./utils.js";
 
 
 export default function register(register, ctx) {
-    const { Action, bindSource } = ctx;
+    const { Action, parseSource } = ctx;
 
     function attachEventListener(parent, element, event) {
         const { name, action } = event;
@@ -33,7 +33,7 @@ export default function register(register, ctx) {
         },
 
         preprocess(def, node, attribute) {
-            const source = bindSource(attribute.value);
+            const source = parseSource(attribute.value);
             def.addMutator(this, {
                 name: getName(attribute),
                 action: new Action(source)

@@ -12,7 +12,7 @@ import { Action, compileValue, Effect } from "../core/effects.js";
 import { EnsoFragment } from "../core/fragment.js";
 import { 
     addBinding, addWatcher, 
-    bindSource, getBindings 
+    parseSource, collectBindings 
 } from "./parsers/utils.js";
 
 
@@ -154,7 +154,7 @@ export const parser = (() => {
 export const ctx = Object.freeze({
     Effect, Action, compileValue,
     addBinding, addWatcher,
-    bindSource, getBindings,
+    parseSource, collectBindings,
     EnsoFragment,
 });
 

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { parser } from '../../../../src/templates/parser.js';
+import { ctx, parser, register } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { createMockComponent } from '../../../mockComponent.js';
 import { getTestElement } from '../../../shared.js';
 
 import refParser from '../../../../src/templates/parsers/refParser.js';
-refParser(parser);
+refParser(register, ctx);
 
 
 describe('ref operator parser', () => {
