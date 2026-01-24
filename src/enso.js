@@ -17,8 +17,8 @@ export { css, html } from './core/tags.js';
 export { lifecycle } from './component.js';
 // Watched properties
 export { 
-    prop, attr, watches, 
-    getWatched, setWatched 
+    prop, attr, computed,
+    watches, getWatched, setWatched 
 } from './core/watched.js';
 
 // Component creator and global settings - Retained for compatibility

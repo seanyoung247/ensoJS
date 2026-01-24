@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 import { watch } from "./watcher.js";
-import { lifecycles } from "../component.js";
+import { lifecycle, lifecycles } from "../component.js";
 import { BINDINGS, MARK_CHANGED } from "./symbols.js";
 
 
@@ -94,6 +94,35 @@ export const attr = (value = null, type = String) => {
 };
 
 /**
+ * Creates a computed watched property descriptor.
+ *  - Reruns the given function and saves the return value whenever
+ *      watched properties in deps change.
+ * 
+ * @param {Function} fn - Function to recalculate computed value.
+ * @param {Array<String>} deps - Array of string watched property names.
+ * @returns - A descriptor object defining the computed property.
+ */
+export const computed = (fn, deps) => {
+    if (typeof fn !== 'function') {
+        throw new Error('[Enso] - computed() expects a function');
+    }
+    if (!Array.isArray(deps) || !deps.every(d => typeof d === 'string')) {
+        throw new Error('[Enso] - computed() expects an array of dependency names');
+    }
+    if (!deps.includes(lifecycle.mount)) {
+        deps.push(lifecycle.mount);
+    }
+    deps = Object.freeze([...deps]);
+    return descripter({
+        value: undefined,
+        deps,
+        comp: fn, 
+        deep: false, 
+        attribute: false, 
+    });
+};
+
+/**
  * Get all watched values for a given component.
  * 
  * @param {EnsoComponent} component - The component to retrieve watched values from.
@@ -168,6 +197,7 @@ export class Watched {
 
     // Builds a subclass of Watched tailored to the properties passed
     static define(properties, watchers={}) {
+        const computed = [];
         const cls = class extends Watched {};
         cls.attr = [];
         cls.defs = Object.create(null);
@@ -177,17 +207,29 @@ export class Watched {
             validateName(name);
             // Construct property description
             const prop = createPropDesc(name, property, watchers[name]);
-            // Add accessors for the property
-            Object.defineProperty(cls.prototype, prop.name, {
-                configurable: true,
-                enumerable: true,
-                get() {
-                    return this._getProp(prop);
-                },
-                set(val) {
-                    this._setProp(prop, val);
-                }
-            });
+            // If computed
+            if (prop.deps) {
+                Object.defineProperty(cls.prototype, prop.name, {
+                    configurable: true,
+                    enumerable: true,
+                    get() {
+                        return this._getProp(prop);
+                    }
+                });
+                computed.push(prop);
+            } else {
+                // Add accessors for the property
+                Object.defineProperty(cls.prototype, prop.name, {
+                    configurable: true,
+                    enumerable: true,
+                    get() {
+                        return this._getProp(prop);
+                    },
+                    set(val) {
+                        this._setProp(prop, val);
+                    }
+                });
+            }
             // Insert definitions and observed attributes
             cls.defs[prop.name] = prop;
             if (prop.attribute) cls.attr.push(prop.name);
@@ -200,6 +242,17 @@ export class Watched {
                 watchers: watchers[lifecycle] ?? [],
                 lifecycle: true,
             };
+        }
+        for (const comp of computed) {
+            const reCompute = function() { 
+                this.watched._setProp(comp, comp.comp.call(this));
+            }
+            for (const dep of comp.deps) {
+                const def = cls.defs[dep];
+                if (def) {
+                    def.watchers.push(reCompute);
+                }
+            }
         }
         Object.freeze(cls.defs);
         Object.freeze(cls.attr);
@@ -215,18 +268,26 @@ export class Watched {
         // Property and binding setup
         for (const defName in this._defs) {
             const prop = this._defs[defName];
-            let value = prop.value();
+            let value = prop?.value?.();
             // Add accessors to component instance, and upgrade values if needed
             if (!prop.lifecycle) {
                 if (component.hasOwnProperty(prop.name)) {
                     value = component[prop.name];
                 }
-                Object.defineProperty(component, prop.name, {
-                    configurable: true,
-                    enumerable: true,
-                    get: () => this._getProp(prop),
-                    set: v => this._setProp(prop, v),
-                });
+                if (prop.deps) {
+                    Object.defineProperty(component, prop.name, {
+                        configurable: true,
+                        enumerable: true,
+                        get: () => this._getProp(prop),
+                    });
+                } else {
+                    Object.defineProperty(component, prop.name, {
+                        configurable: true,
+                        enumerable: true,
+                        get: () => this._getProp(prop),
+                        set: v => this._setProp(prop, v),
+                    });
+                }
             }
 
             // Wrap value in proxy if deep reactivity requested

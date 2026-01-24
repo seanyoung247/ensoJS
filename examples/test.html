@@ -23,6 +23,7 @@
         btn.addEventListener('click', () => {
             testComp.watched.show = !testComp.watched.show;
         });
+        testComp.count = parseInt(countInput.value);
         countInput.addEventListener('input', () => {
             const val = parseInt(countInput.value);
             testComp.watched.count = isNaN(val) ? 0 : val;

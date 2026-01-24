@@ -1,16 +1,21 @@
-import { Enso, html, attr, prop, watches } from "ensojs";
+import { Enso, html, attr, prop, computed } from "ensojs";
 import { range } from "ensojs/helpers";
+
 
 Enso.component('test-component', {
     watched: {
         show: attr(false),
         count: attr(0),
+        count2: computed(function() {
+            return this.count * 2
+        }, ['count']),
     },
     expose: { range },
     template: html`
         <div id="test" #ref="root">
             <div *if="{{ @:show }}">
                 Count is: {{ @:count }}
+                Count2 is: {{ @:count2 }}
             </div>
             <div *for="item of range(@:count)">
                 Item {{ item + 1 }}
