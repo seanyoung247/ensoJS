@@ -1,9 +1,12 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  Watched, prop, attr, getWatched, setWatched,
+  Watched, 
+  prop, attr, computed,
+  getWatched, setWatched,
 } from "../../../src/core/watched.js";
 import { BINDINGS, MARK_CHANGED } from "../../../src/core/symbols.js";
+import { lifecycle } from "../../../src/component.js";
 
 describe("Watched class", () => {
     let component, observedAttributes;
@@ -13,7 +16,7 @@ describe("Watched class", () => {
         const MyWatched = Watched.define({
             count: 5,
             show: prop(true),
-            attr: attr('test')
+            attr: attr('test'),
         });
         observedAttributes = MyWatched.attr;
 
@@ -59,7 +62,6 @@ describe("Watched class", () => {
         expect(component[MARK_CHANGED]).toHaveBeenCalledWith("show");
     });
 
-
     it('calls _setProp when a watched value changes', () => {
         const spy = vi.spyOn(component.watched, '_setProp');
 
@@ -79,6 +81,37 @@ describe("Watched class", () => {
         component.watched._update({ count: 5 });
 
         expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('computed properties deal with bad input', () => {
+        expect(() => {
+            Watched.define({
+                comp: computed(123, [])
+            });
+        }).toThrow();
+        expect(() => {
+            Watched.define({
+                comp: computed(vi.fn())
+            });
+        }).toThrow();
+        expect(() => {
+            Watched.define({
+                comp: computed(vi.fn(), {})
+            });
+        }).toThrow();
+    });
+
+    it("does nothing if dependency doesn't exist", () => {
+        expect(() => {
+            Watched.define({
+                comp: computed(vi.fn, ['unknown'])
+            });
+        }).not.toThrow();
+    });
+
+    it("doesn't duplicate lifecycle bindings", () => {
+        const comp = computed(function(){}, [lifecycle.mount]);
+        expect(comp.deps.length).toBe(1);
     });
 
     it('can add watchers', () => {

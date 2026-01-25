@@ -207,29 +207,20 @@ export class Watched {
             validateName(name);
             // Construct property description
             const prop = createPropDesc(name, property, watchers[name]);
-            // If computed
-            if (prop.deps) {
-                Object.defineProperty(cls.prototype, prop.name, {
-                    configurable: true,
-                    enumerable: true,
-                    get() {
-                        return this._getProp(prop);
-                    }
-                });
-                computed.push(prop);
-            } else {
-                // Add accessors for the property
-                Object.defineProperty(cls.prototype, prop.name, {
-                    configurable: true,
-                    enumerable: true,
-                    get() {
-                        return this._getProp(prop);
-                    },
-                    set(val) {
-                        this._setProp(prop, val);
-                    }
-                });
-            }
+            Object.defineProperty(cls.prototype, prop.name, {
+                configurable: true,
+                enumerable: true,
+                get() {
+                    return this._getProp(prop);
+                },
+                set(val) {
+                    if (prop.comp) throw new Error('[Enso] - Tried to set value of computed property.');
+                    this._setProp(prop, val);
+                }
+            });
+            // If computed - flag for adding to watchers.
+            if (prop.comp) computed.push(prop);
+
             // Insert definitions and observed attributes
             cls.defs[prop.name] = prop;
             if (prop.attribute) cls.attr.push(prop.name);
@@ -274,20 +265,14 @@ export class Watched {
                 if (component.hasOwnProperty(prop.name)) {
                     value = component[prop.name];
                 }
-                if (prop.deps) {
-                    Object.defineProperty(component, prop.name, {
-                        configurable: true,
-                        enumerable: true,
-                        get: () => this._getProp(prop),
-                    });
-                } else {
-                    Object.defineProperty(component, prop.name, {
-                        configurable: true,
-                        enumerable: true,
-                        get: () => this._getProp(prop),
-                        set: v => this._setProp(prop, v),
-                    });
-                }
+                Object.defineProperty(component, prop.name, {
+                    configurable: true,
+                    enumerable: true,
+                    get: () => this._getProp(prop),
+                    set: (prop.comp)
+                        ? ()=>{throw new Error('[Enso] - Tried to set value of computed property.')}
+                        : v => this._setProp(prop, v),
+                });
             }
 
             // Wrap value in proxy if deep reactivity requested
