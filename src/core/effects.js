@@ -1,6 +1,8 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
+
+import { ensoError, ensoReport } from "./errors.js";
 import { ENV } from "./symbols.js";
 
 const isValid = v => !(v === true || v === false || v === null || v === undefined);
@@ -54,7 +56,7 @@ const createFunctionBody = code => (
         return (() => {
             "use strict";
             try { return ${code}; } catch(e) {
-                console.error('[Enso] Runtime error in effect:', e);
+                this._report('error', 'E_EFFECT_RUNTIME', e);
                 return undefined;
             }
         })();
@@ -66,7 +68,7 @@ const createAction = code => {
     try {
         return new Function('env', body);
     } catch(e) {
-        console.error("[Enso] Error in effect: ", e, '\n', body);
+        ensoReport('error', "E_EFFECT_COMPILE", `\n${e}\n${body}`);
         return () => () => {/* no-op on error */};
     }
 };
@@ -79,7 +81,7 @@ export class Effect {
         try {
             this.#action = action.createFunc(parent);
         } catch (e) {
-            console.error("[Enso] Error instantiating effect:\n", e, action);
+            ensoReport('error', "E_EFFECT_CREATE", `\n${e}\n${action}`);
             this.#action = () => {};
         }
     }
@@ -91,7 +93,7 @@ export class Effect {
         try {
             return this.#action?.();
         } catch (e) {
-            console.error("[Enso] Error running effect:\n", e, this.#action.toString());
+            ensoReport('error', "E_EFFECT_RUNNING", `\n${e}\n${this.#action.toString()}`);
             return undefined;
         }
     }
@@ -119,10 +121,9 @@ export class Action {
     createFunc(parent) {
         const { component, [ENV]: env } = parent;
         const fn = this.#func.call(component, env);
-        if (typeof fn !== 'function') {
-            throw new TypeError(
-                `[Enso] Expected function but got ${typeof fn}`
-            );
+        const cType = typeof fn;
+        if (cType !== 'function') {
+            ensoError('E_EFFECT_FUNC', cType)
         }
         return fn;
     }

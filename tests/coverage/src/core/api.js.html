@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.42% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>23/23</span>
+                <span class='fraction'>27/28</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">91.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>11/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">95.83% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>21/21</span>
+                <span class='fraction'>23/24</span>
             </div>
         
             
@@ -158,7 +158,21 @@
 <a name='L93'></a><a href='#L93'>93</a>
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -177,6 +191,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,11 +231,6 @@
 <span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">31x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-yes">30x</span>
@@ -253,6 +266,17 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&nbsp;
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
@@ -264,6 +288,8 @@ import { parseScript } from "./watched.js";
 import { Watched } from "./watched.js";
 import { VERSION } from "../../version.js";
 &nbsp;
+import { setErrorResolver, ensoError } from "./errors.js";
+&nbsp;
 import { register, ctx } from "../templates/parser.js";
 &nbsp;
 const defaultSettings = (overrides = {}) =&gt; ({
@@ -272,6 +298,10 @@ const defaultSettings = (overrides = {}) =&gt; ({
 &nbsp;
     ...overrides
 });
+&nbsp;
+let diagnostics = false;
+const errorString = (code, data) =&gt; `[Enso] ${code}: ${data}`;
+setErrorResolver(errorString);
 &nbsp;
 export const API = {
     version: VERSION,
@@ -307,12 +337,7 @@ export const API = {
             settings={}
         }) { settings = defaultSettings(settings);
 &nbsp;
-        if (customElements.get(tag)) {
-            throw new Error(
-                `[Enso] Component "${tag}" is already defined. \
-                Did you load the component twice?`
-            );
-        }
+        if (customElements.get(tag)) ensoError('E_COMPONENT_DEF', tag);
 &nbsp;
         const watchers = parseScript(script);
         const component = createComponent(EnsoComponent, script);
@@ -346,6 +371,17 @@ export const API = {
      */
     use(plugin) {
         plugin(register, ctx);
+    },
+&nbsp;
+    /**
+     * Sets Enso diagnostic level.
+     *  - If enable is false, minimal diagnostic data will be provided, and most errors will fail silently.
+     *  - If enable is true, errors will be thrown with extra runtime data.
+     * @param {Boolean} enable 
+     */
+<span class="fstat-no" title="function not covered" >    enableDiagnostics(</span>enable) {
+<span class="cstat-no" title="statement not covered" >        diagnostics = enable;</span>
+        //SET RESOLVER HERE
     }
 };
 &nbsp;</pre></td></tr></table></pre>
@@ -355,7 +391,7 @@ export const API = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-25T19:13:44.511Z
+                at 2026-01-25T23:38:14.061Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

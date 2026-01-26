@@ -23,7 +23,7 @@ describe('Enso.component duplicate-definition guard', () => {
 
         expect(() => {
             Enso.component('my-test', class {});
-        }).toThrow('[Enso] Component "my-test" is already defined.');
+        }).toThrow();
 
         expect(get).toHaveBeenCalledWith('my-test');
         expect(define).not.toHaveBeenCalled();

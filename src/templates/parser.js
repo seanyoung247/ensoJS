@@ -14,6 +14,7 @@ import {
     addBinding, addWatcher, 
     parseSource, collectBindings 
 } from "./parsers/utils.js";
+import { ensoError } from "../core/errors.js";
 
 
 const createRegistry = () => {
@@ -51,14 +52,14 @@ export const parser = (() => {
          */
         register(parser, type = "attribute") {
             const registry = parsers[type];
-            if (!registry) throw new Error(`[Enso] - Unknown parser type ${type}`);
+            if (!registry) ensoError("E_PARSER_TYPE", type);
 
             registry.set(parser);
         },
 
         get(type, node, attribute=null) {
             const registry = parsers[type];
-            if (!registry) throw new Error(`[Enso] - Unknown parser type ${type}`);
+            if (!registry) ensoError("E_PARSER_TYPE", type);
             
             return registry.get(node, attribute);
         },

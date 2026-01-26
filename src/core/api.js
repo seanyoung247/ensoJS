@@ -9,6 +9,8 @@ import { parseScript } from "./watched.js";
 import { Watched } from "./watched.js";
 import { VERSION } from "../../version.js";
 
+import { setErrorResolver, ensoError } from "./errors.js";
+
 import { register, ctx } from "../templates/parser.js";
 
 const defaultSettings = (overrides = {}) => ({
@@ -17,6 +19,10 @@ const defaultSettings = (overrides = {}) => ({
 
     ...overrides
 });
+
+let diagnosticsEnabled = false;
+let resolverPromise = null;
+const errorString = (code, data) => `[Enso] ${code}: ${data}`;
 
 export const API = {
     version: VERSION,
@@ -52,12 +58,7 @@ export const API = {
             settings={}
         }) { settings = defaultSettings(settings);
 
-        if (customElements.get(tag)) {
-            throw new Error(
-                `[Enso] Component "${tag}" is already defined. \
-                Did you load the component twice?`
-            );
-        }
+        if (customElements.get(tag)) ensoError('E_COMPONENT_DEF', tag);
 
         const watchers = parseScript(script);
         const component = createComponent(EnsoComponent, script);
@@ -91,5 +92,24 @@ export const API = {
      */
     use(plugin) {
         plugin(register, ctx);
+    },
+
+    async enableDiagnostics() {
+        diagnosticsEnabled = true;
+
+        // Cache the import so it only happens once
+        resolverPromise ||= import('../errors/index.js');
+
+        const { default: resolver } = await resolverPromise;
+
+        // Guard against disable happening while loading
+        if (diagnosticsEnabled) {
+            setErrorResolver(resolver);
+        }
+    },
+
+    disableDiagnostics() {
+        diagnosticsEnabled = false;
+        setErrorResolver(errorString); // minimal fallback
     }
 };

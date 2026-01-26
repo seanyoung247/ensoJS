@@ -5,6 +5,7 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
+import { ensoError } from "./errors.js";
 import { 
     MARK_CHANGED, GET_BINDING, ADD_BINDING, TASK_LIST,
     SCHEDULE_EFFECT, SCHEDULE_UPDATE, UPDATE,
@@ -20,9 +21,7 @@ export const createComponent = (base, proto) => {
 
     // Check that we've been given an Object litteral
     const cType = typeof proto;
-    if (cType !== 'object') {
-        throw new Error(`Component expected object litteral but got ${ cType }`);
-    }
+    if (cType !== 'object') ensoError('E_COMPONENT_OBJ', cType)
 
     // Pull the custom fields out of the object mixin and add them to the component prototype
     const descriptors = Object.getOwnPropertyDescriptors(proto);

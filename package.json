@@ -16,6 +16,10 @@
       "source": "./src/helpers/index.js",
       "default": "./dist/helpers.es.js"
     },
+    "./errors": {
+      "source": "./src/errors/index.js",
+      "default": "./dist/errors.es.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

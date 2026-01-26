@@ -5,6 +5,7 @@
 import { watch } from "./watcher.js";
 import { lifecycle, lifecycles } from "../component.js";
 import { BINDINGS, MARK_CHANGED } from "./symbols.js";
+import { ensoError } from "./errors.js";
 
 
 export const attributeTypes = Object.freeze([
@@ -78,11 +79,7 @@ export const attr = (value = null, type = String) => {
     }
 
     if (!attributeTypes.includes(type) || (value !== null && typeof value === 'object')) {
-        throw new Error(
-            `Unsupported attribute type '${type}'. Allowed: ${
-                attributeTypes.map(t => t.name).join(', ')
-            }`
-        );
+        ensoError("E_ATTR_BAD_TYPE", type);
     }
 
     const { toProp, toAttr } = converters.get(type);
@@ -104,10 +101,10 @@ export const attr = (value = null, type = String) => {
  */
 export const computed = (fn, deps) => {
     if (typeof fn !== 'function') {
-        throw new Error('[Enso] - computed() expects a function');
+        ensoError("E_COMPUTED_FN");
     }
     if (!Array.isArray(deps) || !deps.every(d => typeof d === 'string')) {
-        throw new Error('[Enso] - computed() expects an array of dependency names');
+        ensoError("E_COMPUTED_DEPS");
     }
     if (!deps.includes(lifecycle.mount)) {
         deps.push(lifecycle.mount);
@@ -153,7 +150,7 @@ export function watches(fn, props = [], keep=false) {
     if (isFunction(fn)) {
         fn.__watches = { props, keep };
     } else {
-        throw new Error("[Enso] - Watches can only be applied to functions.");
+        ensoError("E_WATCHES_FN");
     }
     return fn;
 }
@@ -185,7 +182,7 @@ export function parseScript(script) {
 
 const validateName = (name) => {
     if (name.startsWith('_'))
-        throw new Error("[Enso] - Watched property names must not start with '_'.");
+        ensoError("E_WATCHED_NAME");
 };
 
 const createPropDesc = (name, desc, watchers = []) => {
@@ -214,7 +211,7 @@ export class Watched {
                     return this._getProp(prop);
                 },
                 set(val) {
-                    if (prop.comp) throw new Error('[Enso] - Tried to set value of computed property.');
+                    if (prop.comp) ensoError("E_COMPUTED_SET", prop.name);
                     this._setProp(prop, val);
                 }
             });
@@ -270,7 +267,7 @@ export class Watched {
                     enumerable: true,
                     get: () => this._getProp(prop),
                     set: (prop.comp)
-                        ? ()=>{throw new Error('[Enso] - Tried to set value of computed property.')}
+                        ? ()=>{ ensoError("E_COMPUTED_SET", prop.name); }
                         : v => this._setProp(prop, v),
                 });
             }

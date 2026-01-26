@@ -30,7 +30,7 @@ describe("createComponent()", () => {
     });
 
     it("throws if proto is not an object literal", () => {
-        expect(() => createComponent(Base, 123)).toThrow(/object litteral/);
+        expect(() => createComponent(Base, 123)).toThrow();
         expect(() => createComponent(Base, "x")).toThrow();
     });
 

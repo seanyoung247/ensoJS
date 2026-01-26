@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>134/134</span>
+                <span class='fraction'>133/133</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>40/40</span>
+                <span class='fraction'>39/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>121/121</span>
+                <span class='fraction'>120/120</span>
             </div>
         
             
@@ -398,10 +398,8 @@
 <a name='L333'></a><a href='#L333'>333</a>
 <a name='L334'></a><a href='#L334'>334</a>
 <a name='L335'></a><a href='#L335'>335</a>
-<a name='L336'></a><a href='#L336'>336</a>
-<a name='L337'></a><a href='#L337'>337</a>
-<a name='L338'></a><a href='#L338'>338</a>
-<a name='L339'></a><a href='#L339'>339</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L336'></a><a href='#L336'>336</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -482,10 +480,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">22x</span>
@@ -746,6 +740,7 @@
 import { watch } from "./watcher.js";
 import { lifecycle, lifecycles } from "../component.js";
 import { BINDINGS, MARK_CHANGED } from "./symbols.js";
+import { ensoError } from "./errors.js";
 &nbsp;
 &nbsp;
 export const attributeTypes = Object.freeze([
@@ -819,11 +814,7 @@ export const attr = (value = null, type = String) =&gt; {
     }
 &nbsp;
     if (!attributeTypes.includes(type) || (value !== null &amp;&amp; typeof value === 'object')) {
-        throw new Error(
-            `Unsupported attribute type '${type}'. Allowed: ${
-                attributeTypes.map(t =&gt; t.name).join(', ')
-            }`
-        );
+        ensoError("E_ATTR_BAD_TYPE", type);
     }
 &nbsp;
     const { toProp, toAttr } = converters.get(type);
@@ -845,10 +836,10 @@ export const attr = (value = null, type = String) =&gt; {
  */
 export const computed = (fn, deps) =&gt; {
     if (typeof fn !== 'function') {
-        throw new Error('[Enso] - computed() expects a function');
+        ensoError("E_COMPUTED_FN");
     }
     if (!Array.isArray(deps) || !deps.every(d =&gt; typeof d === 'string')) {
-        throw new Error('[Enso] - computed() expects an array of dependency names');
+        ensoError("E_COMPUTED_DEPS");
     }
     if (!deps.includes(lifecycle.mount)) {
         deps.push(lifecycle.mount);
@@ -894,7 +885,7 @@ export function watches(fn, props = [], keep=false) {
     if (isFunction(fn)) {
         fn.__watches = { props, keep };
     } else {
-        throw new Error("[Enso] - Watches can only be applied to functions.");
+        ensoError("E_WATCHES_FN");
     }
     return fn;
 }
@@ -926,7 +917,7 @@ export function parseScript(script) {
 &nbsp;
 const validateName = (name) =&gt; {
     if (name.startsWith('_'))
-        throw new Error("[Enso] - Watched property names must not start with '_'.");
+        ensoError("E_WATCHED_NAME");
 };
 &nbsp;
 const createPropDesc = (name, desc, watchers = []) =&gt; {
@@ -955,7 +946,7 @@ export class Watched {
                     return this._getProp(prop);
                 },
                 set(val) {
-                    if (prop.comp) throw new Error('[Enso] - Tried to set value of computed property.');
+                    if (prop.comp) ensoError("E_COMPUTED_SET", prop.name);
                     this._setProp(prop, val);
                 }
             });
@@ -1011,7 +1002,7 @@ export class Watched {
                     enumerable: true,
                     get: () =&gt; this._getProp(prop),
                     set: (prop.comp)
-                        ? ()=&gt;{throw new Error('[Enso] - Tried to set value of computed property.')}
+                        ? ()=&gt;{ ensoError("E_COMPUTED_SET", prop.name); }
                         : v =&gt; this._setProp(prop, v),
                 });
             }
@@ -1084,7 +1075,7 @@ export class Watched {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-25T19:13:44.511Z
+                at 2026-01-25T23:38:14.061Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

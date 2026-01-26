@@ -13,6 +13,7 @@ import {
     UPDATE, SCHEDULE_UPDATE, ENSO_INTERNAL,
     MARK_CHANGED,
 } from "./core/symbols.js";
+import { ensoError, ensoReport } from "./core/errors.js";
 
 
 export const lifecycle = Object.freeze({
@@ -45,17 +46,16 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     constructor(key) {
         super();
 
-        if (key !== ENSO_INTERNAL) {
-            throw new Error(
-                "Direct subclassing of Enso is not supported.\n" +
-                "Use Enso.component() instead."
-            );
-        }
+        if (key !== ENSO_INTERNAL) ensoError('E_COMPONENT_SUB');
 
         this.#watched = new this.constructor.WatchedClass(this);
         this[BINDINGS]= this.#watched[BINDINGS];
         
         this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
+    }
+    
+    _report(level, code, data) {
+        ensoReport(level, code, data)
     }
 
     //// Accessors - External
