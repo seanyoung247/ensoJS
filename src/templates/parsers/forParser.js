@@ -5,7 +5,7 @@ import { getOperator } from "./utils.js";
 import { parseFor, createForFunction } from "./forUtils.js";
 
 
-export default function register(register, ctx) {
+export default function (register, ctx) {
     const {
         addBinding, parseSource,
         EnsoFragment, Action

@@ -43,10 +43,10 @@ export const html = (strings, ...values) => (
  * @param {object|null} attrs - optional attributes to include
  * @returns {function} - callable template tag function + metadata
  */
-export const createComponentTag = (tag, ComponentClass, attrs=null) => {
+export function createComponentTag(tag, ComponentClass, attrs=null) {
 
     // Helper: convert attrs object → HTML attribute string
-    const attrStringFrom = (attrs) => {
+    function attrStringFrom(attrs) {
         if (!attrs) return "";
         let out = "";
         for (const [key, value] of Object.entries(attrs)) {
@@ -61,7 +61,7 @@ export const createComponentTag = (tag, ComponentClass, attrs=null) => {
         return out;
     }
 
-    const makeTagString = (children = "") => {
+    function makeTagString(children = "") {
         const attrStr = attrStringFrom(attrs);
         return children
             ? `<${tag}${attrStr}>${children}</${tag}>`

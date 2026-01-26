@@ -53,7 +53,7 @@ const descripter = (desc) => Object.defineProperty(desc, '_prop', {
  * @param {boolean} [deep=false] - Whether to enable deep reactivity if the value is an object.
  * @returns {object} - A property descriptor object consumed by the watched system.
  */
-export const prop = (value = null, deep=false) => {
+export function prop(value = null, deep=false) {
     deep = deep && (value !== null && typeof value === 'object');
     return descripter({
         value: createFactory(value), deep, attribute: false
@@ -71,7 +71,7 @@ export const prop = (value = null, deep=false) => {
  * @throws {Error} - If value is an object, or type is not in the allowed attributeTypes list.
  * @returns {object} - A descriptor object defining attribute parsing, serialisation, and reactivity.
  */
-export const attr = (value = null, type = String) => {
+export function attr(value = null, type = String) {
     const force = (value !== null && value !== undefined);
 
     if (force) {
@@ -99,7 +99,7 @@ export const attr = (value = null, type = String) => {
  * @param {Array<String>} deps - Array of string watched property names.
  * @returns - A descriptor object defining the computed property.
  */
-export const computed = (fn, deps) => {
+export function computed(fn, deps) {
     if (typeof fn !== 'function') {
         ensoError("E_COMPUTED_FN");
     }
@@ -180,12 +180,12 @@ export function parseScript(script) {
     return watchers;
 }
 
-const validateName = (name) => {
+function validateName(name) {
     if (name.startsWith('_'))
         ensoError("E_WATCHED_NAME");
 };
 
-const createPropDesc = (name, desc, watchers = []) => {
+function createPropDesc(name, desc, watchers = []) {
     const propDesc = desc?._prop ? desc : prop(desc);
     return Object.assign({}, propDesc, { name, watchers });
 };
@@ -215,6 +215,7 @@ export class Watched {
                     this._setProp(prop, val);
                 }
             });
+
             // If computed - flag for adding to watchers.
             if (prop.comp) computed.push(prop);
 

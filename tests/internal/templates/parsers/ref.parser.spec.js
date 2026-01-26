@@ -3,6 +3,7 @@ import { ctx, parser, register } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { createMockComponent } from '../../../mockComponent.js';
 import { getTestElement } from '../../../shared.js';
+import { ENSO_NODE } from '../../../../src/core/symbols.js';
 
 import refParser from '../../../../src/templates/parsers/refParser.js';
 refParser(register, ctx);
@@ -47,7 +48,7 @@ describe('ref operator parser', () => {
         expect(el.hasAttribute('enso-ref')).toBe(false);
 
         // ref must be watched
-        expect(el.hasAttribute('data-enso-node')).toBe(true);
+        expect(el.hasAttribute(ENSO_NODE)).toBe(true);
     });
 
     it('process attaches ref to component instance', () => {

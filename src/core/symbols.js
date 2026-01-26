@@ -3,32 +3,32 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 // Framework internal key
-export const ENSO_INTERNAL = Symbol("enso.internal");
+export const ENSO_INTERNAL = Symbol();
 
 // Enso Component internal framework method Symbols
-export const SCHEDULE_UPDATE = Symbol("enso.scheduleUpdate");
-export const SCHEDULE_EFFECT = Symbol("enso.scheduleEffect");
-export const ATTACH_TEMPLATE = Symbol("enso.attachTemplates");
-export const MARK_CHANGED = Symbol("enso.markChanged");
-export const ADD_CHILD = Symbol("enso.addChild");
-export const UPDATE = Symbol("enso.update");
+export const SCHEDULE_UPDATE = Symbol();
+export const SCHEDULE_EFFECT = Symbol();
+export const ATTACH_TEMPLATE = Symbol();
+export const MARK_CHANGED = Symbol();
+export const ADD_CHILD = Symbol();
+export const UPDATE = Symbol();
 
 // Enso Component internal framework property Symbols
-export const GET_BINDING = Symbol("enso.getBinding");
-export const ADD_BINDING = Symbol("enso.setBinding");
-export const TASK_LIST = Symbol("enso.taskList");
-export const BINDINGS = Symbol("enso.bindings");
-export const CHILDREN = Symbol("enso.children");
-export const ANCHOR = Symbol("enso.anchor");
-export const NODES = Symbol("enso.nodes");
-export const ROOT = Symbol("enso.root");
-export const ENV = Symbol("enso.env");
+export const GET_BINDING = Symbol();
+export const ADD_BINDING = Symbol();
+export const TASK_LIST = Symbol();
+export const BINDINGS = Symbol();
+export const CHILDREN = Symbol();
+export const ANCHOR = Symbol();
+export const NODES = Symbol();
+export const ROOT = Symbol();
+export const ENV = Symbol();
 
 // Fragment root component
 export const ENSO_FRAGMENT = 'ENSO-FRAGMENT';
 
 // Watched and root node definition attributes
-export const ENSO_NODE = 'data-enso-node';
-export const ENSO_ROOT = 'data-enso-root';
-export const ENSO_PARSED = 'data-enso-fragment';
-export const ENSO_TEMPLATE = 'data-enso-template';
+export const ENSO_NODE = 'enso-node';
+export const ENSO_ROOT = 'enso-root';
+export const ENSO_PARSED = 'enso-frag';
+export const ENSO_TEMPLATE = 'enso-temp';

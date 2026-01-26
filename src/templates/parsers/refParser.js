@@ -5,7 +5,7 @@
 import { getOperator } from "./utils.js";
 
 
-export default function register(register) {
+export default function (register) {
 
     // Reference Attribute (#ref) parser
     register.generator({

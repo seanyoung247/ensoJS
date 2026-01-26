@@ -4,7 +4,7 @@
 import { getChildIndex } from "../../utils/dom.js";
 
 
-export default function register(register, ctx) {
+export default function (register, ctx) {
     const {
         addBinding, parseSource,
         Effect, Action, compileValue

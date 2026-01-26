@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
+import { ENSO_ROOT } from '../../../../src/core/symbols.js';
 
 import ifParser from '../../../../src/templates/parsers/ifParser.js';
 ifParser(register, ctx);
@@ -48,7 +49,7 @@ describe('if operator parser', () => {
 
         // The node should have been marked as a root (createRoot called)
         // Your NodeDefMap uses ENSO_ROOT containing the NodeDef id
-        expect(el.hasAttribute('data-enso-root')).toBe(true);
+        expect(el.hasAttribute(ENSO_ROOT)).toBe(true);
 
         // And there should now be a root NodeDef retrievable by root node
         const ifDef = def.map.getByRoot(el);

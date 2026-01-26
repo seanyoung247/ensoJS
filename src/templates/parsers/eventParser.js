@@ -4,7 +4,7 @@
 import { getName, isAttr } from "./utils.js";
 
 
-export default function register(register, ctx) {
+export default function (register, ctx) {
     const { Action, parseSource } = ctx;
 
     function attachEventListener(parent, element, event) {

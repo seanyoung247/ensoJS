@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { parser, register, ctx } from '../../../../src/templates/parser.js';
 import { createNodeDef } from '../../../mockNodeDef.js';
 import { getTestElement } from '../../../shared.js';
+import { ENSO_NODE } from '../../../../src/core/symbols.js';
 
 import textParser from '../../../../src/templates/parsers/textParser.js';
 textParser(register, ctx);
@@ -66,7 +67,7 @@ describe('text mutator parser', () => {
 
         parser.preprocess(def, textNode);
 
-        expect(el.hasAttribute('data-enso-node')).toBe(true);
+        expect(el.hasAttribute(ENSO_NODE)).toBe(true);
     });
 
     it('ignores non-text nodes', () => {
