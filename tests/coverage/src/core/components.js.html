@@ -187,11 +187,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">31x</span>
-<span class="cline-any cline-yes">63x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">64x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">36x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
@@ -207,23 +207,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">31x</span>
-<span class="cline-any cline-yes">63x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">65x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">332x</span>
-<span class="cline-any cline-yes">332x</span>
+<span class="cline-any cline-yes">333x</span>
+<span class="cline-any cline-yes">333x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">332x</span>
-<span class="cline-any cline-yes">332x</span>
-<span class="cline-any cline-yes">332x</span>
+<span class="cline-any cline-yes">333x</span>
+<span class="cline-any cline-yes">333x</span>
+<span class="cline-any cline-yes">333x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">269x</span>
-<span class="cline-any cline-yes">330x</span>
+<span class="cline-any cline-yes">331x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">150x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,19 +262,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1008x</span>
-<span class="cline-any cline-yes">379x</span>
+<span class="cline-any cline-yes">1006x</span>
+<span class="cline-any cline-yes">377x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1008x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1008x</span>
-<span class="cline-any cline-yes">4203x</span>
+<span class="cline-any cline-yes">1006x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1006x</span>
+<span class="cline-any cline-yes">4191x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1008x</span>
-<span class="cline-any cline-yes">1008x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1006x</span>
+<span class="cline-any cline-yes">1006x</span>
 <span class="cline-any cline-yes">631x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -304,7 +304,7 @@ export const createComponent = (base, proto) =&gt; {
 &nbsp;
     // Check that we've been given an Object litteral
     const cType = typeof proto;
-    if (cType !== 'object') ensoError('E_COMPONENT_OBJ', cType)
+    if (cType !== 'object') ensoError(103, cType); // E_COMPONENT_OBJ
 &nbsp;
     // Pull the custom fields out of the object mixin and add them to the component prototype
     const descriptors = Object.getOwnPropertyDescriptors(proto);
@@ -340,7 +340,7 @@ export const EnsoNode = (Base = Object) =&gt; {
             this.#children.push(fragment);
         }
 &nbsp;
-        [GET_BINDING](bind) { return this.#bindings.get(bind); }
+        [GET_BINDING](bind) { return this.#bindings[bind]; }
         [ADD_BINDING](bind, effect) {
             const binding = this[GET_BINDING](bind);
             if (binding) {
@@ -354,7 +354,7 @@ export const EnsoNode = (Base = Object) =&gt; {
         }
 &nbsp;
         [MARK_CHANGED](prop) {
-            const bind = this.#bindings.get(prop);
+            const bind = this.#bindings[prop];
             if (bind &amp;&amp; !bind.changed) {
                 bind.changed = true;
 &nbsp;
@@ -377,7 +377,7 @@ export const EnsoNode = (Base = Object) =&gt; {
             this.#taskList.clear();
 &nbsp;
             // reset all bindings
-            for (const bind of this.#bindings.values()) {
+            for (const bind of Object.values(this.#bindings)) {
                 bind.changed = false;
             }
 &nbsp;
@@ -397,7 +397,7 @@ export const EnsoNode = (Base = Object) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-25T23:38:14.061Z
+                at 2026-01-27T18:32:41.397Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

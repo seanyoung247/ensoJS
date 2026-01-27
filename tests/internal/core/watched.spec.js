@@ -22,11 +22,11 @@ describe("Watched class", () => {
 
         // Mock component hosting the Watched instance
         class MockComponent {
-        constructor() {
-            this[MARK_CHANGED] = vi.fn();
-            this.reflectAttribute = vi.fn();
-            this.onPropertyChange = vi.fn();
-        }
+            constructor() {
+                this[MARK_CHANGED] = vi.fn();
+                this.reflectAttribute = vi.fn();
+                this.onPropertyChange = vi.fn();
+            }
         }
 
         component = new MockComponent();
@@ -119,11 +119,11 @@ describe("Watched class", () => {
         const watched = new Watched(component);
         const spy = vi.fn();
 
-        watched[BINDINGS].set('prop', {
+        watched[BINDINGS]['prop'] = {
             changed: false,
             watchers: [],
             effects: []
-        });
+        };
         watched._addWatcher('prop', spy);
         watched._notify('prop');
 
@@ -146,14 +146,14 @@ describe("Watched class", () => {
         const watched = new Watched(component);
 
         const spy = vi.fn();
-        watched[BINDINGS].set('known', {
+        watched[BINDINGS]['known'] = {
             changed: false,
             watchers: [spy],
             effects: []
-        });
+        };
 
         // Ensure 'missing' is truly missing
-        expect(watched[BINDINGS].has('missing')).toBe(false);
+        expect(watched[BINDINGS]['missing']).toBeUndefined();
 
         // Act: notify a property with no watchers
         watched._notify('missing');

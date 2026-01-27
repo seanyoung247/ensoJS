@@ -59,14 +59,14 @@ it ('returns a component tag with correct properties', async () => {
 
     expect(componentTag.toString()).toBe('<my-test></my-test>');
     expect(`${componentTag}`).toBe('<my-test></my-test>');
-    expect(`${componentTag`<test>Hello World</test>`}`)
+    expect(`${componentTag(null, '<test>Hello World</test>')}`)
         .toBe('<my-test><test>Hello World</test></my-test>');
 
     expect(`${componentTag({ id: 'comp1', hidden: true })}`)
         .toBe('<my-test id="comp1" hidden></my-test>');
     expect(`${componentTag({ id: 'comp1', omit1: null, omit2: false })}`)
         .toBe('<my-test id="comp1"></my-test>');
-    expect(`${componentTag({ id: 'comp1', hidden: true })`<span>Content</span>`}`)
+    expect(`${componentTag({ id: 'comp1', hidden: true },'<span>Content</span>')}`)
         .toBe('<my-test id="comp1" hidden><span>Content</span></my-test>');
 
 });
