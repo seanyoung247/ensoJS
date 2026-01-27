@@ -165,8 +165,12 @@ export function parseScript(script) {
     const watchers = Object.create(null);
     if (!script) return watchers;
 
-    for (const key in script) {
-        const fn = script[key];
+    const descriptors = Object.getOwnPropertyDescriptors(script);
+
+    for (const [key, descriptor] of Object.entries(descriptors)) {
+        if (!('value' in descriptor)) continue;
+
+        const fn = descriptor.value;
         if (fn?.__watches) {
             for (const prop of fn.__watches.props) {
                 (watchers[prop] ||= []).push(fn);
@@ -174,6 +178,7 @@ export function parseScript(script) {
             if (!fn.__watches.keep) delete script[key];
         }
     }
+
     return watchers;
 }
 
