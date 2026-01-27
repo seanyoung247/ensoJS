@@ -21,7 +21,7 @@ export const createComponent = (base, proto) => {
 
     // Check that we've been given an Object litteral
     const cType = typeof proto;
-    if (cType !== 'object') ensoError('E_COMPONENT_OBJ', cType)
+    if (cType !== 'object') ensoError(103, cType); // E_COMPONENT_OBJ
 
     // Pull the custom fields out of the object mixin and add them to the component prototype
     const descriptors = Object.getOwnPropertyDescriptors(proto);
@@ -57,7 +57,7 @@ export const EnsoNode = (Base = Object) => {
             this.#children.push(fragment);
         }
 
-        [GET_BINDING](bind) { return this.#bindings.get(bind); }
+        [GET_BINDING](bind) { return this.#bindings[bind]; }
         [ADD_BINDING](bind, effect) {
             const binding = this[GET_BINDING](bind);
             if (binding) {
@@ -71,7 +71,7 @@ export const EnsoNode = (Base = Object) => {
         }
 
         [MARK_CHANGED](prop) {
-            const bind = this.#bindings.get(prop);
+            const bind = this.#bindings[prop];
             if (bind && !bind.changed) {
                 bind.changed = true;
 
@@ -94,7 +94,7 @@ export const EnsoNode = (Base = Object) => {
             this.#taskList.clear();
 
             // reset all bindings
-            for (const bind of this.#bindings.values()) {
+            for (const bind of Object.values(this.#bindings)) {
                 bind.changed = false;
             }
 

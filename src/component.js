@@ -46,7 +46,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     constructor(key) {
         super();
 
-        if (key !== ENSO_INTERNAL) ensoError('E_COMPONENT_SUB');
+        if (key !== ENSO_INTERNAL) ensoError(102); // E_COMPONENT_SUB
 
         this.#watched = new this.constructor.WatchedClass(this);
         this[BINDINGS]= this.#watched[BINDINGS];
@@ -55,7 +55,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
     
     _report(level, code, data) {
-        ensoReport(level, code, data)
+        ensoReport(level, code, data);
     }
 
     //// Accessors - External
@@ -78,7 +78,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
         // Loops through all properties defined as attributes 
         // and sets their initial value if they're forced.
-        const attributes = this.observedAttributes;
+        const attributes = this.constructor.observedAttributes;
         for (const attr of attributes) {
             if (this.watched._defs[attr].attribute.force) {
                 this.reflectAttribute(attr);

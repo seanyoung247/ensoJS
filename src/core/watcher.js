@@ -70,16 +70,20 @@ const mutatorWatcher = (onChange, name, trapMethods) => {
     };
 };
 
-const typeMap = {
-    'Array': new Set(['push','pop','shift','unshift','splice','sort','reverse']),
-    'Set': new Set(['add','delete','clear']),
-    'Map': new Set(['set','delete','clear']),
-};
+const arrayMethods = new Set(['push','pop','shift','unshift','splice','sort','reverse']);
+const setMethods = new Set(['add','delete','clear']);
+const mapMethods = new Set(['set','delete','clear']);
 
 const getWatcher = (target, name, onChange) => {
-    if (Array.isArray(target)) return mutatorWatcher(onChange, name, typeMap.Array);
-    if (target instanceof Set) return mutatorWatcher(onChange, name, typeMap.Set);
-    if (target instanceof Map) return mutatorWatcher(onChange, name, typeMap.Map);
+    if (Array.isArray(target)) return mutatorWatcher(
+        onChange, name, arrayMethods
+    );
+    if (target instanceof Set) return mutatorWatcher(
+        onChange, name, setMethods
+    );
+    if (target instanceof Map) return mutatorWatcher(
+        onChange, name, mapMethods
+    );
     return baseWatcher(onChange, name);
 };
 

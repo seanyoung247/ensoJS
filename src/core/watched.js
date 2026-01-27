@@ -79,7 +79,7 @@ export function attr(value = null, type = String) {
     }
 
     if (!attributeTypes.includes(type) || (value !== null && typeof value === 'object')) {
-        ensoError("E_ATTR_BAD_TYPE", type);
+        ensoError(201, type); // E_ATTR_BAD_TYPE
     }
 
     const { toProp, toAttr } = converters.get(type);
@@ -101,15 +101,14 @@ export function attr(value = null, type = String) {
  */
 export function computed(fn, deps) {
     if (typeof fn !== 'function') {
-        ensoError("E_COMPUTED_FN");
+        ensoError(211); // E_COMPUTED_FN
     }
     if (!Array.isArray(deps) || !deps.every(d => typeof d === 'string')) {
-        ensoError("E_COMPUTED_DEPS");
+        ensoError(212); // E_COMPUTED_DEPS
     }
     if (!deps.includes(lifecycle.mount)) {
         deps.push(lifecycle.mount);
     }
-    deps = Object.freeze([...deps]);
     return descripter({
         value: undefined,
         deps,
@@ -139,7 +138,6 @@ export function setWatched(component, values) {
     component.watched._update(values);
 }
 
-const isFunction = fn => typeof fn === 'function' && fn.prototype !== undefined;
 /**
  * Tags a script method to be notified when watched properties change
  * @param {Function} fn     - The function to call
@@ -147,17 +145,16 @@ const isFunction = fn => typeof fn === 'function' && fn.prototype !== undefined;
  * @returns {Function} The watcher function
  */
 export function watches(fn, props = [], keep=false) {
-    if (isFunction(fn)) {
+    if (typeof fn === 'function' && fn.prototype !== undefined) {
         fn.__watches = { props, keep };
     } else {
-        ensoError("E_WATCHES_FN");
+        ensoError(221); // E_WATCHES_FN
     }
     return fn;
 }
 
 const VALUES = Symbol('enso.watched.values');
 
-const objEntries = obj => Object.entries(Object.getOwnPropertyDescriptors(obj));
 /**
  * Scans through the given script and collects any methods
  * that should be called when properties change.
@@ -168,8 +165,8 @@ export function parseScript(script) {
     const watchers = Object.create(null);
     if (!script) return watchers;
 
-    for (const [key, descriptor] of objEntries(script)) {
-        const fn = descriptor.value;
+    for (const key in script) {
+        const fn = script[key];
         if (fn?.__watches) {
             for (const prop of fn.__watches.props) {
                 (watchers[prop] ||= []).push(fn);
@@ -182,13 +179,15 @@ export function parseScript(script) {
 
 function validateName(name) {
     if (name.startsWith('_'))
-        ensoError("E_WATCHED_NAME");
-};
+        ensoError(231); // E_WATCHED_NAME
+}
 
-function createPropDesc(name, desc, watchers = []) {
-    const propDesc = desc?._prop ? desc : prop(desc);
-    return Object.assign({}, propDesc, { name, watchers });
-};
+function createPropDesc(name, d, w) {
+    const p = d && d._prop ? d : prop(d);
+    p.name = name;
+    p.watchers = w || [];
+    return p;
+}
 
 export class Watched {
 
@@ -211,7 +210,7 @@ export class Watched {
                     return this._getProp(prop);
                 },
                 set(val) {
-                    if (prop.comp) ensoError("E_COMPUTED_SET", prop.name);
+                    if (prop.comp) ensoError(213, prop.name); // E_COMPUTED_SET
                     this._setProp(prop, val);
                 }
             });
@@ -248,9 +247,9 @@ export class Watched {
         return cls;
     }
 
-    #component;             // Component owner
-    #values = new Map();    // Holds the actual property values
-    #bindings = new Map();  // Bindings for the watched properties
+    #component;                     // Component owner
+    #values = Object.create(null);  // Holds the actual property values
+    #bindings = Object.create(null);// Bindings for the watched properties
 
     constructor(component) {
         this.#component = component;
@@ -268,7 +267,7 @@ export class Watched {
                     enumerable: true,
                     get: () => this._getProp(prop),
                     set: (prop.comp)
-                        ? ()=>{ ensoError("E_COMPUTED_SET", prop.name); }
+                        ? ()=>{ ensoError(213, prop.name); } // E_COMPUTED_SET
                         : v => this._setProp(prop, v),
                 });
             }
@@ -278,30 +277,30 @@ export class Watched {
                 value = watch(value, prop.name, component[MARK_CHANGED]);
             }
             // Add to values map
-            this.#values.set(defName, value);
+            this.#values[defName] = value;
             // Create binding
-            this.#bindings.set(defName, {
+            this.#bindings[defName] = {
                 changed: false,             // Has value changed?
                 watchers: prop.watchers,    // List of functions to notify of changes
                 effects: [],                // List of effects to schedule on change
-            });
+            };
         }
     }
 
     get [BINDINGS]() { return this.#bindings; }
-    get [VALUES]() { return Object.fromEntries(this.#values); }
+    get [VALUES]() { return structuredClone(this.#values); }
     get _defs() { return this.constructor.defs; }
 
     _addWatcher(prop, fn) {
-        if (this.#bindings.has(prop)) {
-            this.#bindings.get(prop).watchers.push(fn);
+        if (this.#bindings[prop]) {
+            this.#bindings[prop].watchers.push(fn);
         }
     }
 
     _notify(prop) {
-        if (this.#bindings.has(prop)) {
-            const { watchers } = this.#bindings.get(prop);
-            const value = this.#values.get(prop);
+        if (this.#bindings[prop]) {
+            const { watchers } = this.#bindings[prop];
+            const value = this.#values[prop];
 
             for (const watcher of watchers) {
                 watcher.call(
@@ -312,7 +311,7 @@ export class Watched {
     }
 
     _getProp(prop) {
-        return this.#values.get(prop.name);
+        return this.#values[prop.name];
     }
 
     _setProp(prop, value) {
@@ -320,7 +319,7 @@ export class Watched {
             value = watch(value, prop.name, this.#component[MARK_CHANGED]);
         }
 
-        this.#values.set(prop.name, value);
+        this.#values[prop.name] = value;
         this.#component[MARK_CHANGED](prop.name);
 
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
@@ -328,7 +327,7 @@ export class Watched {
 
     _update(values) {
         for (const val in values) {
-            if (values[val] !== this.#values.get(val)) {
+            if (values[val] !== this.#values[val]) {
                 this._setProp(this._defs[val], values[val]);
             }
         }

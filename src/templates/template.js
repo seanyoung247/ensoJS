@@ -56,15 +56,8 @@ const extractLooseFragments = root => {
         `${ENSO_FRAGMENT}:not([${ENSO_ROOT}])`
     );
 
-    for (const node of loose) {
-        const children = [...node.childNodes];
-        if (children.length === 0) {
-            node.remove();
-            continue;
-        }
-
-        node.replaceWith(...children);
-    }
+    for (const node of loose)
+        node.replaceWith(...node.childNodes);
 };
 
 const wrapFragment = (root) => {
@@ -101,7 +94,6 @@ export default class EnsoTemplate {
         }
         template.setAttribute(ENSO_PARSED, "");
 
-        this.#watched;
         return template;
     }
 

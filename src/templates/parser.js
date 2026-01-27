@@ -52,14 +52,14 @@ export const parser = (() => {
          */
         register(parser, type = "attribute") {
             const registry = parsers[type];
-            if (!registry) ensoError("E_PARSER_TYPE", type);
+            if (!registry) ensoError(401, type); // E_PARSER_TYPE
 
             registry.set(parser);
         },
 
         get(type, node, attribute=null) {
             const registry = parsers[type];
-            if (!registry) ensoError("E_PARSER_TYPE", type);
+            if (!registry) ensoError(401, type); // E_PARSER_TYPE
             
             return registry.get(node, attribute);
         },

@@ -34,82 +34,33 @@ export const html = (strings, ...values) => (
  *
  * Supports:
  *   ${Comp}                    → <tag></tag>
- *   ${Comp`children`}          → <tag>children</tag>
  *   ${Comp(attrs)}             → <tag attr="..."></tag>
- *   ${Comp(attrs)`children`}   → <tag attr="...">children</tag>
+ *   ${Comp(null, children)}    → <tag>children</tag>
+ *   ${Comp(attrs, 'children')} → <tag attr="...">children</tag>
  * 
  * @param {string} tag - custom element name
  * @param {class} ComponentClass - the actual component constructor
  * @param {object|null} attrs - optional attributes to include
  * @returns {function} - callable template tag function + metadata
  */
-export function createComponentTag(tag, ComponentClass, attrs=null) {
+export function createComponentTag(tag, ComponentClass) {
+    function Comp(attrs, children) {
+        const attrStr = attrs
+            ? Object.entries(attrs).reduce((s, [k, v]) => {
+                if (v === true) return `${s} ${k}`;
+                if (v != null && v !== false) return `${s} ${k}="${v}"`;
+                return s;
+            }, "")
+            : "";
 
-    // Helper: convert attrs object → HTML attribute string
-    function attrStringFrom(attrs) {
-        if (!attrs) return "";
-        let out = "";
-        for (const [key, value] of Object.entries(attrs)) {
-            if (value === true) {
-                out += ` ${key}`;               // boolean attribute
-            } else if (value === false || value == null) {
-                continue;                       // omit
-            } else {
-                out += ` ${key}="${String(value)}"`; // normal attribute
-            }
-        }
-        return out;
-    }
-
-    function makeTagString(children = "") {
-        const attrStr = attrStringFrom(attrs);
-        return children
+        return children != null
             ? `<${tag}${attrStr}>${children}</${tag}>`
             : `<${tag}${attrStr}></${tag}>`;
     }
 
-    /**
-     * Main wrapper function.
-     *
-     * If called as tagged template:
-     *    Comp`children`
-     *
-     * If called as plain function:
-     *    Comp({ attr: value })
-     */
-    function tagFn(strings, ...values) {
-        // Case 1 — used as plain function to apply attributes
-        if (!Array.isArray(strings) || !strings.raw) {
-            const newAttrs = { ...(attrs || {}), ...strings };
-            return createComponentTag(tag, ComponentClass, newAttrs);
-        }
+    Comp.toString = () => `<${tag}></${tag}>`;
+    Comp.tag = tag;
+    Comp.Class = ComponentClass;
 
-        // Case 2 — used as tagged template literal
-        const children = String.raw(strings, ...values);
-        return makeTagString(children);
-    }
-
-    Object.defineProperties(tagFn, {
-        /** Empty usage: ${Comp} */
-        toString: {
-            value() { return makeTagString(); },
-            enumerable: false
-        },
-        /** Ensure coercion always works */
-        [Symbol.toPrimitive]: {
-            value() { return makeTagString(); },
-            enumerable: false
-        },
-        /** Expose original class for introspection */
-        Class: {
-            get() { return ComponentClass; },
-            enumerable: false
-        },
-        /** Expose component tag name */
-        tag: { value: tag, enumerable: true },
-        /** Expose attributes object (mainly for debugging / inspection) */
-        attrs: { value: attrs, enumerable: false }
-    });
-
-    return Object.freeze(tagFn);
-};
+    return Comp;
+}

@@ -56,7 +56,7 @@ const createFunctionBody = code => (
         return (() => {
             "use strict";
             try { return ${code}; } catch(e) {
-                this._report('error', 'E_EFFECT_RUNTIME', e);
+                this._report('error', 312, e); // E_EFFECT_RUNTIME
                 return undefined;
             }
         })();
@@ -68,7 +68,7 @@ const createAction = code => {
     try {
         return new Function('env', body);
     } catch(e) {
-        ensoReport('error', "E_EFFECT_COMPILE", `\n${e}\n${body}`);
+        ensoReport('error', 301, `\n${e}\n${body}`); // E_EFFECT_COMPILE
         return () => () => {/* no-op on error */};
     }
 };
@@ -81,7 +81,7 @@ export class Effect {
         try {
             this.#action = action.createFunc(parent);
         } catch (e) {
-            ensoReport('error', "E_EFFECT_CREATE", `\n${e}\n${action}`);
+            ensoReport('error', 302, `\n${e}\n${action}`); // E_EFFECT_CREATE
             this.#action = () => {};
         }
     }
@@ -93,7 +93,7 @@ export class Effect {
         try {
             return this.#action?.();
         } catch (e) {
-            ensoReport('error', "E_EFFECT_RUNNING", `\n${e}\n${this.#action.toString()}`);
+            ensoReport('error', 311, `\n${e}\n${this.#action.toString()}`); // E_EFFECT_RUNNING
             return undefined;
         }
     }
@@ -123,7 +123,7 @@ export class Action {
         const fn = this.#func.call(component, env);
         const cType = typeof fn;
         if (cType !== 'function') {
-            ensoError('E_EFFECT_FUNC', cType)
+            ensoError(303, cType);  // E_EFFECT_FUNC
         }
         return fn;
     }

@@ -50,10 +50,10 @@ export class EnsoFragment extends EnsoNode() {
 
         // Create initial binding map
         const bindings = new Map();
-        for (const [prop, bind] of this.#component[BINDINGS]) {
-            bindings.set(prop, {
+        for (const [prop, bind] of Object.entries(this.#component[BINDINGS])) {
+            bindings[prop] = {
                 changed: false, watchers: bind.watchers, effects: []
-            });
+            };
         }
         this[BINDINGS] = bindings;
 

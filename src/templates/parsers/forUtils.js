@@ -28,7 +28,7 @@ const getIdentifiers = source => {
     const closeBracket = token => {
         // If the closing bracket doesn't match the last opened, error
         if (token !== stack.pop().token) {
-            ensoError("E_FOR_BRACKETS");
+            ensoError(411); // E_FOR_BRACKETS
         }
         allowCapture = false;
     };
@@ -51,7 +51,7 @@ const getIdentifiers = source => {
     }).filter(Boolean);
     // If there are still open brackets, error
     if (stack.length > 1) {
-        ensoError("E_FOR_BRACKETS");
+        ensoError(411); // E_FOR_BRACKETS
     }
     return identifiers;
 };
@@ -72,7 +72,7 @@ export const createForFunction = (code, ids) => (
                 yield { ${ ids.join(', ')} };
             }
         } catch(e) {
-            this._report('E_FOR_RUNTIME', e);
+            this._report(412, e);
         }
     }).bind(this);/*js*/`
 );

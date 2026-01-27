@@ -22,7 +22,7 @@ const defaultSettings = (overrides = {}) => ({
 
 let diagnosticsEnabled = false;
 let resolverPromise = null;
-const errorString = (code, data) => `[Enso] ${code}: ${data}`;
+const errorString = (code, data) => `${code}: ${data}`;
 
 export const API = {
     version: VERSION,
@@ -58,7 +58,7 @@ export const API = {
             settings={}
         }) { settings = defaultSettings(settings);
 
-        if (customElements.get(tag)) ensoError('E_COMPONENT_DEF', tag);
+        if (customElements.get(tag)) ensoError(101, tag); // E_COMPONENT_DEF
 
         const watchers = parseScript(script);
         const component = createComponent(EnsoComponent, script);
@@ -72,9 +72,9 @@ export const API = {
             'observedAttributes': { get() { return WatchedClass.attr; } },
             'WatchedClass': { get() { return WatchedClass; } }
         });
+
         // Type properties
         Object.defineProperties(component.prototype, {
-            'observedAttributes': { get() { return WatchedClass.attr; } },
             'settings': { get() { return settings; } },
             'template': { get() { return template; } },
             'styles': { get() { return styles; } },
