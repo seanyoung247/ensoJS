@@ -21,6 +21,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     minify: 'terser',
+    sourcemap: true,
     lib: {
         entry: path.resolve(__dirname, 'src/index.js'),
         name: 'ensojs',
