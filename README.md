@@ -4,6 +4,7 @@
 
 ![npm version](https://img.shields.io/npm/v/ensojs?color=ca2e2e)
 ![bundle size](https://img.shields.io/bundlephobia/minzip/ensojs?label=size&color=ca2e2e&labelColor=333333)
+
 ![license](https://img.shields.io/github/license/seanyoung247/ensojs)
 <!-- ![npm total downloads](https://img.shields.io/npm/dt/ensojs) -->
 ![issues](https://img.shields.io/github/issues/seanyoung247/ensojs)

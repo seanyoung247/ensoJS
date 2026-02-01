@@ -168,7 +168,7 @@ export function parseScript(script) {
     const descriptors = Object.getOwnPropertyDescriptors(script);
 
     for (const [key, descriptor] of Object.entries(descriptors)) {
-        if (!('value' in descriptor)) continue;
+        // if (!('value' in descriptor)) continue;
 
         const fn = descriptor.value;
         if (fn?.__watches) {

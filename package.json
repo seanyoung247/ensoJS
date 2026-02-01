@@ -7,21 +7,26 @@
   "license": "MIT",
   "main": "./dist/ensojs.es.js",
   "module": "./dist/ensojs.es.js",
+  "types": "./types/index.d.ts",
+
   "exports": {
     ".": {
-      "source": "./src/index.js",
+      "types": "./types/index.d.ts",
+      "import": "./dist/ensojs.es.js",
       "default": "./dist/ensojs.es.js"
     },
     "./helpers": {
-      "source": "./src/helpers/index.js",
+      "types": "./types/helpers.d.ts",
+      "import": "./dist/helpers.es.js",
       "default": "./dist/helpers.es.js"
     },
     "./errors": {
-      "source": "./src/errors/index.js",
+      "import": "./dist/errors.es.js",
       "default": "./dist/errors.es.js"
     },
     "./package.json": "./package.json"
   },
+
   "files": [
     "dist",
     "README.md",
