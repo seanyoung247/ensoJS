@@ -47,7 +47,6 @@ export const API = {
      *     increment() { this.count++; }
      *   }
      * });
-     * @static
      */
     component(tag, {
             template,
@@ -94,6 +93,10 @@ export const API = {
         plugin(register, ctx);
     },
 
+    /**
+     * Enables verbose diagnostic mode.
+     * @async
+     */
     async enableDiagnostics() {
         diagnosticsEnabled = true;
 
@@ -107,7 +110,9 @@ export const API = {
             setErrorResolver(resolver);
         }
     },
-
+    /**
+     * Disables verbose diagnostic mode
+     */
     disableDiagnostics() {
         diagnosticsEnabled = false;
         setErrorResolver(errorString); // minimal fallback
