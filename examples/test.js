@@ -1,4 +1,4 @@
-import { Enso, html, attr, prop, computed } from "ensojs";
+import { Enso, html, attr, prop, computed } from "../src/index";
 import { range } from "ensojs/helpers";
 
 

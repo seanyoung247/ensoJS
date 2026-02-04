@@ -62,10 +62,11 @@ export default function (register, ctx) {
         },
 
         process(data, parent, element) {
+            const component = parent.component;
             for (const prop of data) { 
                 const effect = prop.action.createEffect(parent, element);
                 for (const bind of prop.binds) {
-                    addWatcher(parent, bind, ()=>effect.run());
+                    addWatcher(component, bind, ()=>effect.run());
                 }
             }
         }
