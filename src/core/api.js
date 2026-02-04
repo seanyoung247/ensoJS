@@ -37,7 +37,7 @@ export const API = {
      *  @param {Object} [props.watched]         - (optional) This component's watched properties
      *  @param {Object} [props.script]          - (Optional) Custom component code implementation
      *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
-     * @returns {Function Object} - A tag function for use in component templates
+     * @returns {import('../types/api').ComponentTag} - A tag function for use in component templates
      * 
      * @example
      * const MyCounter = Enso.component('my-counter', {
@@ -82,6 +82,7 @@ export const API = {
 
         // Define the custom element
         customElements.define(tag, component);
+        /** @type {import('../types/api').ComponentTag} */
         return createComponentTag(tag, component);
     },
 
