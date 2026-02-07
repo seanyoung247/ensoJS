@@ -4,6 +4,7 @@
 
 import EnsoTemplate from "../templates/template.js";
 import { createStyleSheet } from "../utils/css.js";
+import { createTemplate } from "../utils/dom.js";
 
 
 const combine = (strings, ...values) => {
@@ -30,21 +31,38 @@ export const html = (strings, ...values) => (
 );
 
 /**
- * Internal: Create a callable component tag wrapper.
+ * Internal: Creates a callable component tag wrapper.
  *
- * Supports:
- *   ${Comp}                    → <tag></tag>
- *   ${Comp(attrs)}             → <tag attr="..."></tag>
- *   ${Comp(null, children)}    → <tag>children</tag>
- *   ${Comp(attrs, 'children')} → <tag attr="...">children</tag>
- * 
- * @param {string} tag - custom element name
- * @param {class} ComponentClass - the actual component constructor
- * @param {object|null} attrs - optional attributes to include
- * @returns {function} - callable template tag function + metadata
+ * The returned function serves two roles:
+ *  - As a function, it creates a live element instance via the template pipeline.
+ *  - Via `.tag`, it produces a string representation suitable for templates.
+ *
+ * Children are treated as **string-only** at this level and are inserted as
+ * raw inner HTML. Non-string children are intentionally not handled here.
+ *
+ * @example
+ *   Comp()                         // → <tag></tag> (Element)
+ *   Comp({ disabled: true })       // → <tag disabled></tag>
+ *   Comp(null, '<span>Hi</span>')  // → <tag><span>Hi</span></tag>
+ *
+ *   `${Comp.tag}`                  // "<tag></tag>"
+ *   `${Comp.tag({ id: 'x' })}`     // "<tag id="x"></tag>"
+ *   `${Comp.tag(null, 'text')}`    // "<tag>text</tag>"
+ *
+ * @param {string} tag
+ *   Custom element tag name.
+ *
+ * @param {Function} ComponentClass
+ *   Component constructor associated with this tag.
+ *
+ * @returns {Function & {
+ *   tag: (attrs?: Object|null, children?: string|null) => string,
+ *   Class: Function
+ * }}
+ *   Callable component factory with string tag helper.
  */
 export function createComponentTag(tag, ComponentClass) {
-    function Comp(attrs, children) {
+    function Tag(attrs, children) {
         const attrStr = attrs
             ? Object.entries(attrs).reduce((s, [k, v]) => {
                 if (v === true) return `${s} ${k}`;
@@ -53,13 +71,16 @@ export function createComponentTag(tag, ComponentClass) {
             }, "")
             : "";
 
-        return children != null
-            ? `<${tag}${attrStr}>${children}</${tag}>`
-            : `<${tag}${attrStr}></${tag}>`;
+        return `<${tag}${attrStr}>${children ?? ''}</${tag}>`
     }
-
-    Comp.toString = () => `<${tag}></${tag}>`;
-    Comp.tag = tag;
+    Tag.toString = () => `<${tag}></${tag}>`;
+    
+    function Comp(attrs, children) {
+        const tmpl = createTemplate(Tag(attrs, children));
+        return tmpl.content.firstElementChild;
+    }
+    
+    Comp.tag = Tag;
     Comp.Class = ComponentClass;
 
     return Comp;

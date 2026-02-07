@@ -27,30 +27,46 @@ export interface ComponentDefinition {
     settings?: ComponentSettings;
 }
 
-export interface ComponentTag {
-  (
-    attrs?: Record<string, unknown> | null,
-    children?: string | null
-  ): string;
+export interface ComponentTag<T extends HTMLElement = HTMLElement> {
+    /**
+     * Create a live instance of the component.
+     * Attributes and string children are applied via the template pipeline.
+     */
+    (
+        attrs?: Record<string, unknown> | null,
+        children?: string | null
+    ): T;
 
-  toString(): string;
-  readonly tag: string;
-  readonly Class: CustomElementConstructor;
+    /**
+     * String-based tag factory for template usage.
+     */
+    tag: {
+        (
+          attrs?: Record<string, unknown> | null,
+          children?: string | null
+        ): string;
+
+        toString(): string;
+    };
+
+    /**
+     * Component constructor.
+     */
+    readonly Class: CustomElementConstructor;
 }
 
 export interface EnsoAPI {
     /**
-     * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {String} tag                      - DOM tag name for this component
-     * @param {Object} props                    - Component properties
-     *  @param {EnsoTemplate} props.template    - Template defining component HTML
-     *  @param {CSSStyleSheet|CSSStyleSheet[]} [props.styles] - (Optional) Adoptable Style sheet(s)
-     *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
-     *  @param {Object} [props.watched]         - (optional) This component's watched properties
-     *  @param {Object} [props.script]          - (Optional) Custom component code implementation
-     *  @param {ComponentSettings} [props.settings]  - (Optional) Settings object
-     * @returns {ComponentTag} - A callable tag function for use in templates
-     * 
+     * Defines a new Enso component and registers it as a custom element.
+     *
+     * The returned value is a callable component factory:
+     *  - Calling it creates a live element instance.
+     *  - The `.tag` property generates a string representation for templates.
+     *
+     * @param {string} tag                - Custom element tag name
+     * @param {ComponentDefinition} props - Component definition
+     * @returns A callable component tag factory
+     *
      * @example
      * const MyCounter = Enso.component('my-counter', {
      *   watched: { count: 0 },
@@ -59,6 +75,9 @@ export interface EnsoAPI {
      *     increment() { this.count++; }
      *   }
      * });
+     *
+     * const el = MyCounter();                // HTMLElement
+     * const htmlStr = MyCounter.tag();       // "<my-counter></my-counter>"
      */
     component(tag: string, props: ComponentDefinition): ComponentTag;
     /**
