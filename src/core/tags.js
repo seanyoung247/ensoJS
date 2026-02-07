@@ -35,7 +35,9 @@ export const html = (strings, ...values) => (
  *
  * The returned function serves two roles:
  *  - As a function, it creates a live element instance via the template pipeline.
- *  - Via `.tag`, it produces a string representation suitable for templates.
+ *  - Via `.html`, it produces a string representation suitable for templates.
+ *
+ * The `.tag` property exposes the component’s custom element tag name.
  *
  * Children are treated as **string-only** at this level and are inserted as
  * raw inner HTML. Non-string children are intentionally not handled here.
@@ -45,9 +47,9 @@ export const html = (strings, ...values) => (
  *   Comp({ disabled: true })       // → <tag disabled></tag>
  *   Comp(null, '<span>Hi</span>')  // → <tag><span>Hi</span></tag>
  *
- *   `${Comp.tag}`                  // "<tag></tag>"
- *   `${Comp.tag({ id: 'x' })}`     // "<tag id="x"></tag>"
- *   `${Comp.tag(null, 'text')}`    // "<tag>text</tag>"
+ *   `${Comp.html}`                 // "<tag></tag>"
+ *   `${Comp.html({ id: 'x' })}`    // "<tag id="x"></tag>"
+ *   `${Comp.html(null, 'text')}`   // "<tag>text</tag>"
  *
  * @param {string} tag
  *   Custom element tag name.
@@ -56,13 +58,14 @@ export const html = (strings, ...values) => (
  *   Component constructor associated with this tag.
  *
  * @returns {Function & {
- *   tag: (attrs?: Object|null, children?: string|null) => string,
+ *   tag: string,
+ *   html: (attrs?: Object|null, children?: string|null) => string,
  *   Class: Function
  * }}
- *   Callable component factory with string tag helper.
+ *   Callable component factory with HTML string helper.
  */
 export function createComponentTag(tag, ComponentClass) {
-    function Tag(attrs, children) {
+    function HTML(attrs, children) {
         const attrStr = attrs
             ? Object.entries(attrs).reduce((s, [k, v]) => {
                 if (v === true) return `${s} ${k}`;
@@ -73,14 +76,15 @@ export function createComponentTag(tag, ComponentClass) {
 
         return `<${tag}${attrStr}>${children ?? ''}</${tag}>`
     }
-    Tag.toString = () => `<${tag}></${tag}>`;
+    HTML.toString = () => `<${tag}></${tag}>`;
     
     function Comp(attrs, children) {
-        const tmpl = createTemplate(Tag(attrs, children));
+        const tmpl = createTemplate(HTML(attrs, children));
         return tmpl.content.firstElementChild;
     }
     
-    Comp.tag = Tag;
+    Comp.tag = tag;
+    Comp.html = HTML;
     Comp.Class = ComponentClass;
 
     return Comp;

@@ -28,30 +28,18 @@ export interface ComponentDefinition {
 }
 
 export interface ComponentTag<T extends HTMLElement = HTMLElement> {
-    /**
-     * Create a live instance of the component.
-     * Attributes and string children are applied via the template pipeline.
-     */
     (
         attrs?: Record<string, unknown> | null,
         children?: string | null
     ): T;
+    /** Custom element tag name */
+    readonly tag: string;
+    /** String template factory */
+    html(
+        attrs?: Record<string, unknown> | null,
+        children?: string | null
+    ): string;
 
-    /**
-     * String-based tag factory for template usage.
-     */
-    tag: {
-        (
-          attrs?: Record<string, unknown> | null,
-          children?: string | null
-        ): string;
-
-        toString(): string;
-    };
-
-    /**
-     * Component constructor.
-     */
     readonly Class: CustomElementConstructor;
 }
 
@@ -61,10 +49,11 @@ export interface EnsoAPI {
      *
      * The returned value is a callable component factory:
      *  - Calling it creates a live element instance.
-     *  - The `.tag` property generates a string representation for templates.
+     *  - The `.html()` method generates a string representation for templates.
+     *  - The `.tag` property exposes the custom element tag name.
      *
-     * @param {string} tag                - Custom element tag name
-     * @param {ComponentDefinition} props - Component definition
+     * @param tag - Custom element tag name
+     * @param props - Component definition
      * @returns A callable component tag factory
      *
      * @example
@@ -76,8 +65,9 @@ export interface EnsoAPI {
      *   }
      * });
      *
-     * const el = MyCounter();                // HTMLElement
-     * const htmlStr = MyCounter.tag();       // "<my-counter></my-counter>"
+     * const el = MyCounter();                    // HTMLElement
+     * const htmlStr = MyCounter.html();          // "<my-counter></my-counter>"
+     * const raw = document.createElement(MyCounter.tag);
      */
     component(tag: string, props: ComponentDefinition): ComponentTag;
     /**
