@@ -71,11 +71,11 @@ describe("Action", () => {
         expect(fn()).toBe(11);
     });
 
-    it("throws TypeError if created function doesn't return a function", () => {
+    it("throws if created function doesn't return a function", () => {
         const act = new Action("123"); // returns 123, not a function
         const parent = mockParent();
 
-        expect(() => act.createFunc(parent)).toThrow(TypeError);
+        expect(() => act.createFunc(parent)).toThrow();
     });
 });
 

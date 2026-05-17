@@ -4,6 +4,7 @@
 
 ![npm version](https://img.shields.io/npm/v/ensojs?color=ca2e2e)
 ![bundle size](https://img.shields.io/bundlephobia/minzip/ensojs?label=size&color=ca2e2e&labelColor=333333)
+
 ![license](https://img.shields.io/github/license/seanyoung247/ensojs)
 <!-- ![npm total downloads](https://img.shields.io/npm/dt/ensojs) -->
 ![issues](https://img.shields.io/github/issues/seanyoung247/ensojs)
@@ -18,7 +19,7 @@ It aims to be modern, minimal, and forward-focused — no compile step, no virtu
 
 Enso is guided by a few simple principles:
 
-- **Native-first** — build on the platform: Custom Elements, Shadow DOM, template literals.
+- **Native-first** — built on the modern web: Custom Elements, Shadow DOM, and template literals.
 - **Minimal surface area** — small API, small mental overhead.
 - **Declarative over imperative** — components describe what they are, not how to wire them.
 - **No build step** — just write HTML, CSS, and JS.
@@ -50,7 +51,7 @@ class MyComponent extends WebComponent {
 }
 ```
 
-As real-world components grew, new sources of repetitive boilerplate appeared. For instance, querying the DOM for child elements. To solve this, a quick and simple processing step was added to the template parsing, to extract `#ref="myRef"` attributes, and insert them as fields on the component, for a simple access `this.myRef`. But it soon became apparent that there was still a great deal of boilerplate, attaching events and the `@<event>=""` attribute evolved to replace calls to `this.myRef.addEventListener(...)`. As more features were added, Enso started to form.
+As real-world components grew, new sources of repetitive boilerplate appeared. For instance, querying the DOM for child elements. To solve this, a quick and simple processing step was added to the template parsing, to extract `#ref="myRef"` attributes, and insert them as fields on the component, for simple access via the class: `this.myRef`. But it soon became apparent that there was still a great deal of boilerplate, attaching events and the `@<event>=""` attribute evolved to replace calls to `this.myRef.addEventListener(...)`. As more features were added, Enso started to form.
 
 From:
 

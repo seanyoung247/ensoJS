@@ -7,51 +7,62 @@
 
 import { ENSO_NODE, ENSO_PARSED, ENSO_ROOT } from "../core/symbols.js";
 
-export const parser = (() => {
-    const nodeParsers = [];
-    const attrParsers = [];
+import { registerCoreParsers } from './parsers/parsers.js';
+import { Action, compileValue, Effect } from "../core/effects.js";
+import { EnsoFragment } from "../core/fragment.js";
+import { 
+    addBinding, addWatcher, 
+    parseSource, collectBindings 
+} from "./parsers/utils.js";
+import { ensoError } from "../core/errors.js";
 
-    return Object.freeze({
-        /**
-         * Register a new template directive parser
-         * @param {Object} parser   - Directive parser code implementation
-         */
-        registerNode(parser) {
-            nodeParsers.push(parser);
-        },
-        /**
-         * Register a new template attribute parser
-         * @param {Object} parser   - Attribute parser code implementation
-         */
-        registerAttr(parser) {
-            attrParsers.push(parser);
-        },
 
-        /**
-         * Find a directive for this node
-         * @param {Node} node       - The node to parse
-         * @returns {Object}        - The directive requested
-         */
-        getNodeParser(node) {
-            for (const nodeParser of nodeParsers) {
-                if (nodeParser.match(node)) return nodeParser;
-            }
-            return null;
-        },
-
-        /**
-         * Returns a Parser identified by the id
-         * @param {Node} node       - The node to parse
-         * @param {Attr} attribute  - The Attribute node to parse     
-         * @returns {Object}        - The parser requested
-         */
-        getAttrParser(node, attribute) {
-            for (const parser of attrParsers) {
+const createRegistry = () => {
+    const map = new Map();
+    return {
+        get(node, attribute = null) {
+            for (const parser of map.values()) {
                 if (parser.match(node, attribute)) return parser;
             }
             return null;
+        }, 
+        set(parser) {
+            map.set(parser.type, parser);
+        },
+        [Symbol.iterator]() {
+            return map.values();
+        }    
+    }
+};
+
+export const parser = (() => {
+
+    const parsers = {
+        generator: createRegistry(),
+        attribute: createRegistry(),
+        content: createRegistry(),
+    }
+
+    return Object.freeze({
+
+        /**
+         * Adds a parser to the parser registry
+         * @param {object} parser 
+         * @param {string} type 
+         */
+        register(parser, type = "attribute") {
+            const registry = parsers[type];
+            if (!registry) ensoError(401, type); // E_PARSER_TYPE
+
+            registry.set(parser);
         },
 
+        get(type, node, attribute=null) {
+            const registry = parsers[type];
+            if (!registry) ensoError(401, type); // E_PARSER_TYPE
+            
+            return registry.get(node, attribute);
+        },
         /**
          * Tags a node as the root of an enso template/fragment
          * @param {HTMLElement} element - Root node
@@ -79,30 +90,37 @@ export const parser = (() => {
         },
 
         /**
-         * Returns all children elements tagged as watched from given root
-         * @param {HTMLElement/DocumentFragment} root - Root element
+         * Returns first child element tagged as watched from given root
+         * @param {HTMLElement || DocumentFragment} root - Root element
          */
         getWatched(root) {
             return root.querySelector(`[${ENSO_NODE}]`);
         },
 
         /**
-         * Preprocesses the given node and/or attribute
+         * Preprocesses the given node
          * @param {Object} def      - Node mutation definition
          * @param {Node} node       - The current template node
          * @returns {Boolean} - True if node was processed, otherwise false
          */
         preprocess(def, node) {
             let parsed = false;
-            const nodeParser = this.getNodeParser(node);
-            if (nodeParser) {
-                parsed = nodeParser.preprocess(def, node);
+            const opParser = parsers.generator.get(node);
+            if (opParser) {
+                parsed = opParser.preprocess(def, node);
+            }
+
+            for (const parser of parsers.content) {
+                if (parser.match(node)) {
+                    /* v8 ignore next */
+                    parsed = parser.preprocess(def, node) || parsed;
+                }
             }
 
             if (node.attributes?.length) {
                 const attributes = [...node.attributes];
                 for (const attribute of attributes) {
-                    const parser = this.getAttrParser(node, attribute);
+                    const parser = parsers.attribute.get(node, attribute);
                     if (parser) {
                         parsed = parser.preprocess(def, node, attribute) || parsed;
                     }
@@ -119,13 +137,38 @@ export const parser = (() => {
          * @param {HTMLElement} element - Current mutated element
          */
         process(def, parent, element) {
-            // Loop through all the parsers attached to this node
-            for (const parser of def.parsers) {
+            // Apply operator parser first
+            const generator = def.getGenerator();
+            if (generator) {
+                generator.parser.process(generator.data, parent, element);
+            }
+            // Loop through all the mutators attached to this node
+            for (const [parser, data] of def.mutators()) {
                 // Process the live node and attach any mutation effects
-                parser.process(def, parent, element);
+                parser.process(data, parent, element);
             }
             element.removeAttribute(ENSO_NODE);
         }
     });
 })();
 
+export const ctx = Object.freeze({
+    Effect, Action, compileValue,
+    addBinding, addWatcher,
+    parseSource, collectBindings,
+    EnsoFragment,
+});
+
+export const register = {
+    generator(plugin) {
+        parser.register(plugin, 'generator');
+    },
+    attribute(plugin) {
+        parser.register(plugin, 'attribute');
+    },
+    content(plugin) {
+        parser.register(plugin, 'content');
+    }
+};
+
+registerCoreParsers(register, ctx);

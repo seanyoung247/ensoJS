@@ -5,7 +5,7 @@
 import { EnsoNode } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
-    NODES, ENV, ADD_CHILD, SCHEDULE_UPDATE,
+    NODES, ENV, ADD_CHILD, CHILDREN, SCHEDULE_UPDATE,
     BINDINGS, UPDATE, ANCHOR, ENSO_FRAGMENT,
 } from "./symbols.js";
 
@@ -22,7 +22,6 @@ if (!customElements.get(ENSO_FRAGMENT.toLowerCase())) {
  * based on conditions in the parent component.
  * 
  * Fragments are used to implement control flow directives such as *if and *for
- * 
  */
 export class EnsoFragment extends EnsoNode() {
     #component;             // Root component
@@ -51,10 +50,10 @@ export class EnsoFragment extends EnsoNode() {
 
         // Create initial binding map
         const bindings = new Map();
-        for (const [prop, bind] of this.#component[BINDINGS]) {
-            bindings.set(prop, {
+        for (const [prop, bind] of Object.entries(this.#component[BINDINGS])) {
+            bindings[prop] = {
                 changed: false, watchers: bind.watchers, effects: []
-            });
+            };
         }
         this[BINDINGS] = bindings;
 
@@ -110,5 +109,26 @@ export class EnsoFragment extends EnsoNode() {
         this.#root.append(...this.#nodes);
         this.#nodes = null;
         this.#attached = false;
+    }
+
+    // Parser API
+    _requestUpdate() {
+        this[UPDATE]();
+    }
+
+    _getNodes() {
+        return this[NODES];
+    }
+
+    _setENV(env) {
+        this[ENV] = env;
+    }
+
+    _insertAfterAnchor(...elements) {
+        this[ANCHOR].after(...elements);
+    }
+
+    _getChildFragments() {
+        return this[CHILDREN];
     }
 }

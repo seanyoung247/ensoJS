@@ -25,6 +25,7 @@ export default defineConfig({
         '.eslintrc.js',
         'src/templates/parsers/parsers.js', // No logic to cover
         'src/core/symbols.js',              // No logic to cover
+        'src/errors/**',                    // Just maps error codes to text
         '*/index.js',                       // No logic to cover
         'version.js',                       // Injects version, don't care
         'examples/**',                      // Don't care about examples

@@ -21,6 +21,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     minify: 'terser',
+    sourcemap: true,
     lib: {
         entry: path.resolve(__dirname, 'src/index.js'),
         name: 'ensojs',
@@ -30,7 +31,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         ensojs: path.resolve(__dirname, 'src/index.js'),
-        helpers: path.resolve(__dirname, 'src/helpers/index.js')
+        errors: path.resolve(__dirname, 'src/errors/index.js'),
+        helpers: path.resolve(__dirname, 'src/helpers/index.js'),
       },
       external: [],
       output: {

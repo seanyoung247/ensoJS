@@ -30,7 +30,7 @@ describe("createComponent()", () => {
     });
 
     it("throws if proto is not an object literal", () => {
-        expect(() => createComponent(Base, 123)).toThrow(/object litteral/);
+        expect(() => createComponent(Base, 123)).toThrow();
         expect(() => createComponent(Base, "x")).toThrow();
     });
 
@@ -74,6 +74,13 @@ describe("EnsoNode", () => {
 
         // Mock SCHEDULE_UPDATE so we can detect calls
         instance[SCHEDULE_UPDATE] = vi.fn();
+
+        // Mock the watched notification system;
+        Node.prototype.component = {
+            watched: {
+                _notify: vi.fn()
+            }
+        };
     });
 
 
@@ -83,19 +90,22 @@ describe("EnsoNode", () => {
         expect(instance[CHILDREN]).toEqual([]);
     });
 
+    it("isn't a component by default", () => {
+        expect(instance.isComponent).toBe(false);
+    });
 
     it("ADD_BINDING adds effect to existing binding", () => {
         const effect = { run: vi.fn() };
-        instance[BINDINGS].set("x", { effects: [], changed: false });
+        instance[BINDINGS]["x"] = { effects: [], changed: false };
 
         instance[ADD_BINDING]("x", effect);
 
-        const bind = instance[BINDINGS].get("x");
+        const bind = instance[BINDINGS]["x"];
         expect(bind.effects).toContain(effect);
         expect(bind.changed).toBe(true);
 
         instance[ADD_BINDING](null, effect);
-        expect(instance[BINDINGS].get('x').effects.length).toBe(1);
+        expect(instance[BINDINGS]['x'].effects.length).toBe(1);
     });
 
 
@@ -103,14 +113,14 @@ describe("EnsoNode", () => {
         const effect1 = { run: vi.fn() };
         const effect2 = { run: vi.fn() };
 
-        instance[BINDINGS].set("x", {
+        instance[BINDINGS]["x"] = {
             changed: false,
             effects: [effect1, effect2]
-        });
+        };
 
         instance[MARK_CHANGED]("x");
 
-        const bind = instance[BINDINGS].get("x");
+        const bind = instance[BINDINGS]["x"];
         expect(bind.changed).toBe(true);
 
         // Effects scheduled
@@ -127,12 +137,12 @@ describe("EnsoNode", () => {
         child[BINDINGS] = new Map();
         child[SCHEDULE_UPDATE] = vi.fn();
 
-        child[BINDINGS].set("y", { changed: false, effects: [] });
+        child[BINDINGS]["y"] = { changed: false, effects: [] };
         instance[ADD_CHILD](child);
 
         instance[MARK_CHANGED]("y");
 
-        const bind = child[BINDINGS].get("y");
+        const bind = child[BINDINGS]["y"];
         expect(bind.changed).toBe(true);
     });
 
@@ -144,7 +154,7 @@ describe("EnsoNode", () => {
         instance[TASK_LIST].add(effect1);
         instance[TASK_LIST].add(effect2);
 
-        instance[BINDINGS].set("x", { changed: true, effects: [] });
+        instance[BINDINGS]["x"] = { changed: true, effects: [] };
 
         instance[UPDATE]();
 
@@ -156,13 +166,13 @@ describe("EnsoNode", () => {
 
 
     it("UPDATE resets changed flags", () => {
-        instance[BINDINGS].set("a", { changed: true, effects: [] });
-        instance[BINDINGS].set("b", { changed: true, effects: [] });
+        instance[BINDINGS]["a"] = { changed: true, effects: [] };
+        instance[BINDINGS]["b"] = { changed: true, effects: [] };
 
         instance[UPDATE]();
 
-        expect(instance[BINDINGS].get("a").changed).toBe(false);
-        expect(instance[BINDINGS].get("b").changed).toBe(false);
+        expect(instance[BINDINGS]["a"].changed).toBe(false);
+        expect(instance[BINDINGS]["b"].changed).toBe(false);
     });
 
 

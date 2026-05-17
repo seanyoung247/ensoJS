@@ -11,7 +11,9 @@ import { EnsoNode } from "./core/components.js";
 import { 
     ENV, ROOT, ATTACH_TEMPLATE, BINDINGS, 
     UPDATE, SCHEDULE_UPDATE, ENSO_INTERNAL,
+    MARK_CHANGED,
 } from "./core/symbols.js";
+import { ensoError, ensoReport } from "./core/errors.js";
 
 
 export const lifecycle = Object.freeze({
@@ -44,17 +46,16 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     constructor(key) {
         super();
 
-        if (key !== ENSO_INTERNAL) {
-            throw new Error(
-                "Direct subclassing of Enso is not supported.\n" +
-                "Use Enso.component() instead."
-            );
-        }
+        if (key !== ENSO_INTERNAL) ensoError(102); // E_COMPONENT_SUB
 
         this.#watched = new this.constructor.WatchedClass(this);
         this[BINDINGS]= this.#watched[BINDINGS];
         
         this.#root = this.settings.useShadow ? this.#getShadowDom() : this;
+    }
+    
+    _report(level, code, data) {
+        ensoReport(level, code, data);
     }
 
     //// Accessors - External
@@ -62,6 +63,8 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     get component() { return this; }
     get isAttached() { return this.#initialised; }
     get watched() { return this.#watched; }
+
+    get isComponent() { return true; }
 
     //// Accessors - Framework internal
     get [ROOT]() { return this.#root; }
@@ -75,7 +78,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
         // Loops through all properties defined as attributes 
         // and sets their initial value if they're forced.
-        const attributes = this.observedAttributes;
+        const attributes = this.constructor.observedAttributes;
         for (const attr of attributes) {
             if (this.watched._defs[attr].attribute.force) {
                 this.reflectAttribute(attr);
@@ -108,6 +111,12 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     //// Lifecycle
+    [MARK_CHANGED](prop) {
+        super[MARK_CHANGED](prop);
+        
+        this.watched._notify(prop);
+    }
+
     [ATTACH_TEMPLATE](DOM) {
         const nodes = Array.from(DOM.firstElementChild.childNodes);
         this[ROOT].append(...nodes);

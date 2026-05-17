@@ -2,36 +2,49 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
-import { parser } from "../parser.js";
+import { getOperator } from "./utils.js";
 
-// Reference Attribute (#ref) parser
-parser.registerAttr({
-    type: 'ref',
 
-    match(node, attribute) {
-        return (
-            node.nodeType === Node.ELEMENT_NODE &&
-            (attribute.name === '#ref' || 
-                attribute.name === 'enso-ref')
-        );
-    },
+export default function (register) {
 
-    preprocess(def, node, attribute) {
-        def.ref = attribute.value;
-        node.removeAttribute(attribute.name);
-        def.attachParser(this);
+    // Reference Attribute (#ref) parser
+    register.generator({
+        type: 'enso:ref',
 
-        return true;
-    },
+        match(node) {
+            return (
+                node.nodeType === Node.ELEMENT_NODE &&
+                (node.hasAttribute('#ref') || 
+                    node.hasAttribute('enso-ref'))
+            );
+        },
 
-    process(def, parent, element) {
-        if (def.ref) {
-            Object.defineProperty(parent.component.refs, def.ref, {
+        preprocess(def, node) {
+            if (def.getGenerator()) return false;
+
+            const ref = getOperator(node, '#ref', 'enso-ref');
+            def.setGenerator(this, {type: 'ref', name: ref});
+            def.markWatched();
+
+            return true;
+        },
+
+        process(data, parent, element) {
+            if (!data || data.type !== 'ref') return;
+
+            if (!parent.isComponent) {
+                console.warn(
+                    `[Enso] #ref="${data.name}" ignored: refs are only supported on static elements (not inside *for or *if).`
+                );
+                return;
+            }
+
+            Object.defineProperty(parent.component.refs, data.name, {
                 value: element,
                 writable: false,
                 configurable: false,
             });
         }
-    }
 
-});
+    });
+}

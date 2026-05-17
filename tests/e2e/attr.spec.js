@@ -1,8 +1,9 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
+
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { attr, html } from "../../src/enso.js";
+import Enso, { attr, html } from "../../src/enso.js"; 
 import { nextFrame } from '../shared.js';
 import EnsoComponent from '../../src/component.js';
 

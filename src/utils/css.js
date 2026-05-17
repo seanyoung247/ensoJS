@@ -8,10 +8,16 @@ export const createStyleSheet = css => {
     return sheet;
 };
 
-export const attachStyleSheets = (root, sheets)=> {
-    const dom = (root instanceof ShadowRoot) ?
-        root : document;
+export const attachStyleSheets = (host, sheets)=> {
+    const root = host instanceof ShadowRoot ?
+        host : host.getRootNode();
 
-    dom.adoptedStyleSheets = 
-        [ ...dom.adoptedStyleSheets, ...sheets];
+    if ( !(root instanceof Document || root instanceof ShadowRoot) ) {
+        return;
+    }
+
+    root.adoptedStyleSheets = [ 
+        ...root.adoptedStyleSheets, 
+        ...sheets
+    ];
 };

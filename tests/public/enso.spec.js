@@ -10,7 +10,6 @@ beforeAll(async () => {
 });
 
 
-
 describe('Enso.component duplicate-definition guard', () => {
     it('throws an error if the custom element is already defined', async () => {
         // Clear module cache so we get a clean import
@@ -24,7 +23,7 @@ describe('Enso.component duplicate-definition guard', () => {
 
         expect(() => {
             Enso.component('my-test', class {});
-        }).toThrow('[Enso] Component "my-test" is already defined.');
+        }).toThrow();
 
         expect(get).toHaveBeenCalledWith('my-test');
         expect(define).not.toHaveBeenCalled();
@@ -40,11 +39,41 @@ it('defines the component when not previously registered', async () => {
     vi.stubGlobal('customElements', { define, get });
 
     const config = {template: '<div></div>'};
-    const ComponentClass = Enso.component('my-test', config);
+    const ComponentClass = Enso.component('my-test', config).Class;
 
     expect(typeof ComponentClass).toBe('function');
     expect(Object.getPrototypeOf(ComponentClass.prototype))
         .toBeInstanceOf(HTMLElement);
     expect(get).toHaveBeenCalledWith('my-test');
     expect(define).toHaveBeenCalledWith('my-test', ComponentClass);
+});
+
+it ('returns a component tag with correct properties', async () => {
+    const config = {template: '<div></div>'};
+    const componentTag = Enso.component('my-test', config);
+    // Base Properties
+    expect(componentTag.tag).toBe('my-test');
+    expect(typeof componentTag.Class).toBe('function');
+    expect(Object.getPrototypeOf(componentTag.Class.prototype))
+        .toBeInstanceOf(HTMLElement);
+
+    // HTML template generation 
+    expect(componentTag.html.toString()).toBe('<my-test></my-test>');
+    expect(`${componentTag.html}`).toBe('<my-test></my-test>');
+    expect(`${componentTag.html(null, '<test>Hello World</test>')}`)
+        .toBe('<my-test><test>Hello World</test></my-test>');
+    expect(`${componentTag.html({ id: 'comp1', hidden: true })}`)
+        .toBe('<my-test id="comp1" hidden></my-test>');
+    expect(`${componentTag.html({ id: 'comp1', omit1: null, omit2: false })}`)
+        .toBe('<my-test id="comp1"></my-test>');
+    expect(`${componentTag.html({ id: 'comp1', hidden: true },'<span>Content</span>')}`)
+        .toBe('<my-test id="comp1" hidden><span>Content</span></my-test>');
+
+    // Live Component Element creation
+    const el = componentTag({'test': 'test_value'}, `Hello World`);
+    expect(el).toBeInstanceOf(HTMLElement);
+    expect(el.tagName.toLowerCase()).toBe('my-test');
+    expect(el.hasAttribute('test')).toBe(true);
+    expect(el.getAttribute('test')).toBe('test_value');
+    expect(el.textContent).toBe('Hello World');
 });

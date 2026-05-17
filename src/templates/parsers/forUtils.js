@@ -2,6 +2,8 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
+import { ensoError } from "../../core/errors";
+
 const parseIdentifier = identifier => {
     if (identifier.includes(':')) {
         return parseIdentifier(identifier.split(':')[1]);
@@ -25,7 +27,9 @@ const getIdentifiers = source => {
     };
     const closeBracket = token => {
         // If the closing bracket doesn't match the last opened, error
-        if (token !== stack.pop().token) throw new Error('mismatched brackets');
+        if (token !== stack.pop().token) {
+            ensoError(411); // E_FOR_BRACKETS
+        }
         allowCapture = false;
     };
     const nonCapturing = {
@@ -46,7 +50,9 @@ const getIdentifiers = source => {
         
     }).filter(Boolean);
     // If there are still open brackets, error
-    if (stack.length > 1) throw new Error('mismatched brackets');
+    if (stack.length > 1) {
+        ensoError(411); // E_FOR_BRACKETS
+    }
     return identifiers;
 };
 // Parses a For Value, i.e. (item of list, member in object etc)
@@ -66,7 +72,7 @@ export const createForFunction = (code, ids) => (
                 yield { ${ ids.join(', ')} };
             }
         } catch(e) {
-            console.error('Runtime error in for loop:', e);
+            this._report(412, e);
         }
     }).bind(this);/*js*/`
 );

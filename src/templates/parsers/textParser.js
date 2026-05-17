@@ -1,60 +1,61 @@
 
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
-import { parser } from "../parser.js";
-import { addBinding, bindSource } from "./utils.js";
 import { getChildIndex } from "../../utils/dom.js";
-import { Effect, Action, compileValue } from "../../core/effects.js";
-
-const nodeEx = /({{(.|\n)*}})/;
 
 
-class TextEffect extends Effect {
-    run() {
-        const content = super.run();
-        if (this.element && content) {
-            this.element.textContent = content;
+export default function (register, ctx) {
+    const {
+        addBinding, parseSource,
+        Effect, Action, compileValue
+    } = ctx;
+    const nodeEx = /({{(.|\n)*}})/;
+
+    class TextEffect extends Effect {
+        run() {
+            const content = super.run();
+            /* v8 ignore next */
+            if (this.element && content) {
+                this.element.textContent = content;
+            }
         }
     }
-}
 
-// Textnode parser
-parser.registerNode({
-    type: 'text',
+    // Textnode parser
+    register.content({
+        type: 'enso:text',
 
-    match(node) {
-        return (
-            node.nodeType === Node.TEXT_NODE &&
-            nodeEx.test(node.nodeValue)
-        );
-    },
+        match(node) {
+            return (
+                node.nodeType === Node.TEXT_NODE &&
+                nodeEx.test(node.nodeValue)
+            );
+        },
 
-    preprocess(def, node) {
-        const binds = new Set();
-        const source = compileValue(
-            bindSource(node.nodeValue, binds)
-        );
-        def.addContent(
-            node.parentNode,
-            getChildIndex(node.parentNode, node),
-            new Action(source, {}, TextEffect),
-            binds
-        );
-        def.attachParser(this);
+        preprocess(def, node) {
+            const binds = new Set();
+            const source = compileValue(
+                parseSource(node.nodeValue, binds)
+            );
+            def.addMutator(this, {
+                parent: node.parentNode,
+                index: getChildIndex(node.parentNode, node),
+                action: new Action(source, {}, TextEffect),
+                binds
+            });
 
-        return true;
-    },
+            return true;
+        },
 
-    process(def, parent, element) {
-        if (def.content) {
-            for (const content of def.content) {
-                const node = element.childNodes[content.index];
-                const effect = content.action.createEffect(parent, node);
+        process(data, parent, element) {
+            for (const text of data) { 
+                const node = element.childNodes[text.index];
+                const effect = text.action.createEffect(parent, node);
                 // Attach effect to all bindings
-                for (const bind of content.binds) {
+                for (const bind of text.binds) {
                     addBinding(parent, bind, effect);
                 }
             }
         }
-    }
-});
+    });
+}

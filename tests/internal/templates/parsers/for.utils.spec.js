@@ -1,4 +1,3 @@
-
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 
@@ -44,8 +43,8 @@ describe("parseFor()", () => {
     });
 
     it("throws on mismatched brackets", () => {
-        expect(() => parseFor("{ a, b ] of list")).toThrow('mismatched brackets');
-        expect(() => parseFor("[ x, { y, z } of list")).toThrow('mismatched brackets');
+        expect(() => parseFor("{ a, b ] of list")).toThrow();
+        expect(() => parseFor("[ x, { y, z } of list")).toThrow();
     });
 });
 

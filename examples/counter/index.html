@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="../assets/examples.css">
+
+    <script type="importmap">
+        {
+            "imports": {
+                "ensojs": "https://cdn.jsdelivr.net/npm/ensojs/dist/ensojs.es.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import Enso from "ensojs"
+        console.log(`Enso version = ${Enso.version}`);
+    </script>
+
     <script src="./counter.enso.js" type="module"></script>
     <script src="./tiny-counter.enso.js" type="module"></script>
 

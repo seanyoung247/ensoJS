@@ -9,15 +9,41 @@ import { parser } from "./parser.js";
 import { createPlaceholder } from "./parsers/utils.js";
 import { ENSO_PARSED, ENSO_FRAGMENT, ENSO_ROOT } from "../core/symbols.js";
 
-import './parsers/parsers.js';
 
+// If node is a text node with handle bars ( {{ }} ) or an element, parse it
+const nodeEx = /{{[^]*}}/;
 
-// If node is a text node with handle bars ({{}}) or an element, parse it
-const nodeEx = /({{(.|\n)*}})/;
-const acceptNode = node => 
-    // If a node is a text node, it must contain template directives {{}} to be accepted
-    node.nodeType !== Node.TEXT_NODE || nodeEx.test(node.nodeValue) ?
-        NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+// Explicit ignore attribute
+const isIgnoreNode = node => (
+    node.nodeType === Node.ELEMENT_NODE &&
+    node.hasAttribute('enso:ignore')
+);
+// Explicit ignore children attribute
+const isIgnoredChild = node => (
+    node.parentNode?.hasAttribute('enso:ignore-children')
+);
+// Tree walker filter
+const acceptNode = node => {
+    // Ignore explicit no parse directives
+    if (isIgnoreNode(node)) {
+        return NodeFilter.FILTER_REJECT;
+    }
+    // Ignore children if specified
+    if (isIgnoredChild(node)) {
+        return NodeFilter.FILTER_REJECT;
+    }
+    // Accept all other element nodes
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        return NodeFilter.FILTER_ACCEPT;
+    }
+    // Accept text nodes with template directives
+    if (node.nodeType === Node.TEXT_NODE && 
+        nodeEx.test(node.nodeValue)) {
+        return NodeFilter.FILTER_ACCEPT;
+    }
+    // Reject all other nodes
+    return NodeFilter.FILTER_REJECT;
+};
 
 const NODE_TYPES = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 
@@ -30,15 +56,8 @@ const extractLooseFragments = root => {
         `${ENSO_FRAGMENT}:not([${ENSO_ROOT}])`
     );
 
-    for (const node of loose) {
-        const children = [...node.childNodes];
-        if (children.length === 0) {
-            node.remove();
-            continue;
-        }
-
-        node.replaceWith(...children);
-    }
+    for (const node of loose)
+        node.replaceWith(...node.childNodes);
 };
 
 const wrapFragment = (root) => {
@@ -73,10 +92,8 @@ export default class EnsoTemplate {
             const def = this.#watched.create(node);
             parser.preprocess(def, node);
         }
-        // parser.markRoot(template);
         template.setAttribute(ENSO_PARSED, "");
 
-        this.#watched;
         return template;
     }
 
@@ -90,15 +107,18 @@ export default class EnsoTemplate {
         while (root = parser.getRoot(rootNode)) {
             // Get node watch parameters and replace with placeholder
             const def = this.#watched.getByRoot(root);
+            const placeholder = createPlaceholder();
             def.unRoot();
-            def.replaceNode( createPlaceholder() );
+            def.replaceNode( placeholder );
 
             // Construct and append the template.
             const template = createTemplate(root);
-            //     wrapFragment(root, wrap)
-            // );
+
             template.setAttribute(ENSO_PARSED, "");
-            def.directive.template = new EnsoTemplate(template, this.#watched, true);
+            def.getGenerator()?.parser?.fragment(
+                def, new EnsoTemplate(template, this.#watched, true),
+                placeholder
+            );
         }
     }
 
@@ -116,7 +136,6 @@ export default class EnsoTemplate {
     }
 
     clone() {
-        // const template = cloneTemplate(this.#template);
         const template = this.#template.cloneNode(true);
         return new EnsoTemplate(template, this.#watched);
     }

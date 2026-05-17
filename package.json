@@ -1,35 +1,43 @@
 {
   "name": "ensojs",
-  "version": "1.0.0-rc.5",
+  "version": "1.0.0-rc.19",
   "type": "module",
-
   "description": "A lightweight Web Component framework focused on clarity, reactivity, and minimal boilerplate.",
-
   "author": "Sean Young <seanyoung247@gmail.com>",
   "license": "MIT",
-
   "main": "./dist/ensojs.es.js",
   "module": "./dist/ensojs.es.js",
-
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "source": "./src/index.js",
+      "types": "./types/index.d.ts",
+      "import": "./dist/ensojs.es.js",
       "default": "./dist/ensojs.es.js"
     },
     "./helpers": {
-      "source": "./src/helpers/index.js",
+      "types": "./types/helpers.d.ts",
+      "import": "./dist/helpers.es.js",
       "default": "./dist/helpers.es.js"
+    },
+    "./errors": {
+      "import": "./dist/errors.es.js",
+      "default": "./dist/errors.es.js"
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "types",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": true,
   "homepage": "https://github.com/seanyoung247/ensojs#readme",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --no-cache",
     "test:build": "BUILD=1 vitest run",
     "coverage": "vitest run --coverage",
     "test:browser": "vitest --config=vitest.browser.config.js"
