@@ -138,7 +138,7 @@ describe('watches()', () => {
         expect(() => watches('hello', ['x'])).toThrow();
         expect(() => watches({}, ['x'])).toThrow();
         expect(() => watches([], ['x'])).toThrow();
-        expect(() => watches(()=>{}, ['x'])).toThrow();
+        // expect(() => watches(()=>{}, ['x'])).toThrow(); // No longer banning arrow functions
     });
 
 });

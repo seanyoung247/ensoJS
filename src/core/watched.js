@@ -145,7 +145,7 @@ export function setWatched(component, values) {
  * @returns {Function} The watcher function
  */
 export function watches(fn, props = [], keep=false) {
-    if (typeof fn === 'function' && fn.prototype !== undefined) {
+    if (typeof fn === 'function') {
         fn.__watches = { props, keep };
     } else {
         ensoError(221); // E_WATCHES_FN
