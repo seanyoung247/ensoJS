@@ -19,8 +19,8 @@ export default function (register, ctx) {
         }
         mount() {
             this.isAttached = true;
-            this._requestUpdate();
             this._getChildren();
+            // this._requestUpdate();
             return this._getNodes();
         }
     }
@@ -55,7 +55,7 @@ export default function (register, ctx) {
             }
             this._insertAfterAnchor(...elements);
             this.isAttached = true;
-            this._requestUpdate();
+            // this._requestUpdate();
         }
 
         unmount() {
