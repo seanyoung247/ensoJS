@@ -27,6 +27,22 @@ export const createTemplate = html => {
     template.content.querySelectorAll('script')
         .forEach(script => script.remove());
 
+    // HTML comments are stripped from enso templates
+    const walker = document.createTreeWalker(
+        template.content,
+        NodeFilter.SHOW_COMMENT
+    );
+    
+    const comments = [];
+
+    let node;
+
+    while ((node = walker.nextNode())) {
+        comments.push(node);
+    }
+
+    comments.forEach(comment => comment.remove());
+
     return template;
 };
 

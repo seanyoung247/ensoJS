@@ -46,6 +46,61 @@ describe('createTemplate', () => {
         expect(template.content.children.length).toBe(1);
         expect(template.content.children[0].outerHTML).toBe('<div>Content</div>');
     });
+
+    it('removes script tags from templates', () => {
+        const template = createTemplate(`
+            <script>alert("x")</script>
+            <div>Safe</div>
+        `);
+
+        expect(
+            template.content.querySelector('script')
+        ).toBeNull();
+
+        expect(template.content.children.length).toBe(1);
+
+        expect(template.content.children[0].outerHTML)
+            .toBe('<div>Safe</div>');
+    });
+
+    it('removes HTML comments from templates', () => {
+        const template = createTemplate(`
+            <!-- comment -->
+            <div>Test</div>
+        `);
+
+        expect(
+            [...template.content.childNodes]
+                .some(node => node.nodeType === Node.COMMENT_NODE)
+        ).toBe(false);
+    });
+
+    it('removes nested HTML comments', () => {
+        const template = createTemplate(`
+            <div>
+                <!-- nested -->
+                <span>Test</span>
+            </div>
+        `);
+
+        expect(
+            [...template.content.childNodes]
+                .some(node => node.nodeType === Node.COMMENT_NODE)
+        ).toBe(false);
+    });
+
+    it('removes multiple adjacent comments', () => {
+        const template = createTemplate(`
+            <!-- one -->
+            <!-- two -->
+            <div>Test</div>
+        `);
+
+        expect(
+            [...template.content.childNodes]
+                .some(node => node.nodeType === Node.COMMENT_NODE)
+        ).toBe(false);
+    });
 });
 
 describe('getChildIndex', () => {
