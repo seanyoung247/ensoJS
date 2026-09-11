@@ -1,10 +1,6 @@
 
 export default {
     // Component Errors
-    '101': tag => (
-        `Component "${tag}" is already defined. Did you load the component twice?`
-    ),
-
     '102': () => (
         `Direct subclassing of Enso is not supported. Use Enso.component() instead.`
     ),
