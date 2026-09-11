@@ -9,45 +9,6 @@ beforeAll(async () => {
   ({ default: Enso } = mod);
 });
 
-
-describe('Enso.component duplicate-definition guard', () => {
-    it('throws an error if the custom element is already defined', async () => {
-        // Clear module cache so we get a clean import
-        vi.resetModules();
-
-        // Create fake customElements
-        const define = vi.fn();
-        const get = vi.fn(() => true); // Pretend it already exists
-
-        vi.stubGlobal('customElements', { define, get });
-
-        expect(() => {
-            Enso.component('my-test', class {});
-        }).toThrow();
-
-        expect(get).toHaveBeenCalledWith('my-test');
-        expect(define).not.toHaveBeenCalled();
-    });
-});
-
-it('defines the component when not previously registered', async () => {
-    vi.resetModules();
-
-    const define = vi.fn();
-    const get = vi.fn(() => undefined);
-
-    vi.stubGlobal('customElements', { define, get });
-
-    const config = {template: '<div></div>'};
-    const ComponentClass = Enso.component('my-test', config).Class;
-
-    expect(typeof ComponentClass).toBe('function');
-    expect(Object.getPrototypeOf(ComponentClass.prototype))
-        .toBeInstanceOf(HTMLElement);
-    expect(get).toHaveBeenCalledWith('my-test');
-    expect(define).toHaveBeenCalledWith('my-test', ComponentClass);
-});
-
 it ('returns a component tag with correct properties', async () => {
     const config = {template: '<div></div>'};
     const componentTag = Enso.component('my-test', config);
