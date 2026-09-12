@@ -25,6 +25,7 @@ if (!customElements.get(ENSO_FRAGMENT.toLowerCase())) {
  */
 export class EnsoFragment extends EnsoNode() {
     #component;             // Root component
+    #template;              // This fragments HTML template
     #parent;                // Parent fragment
     #anchor;                // Comment node defining the fragments DOM position
     #nodes = null;          // Live nodes
@@ -57,7 +58,8 @@ export class EnsoFragment extends EnsoNode() {
         }
         this[BINDINGS] = bindings;
 
-        this._processTemplate(template);
+        // this._processTemplate(template);
+        this.#template = template;
     }
     _processTemplate(template) {
         if (!template) return;
@@ -65,6 +67,9 @@ export class EnsoFragment extends EnsoNode() {
         this.#root = template.process(this);
     }
     _getChildren() {
+        if (!this.#root) {
+            this._processTemplate(this.#template);
+        }
         this.#nodes = Array.from(this.#root.childNodes);
     }
 
