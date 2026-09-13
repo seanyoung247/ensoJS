@@ -10,9 +10,18 @@ export const UUIDRegEx = /^[A-Za-z0-9_-]{6}$/;
 export const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 
 
-export const setup = (component) => {
+export const setup = (component, attrs = {}) => {
+
+    const attrStr = attrs
+        ? Object.entries(attrs).reduce((s, [k, v]) => {
+            if (v === true) return `${s} ${k}`;
+            if (v != null && v !== false) return `${s} ${k}="${v}"`;
+            return s;
+        }, "")
+        : "";
+
     document.body.innerHTML = 
-        `<${component} id="test-component"></${component}>`;
+        `<${component} id="test-component" ${attrStr}></${component}>`;
 
     const el = document.getElementById('test-component');
     const root = el[ROOT];
