@@ -1,5 +1,5 @@
 
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { it, expect, beforeAll } from 'vitest';
 import { testMode } from '../shared.js';
 
 
@@ -37,4 +37,18 @@ it ('returns a component tag with correct properties', async () => {
     expect(el.hasAttribute('test')).toBe(true);
     expect(el.getAttribute('test')).toBe('test_value');
     expect(el.textContent).toBe('Hello World');
+});
+
+it('define creates a component class without registering it', () => {
+    const tag = 'enso-define-test';
+
+    const ComponentClass = Enso.define({
+        template: '<div></div>'
+    });
+
+    expect(typeof ComponentClass).toBe('function');
+    expect(Object.getPrototypeOf(ComponentClass.prototype))
+        .toBeInstanceOf(HTMLElement);
+
+    expect(customElements.get(tag)).toBeUndefined();
 });
