@@ -96,8 +96,8 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
             }
         }
         // Initial update
-        this[UPDATE]();
         this.#mounted = true;
+        this[UPDATE]();
         this.#watched._notify(lifecycle.mount);
     }
 
@@ -116,11 +116,9 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
     //// Lifecycle
     [MARK_CHANGED](prop) {
-        if (!this.#mounted) return;
- 
         super[MARK_CHANGED](prop);
         
-        this.watched._notify(prop);
+        if (this.#mounted) this.watched._notify(prop);
     }
 
     [ATTACH_TEMPLATE](DOM) {
@@ -139,7 +137,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     }
 
     [SCHEDULE_UPDATE]() {
-        if (!this.#updateScheduled) {
+        if (!this.#updateScheduled && this.#mounted) {
             this.#updateScheduled = true;
             requestAnimationFrame(this[UPDATE]);
         }
