@@ -2,12 +2,15 @@
   "name": "ensojs",
   "version": "1.0.0-rc.22",
   "type": "module",
+
   "description": "A lightweight Web Component framework focused on clarity, reactivity, and minimal boilerplate.",
   "author": "Sean Young <seanyoung247@gmail.com>",
   "license": "MIT",
+
   "main": "./dist/ensojs.es.js",
   "module": "./dist/ensojs.es.js",
   "types": "./types/index.d.ts",
+
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
@@ -32,7 +35,7 @@
     "LICENSE"
   ],
   "sideEffects": true,
-  "homepage": "https://github.com/seanyoung247/ensojs#readme",
+  "homepage": "https://ensojs.dev/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
