@@ -35,15 +35,19 @@ async function loadFile(url) {
 }
 
 /**
- * Load one of more files in parallel.
+ * Load one or more files in parallel.
  *
- * Each file can be:
- *   - A string  → file path → raw text returned.
- *   - An object → {file, as} → transformed text returned.
+ * Files may be specified as:
+ *   - A string  → loads the file as raw text.
+ *   - An object → { file, as } optionally transforms the loaded
+ *                 text using `as`.
  *
- * @param {string|Function} baseUrl - Calling module URL
- * @param {...(string|{file:string,as?:Function})} files - Strings or typed load descriptors
- * @returns {Promise<Array<any[]>>} - Loaded text or transformed values, in order
+ * `base` may be either a URL used to resolve relative file paths,
+ * or a resolver function called with each file path.
+ *
+ * @param {string|Function} base - Base URL or file resolver function.
+ * @param {...(string|{file:string, as?:Function})} files - Files to load.
+ * @returns {Promise<any[]>} Loaded or transformed values, in argument order.
  */
 export async function load(base, ...files) {
     return Promise.all(files.map(async file => {
@@ -63,7 +67,7 @@ export async function load(base, ...files) {
                 : text;  // fallback to raw text
         }
         throw new TypeError(
-            "load: Invalid file. Must be a string or { file: string, as: function }"
+            "load: Invalid file. Must be a string or { file: string, as?: function }"
         );
     }));
 }

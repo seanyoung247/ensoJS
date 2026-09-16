@@ -18,7 +18,15 @@ const parse = (strings, ...values) => {
 
 
 const objectMasks = Object.freeze({
-    Window: {}, Document: {}, eval: null, Function: null, setTimeout: null
+    Window: {},
+    Document: {},
+    window: null,
+    document: null,
+    globalThis: null,
+    self: null,
+    eval: null,
+    Function: null,
+    setTimeout: null,
 });
 const rootEnv = Object.freeze({parse, ...objectMasks});
 
