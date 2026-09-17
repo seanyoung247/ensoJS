@@ -58,12 +58,9 @@ export class EnsoFragment extends EnsoNode() {
         }
         this[BINDINGS] = bindings;
 
-        // this._processTemplate(template);
         this.#template = template;
     }
     _processTemplate(template) {
-        if (!template) return;
-
         this.#root = template.process(this);
     }
     _getChildren() {
