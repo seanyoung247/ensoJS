@@ -59,4 +59,43 @@ describe('attachStyleSheets', () => {
         attachStyleSheets(shadow, [sheet]);
         expect(shadow.adoptedStyleSheets).toContain(sheet);
     });
+
+    it('attaches stylesheets not already adopted', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(':host { display: block; }');
+
+        attachStyleSheets(host, [sheet]);
+
+        expect(document.adoptedStyleSheets).toContain(sheet);
+    });
+
+    it('does not duplicate an already adopted stylesheet', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+
+        const sheet = new CSSStyleSheet();
+
+        attachStyleSheets(host, [sheet]);
+        attachStyleSheets(host, [sheet]);
+
+        expect(
+            document.adoptedStyleSheets.filter(s => s === sheet)
+        ).toHaveLength(1);
+    });
+
+    it('does not duplicate stylesheets within the supplied array', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+
+        const sheet = new CSSStyleSheet();
+
+        attachStyleSheets(host, [sheet, sheet]);
+
+        expect(
+            document.adoptedStyleSheets.filter(s => s === sheet)
+        ).toHaveLength(1);
+    });
 });
