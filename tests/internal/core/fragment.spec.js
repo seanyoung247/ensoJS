@@ -78,4 +78,21 @@ describe('EnsoFragment', () => {
         }
     });
 
+    it('_requestUpdate() updates an attached fragment', () => {
+        const frag = new EnsoFragment(parent, template, placeholder);
+
+        frag.mount();
+
+        const update = vi.spyOn(
+            Object.getPrototypeOf(EnsoFragment.prototype),
+            UPDATE
+        );
+
+        frag._requestUpdate();
+
+        expect(update).toHaveBeenCalled();
+
+        update.mockRestore();
+    });
+
 });
