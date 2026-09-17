@@ -78,8 +78,18 @@ export const API = {
      * @returns {import('../types/api').ComponentTag} - A tag function for use in component templates
      */
     register(tag, component) {
+        const registered = customElements.get(tag);
+
+        if (registered) {
+            if (registered === component) {
+                return createComponentTag(tag, component);
+            }
+            ensoError(101);
+        }
+
         // Define the custom element
         customElements.define(tag, component);
+
         /** @type {import('../types/api').ComponentTag} */
         return createComponentTag(tag, component);
     },
