@@ -9,12 +9,6 @@ import {
     BINDINGS, UPDATE, ANCHOR, ENSO_FRAGMENT,
 } from "./symbols.js";
 
-// Fragment placeholder component
-if (!customElements.get(ENSO_FRAGMENT.toLowerCase())) {
-    class EnsoFragmentElement extends HTMLElement {}
-    customElements.define(ENSO_FRAGMENT.toLowerCase(), EnsoFragmentElement);
-}
-
 /**
  * Enso Fragment base class
  * 
