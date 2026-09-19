@@ -20,7 +20,6 @@ export default function (register, ctx) {
         mount() {
             this.isAttached = true;
             this._getChildren();
-            // this._requestUpdate();
             return this._getNodes();
         }
     }
@@ -42,17 +41,19 @@ export default function (register, ctx) {
         mount() {
             // Clear children list
             this.unmount();
+
             // Construct new items
             const elements = [];
             const iterator = this.#effect.run();
+
             for (const item of iterator) {
-                // Copy template to a new ItemFragment
                 const child = new ItemFragment(
                     this, this.#template, item
                 );
-                // Mount
+
                 elements.push(...child.mount());
             }
+
             this._insertAfterAnchor(...elements);
             this.isAttached = true;
         }
@@ -61,6 +62,7 @@ export default function (register, ctx) {
             for (const child of this._getChildFragments()) {
                 child.unmount();
             }
+
             this._getChildFragments().length = 0;
             this.isAttached = false;
         }

@@ -120,7 +120,6 @@ describe("Watched class", () => {
         const spy = vi.fn();
 
         watched[BINDINGS]['prop'] = {
-            changed: false,
             watchers: [],
             effects: []
         };
@@ -147,7 +146,6 @@ describe("Watched class", () => {
 
         const spy = vi.fn();
         watched[BINDINGS]['known'] = {
-            changed: false,
             watchers: [spy],
             effects: []
         };
