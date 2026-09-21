@@ -61,19 +61,10 @@ export default function (register, ctx) {
             return true;
         },
 
-        // process(data, parent, element) {
-        //     for (const prop of data) {
-        //         const effect = prop.action.createEffect(parent, element);
-
-        //         for (const bind of prop.binds) {
-        //             addBinding(parent, bind, effect);
-        //         }
-        //     }
-        // }
-        /* Note for future jackasses, whom ever they maybe:
+        /* Note to avoid wasting time again:
          *  You can't fix scheduling errors with more scheduling errors
          * Properties don't render, so need to be updated immediately,
-         * not during the next render.
+         * not during the next render. Keep it as a watcher, not a bind.
          */
         process(data, parent, element) {
             const component = parent.component;

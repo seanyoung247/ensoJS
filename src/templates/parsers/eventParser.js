@@ -28,7 +28,7 @@ export default function (register, ctx) {
         match(node, attribute) {
             return (
                 node.nodeType === Node.ELEMENT_NODE &&
-                isAttr(attribute, '@', 'evt')
+                isAttr(attribute, '@', 'event')
             );
         },
 
