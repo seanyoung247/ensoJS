@@ -3,10 +3,10 @@ import { bench } from 'vitest';
 import EnsoTemplate from '../../src/templates/template.js';
 
 const html = /*html*/ `
-<div id="if-parent" *if="{{ watched:isVisible === true}}">
+<div id="if-parent" *if="watched:isVisible === true">
     Hello {{ watched:name }}!
     <span id="ref" #ref="myRef"></span>
-    <div id="if-child" #ref="anotherRef" *if="{{ watched:childIsVisible }}">
+    <div id="if-child" #ref="anotherRef" *if="watched:childIsVisible">
         Child Content
     </div>
 </div>

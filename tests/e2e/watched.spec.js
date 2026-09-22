@@ -125,16 +125,16 @@ Enso.component(complexWatched, {
                         {{ @:options.nested.bool ? 'Hide' : 'Show' }} Options
                     </button>
                 </li>
-                <li *if="{{ @:options.nested.bool }}" class="option">
+                <li *if="@:options.nested.bool" class="option">
                     Number = {{ @:options.nested.deep.num }}
                 </li>
-                <li *if="{{ @:options.nested.bool }}" class="option">
+                <li *if="@:options.nested.bool" class="option">
                     String = {{ @:options.nested.deep.str }}
                 </li>
             </ul>
         </div>
         <div id="list" data-length="{{ @:list.length }}">List length = {{ @:list.length }}</div>
-        <ul id="names" *if="{{ @:options.showNames }}">
+        <ul id="names" *if="@:options.showNames">
             <li *for="{name, age} of @:objList">
                 <p>Name: {{ name }}</p>
                 <p>Age: {{ age }}</p>

@@ -9,7 +9,7 @@ Enso.component('enso-if-bench', {
         flag: prop(true)
     },
     template: html`
-        <div *if="{{@:flag}}">
+        <div *if="@:flag">
             Hello
         </div>
     `

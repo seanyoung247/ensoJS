@@ -26,7 +26,7 @@ describe('EnsoTemplate', () => {
 
     it('extracts fragment roots and replaces them with placeholders', () => {
         const tpl = new EnsoTemplate(`
-            <div *if="{{ true }}">
+            <div *if="true">
                 <span>Inner</span>
             </div>
         `);
