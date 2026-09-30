@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { html } from "../../src/enso.js";
+import Enso, { html, attr, lifecycle, watches } from "../../src/enso.js";
 import { nextFrame, setup } from '../shared.js';
 
 
@@ -107,4 +107,81 @@ describe('Nested IF directives', () => {
         expect(root.querySelector('#never-shown')).toBeNull();
     });
 
+});
+
+describe("If element creation", () => {
+
+    it('does not instantiate an initially false branch', async () => {
+        let instances = 0;
+
+        const childTag = 'enso-if-lazy-child-test';
+
+        Enso.component(childTag, {
+            watched: {},
+            template: html`<span>Child</span>`,
+            script: {
+                onInit: watches(
+                    ()=>instances++,
+                    [lifecycle.mount]
+                )
+            }
+        });
+
+        const parentTag = 'enso-if-lazy-parent-test';
+
+        Enso.component(parentTag, {
+            watched: {
+                show: false
+            },
+            template: html`
+                <${childTag} *if="{{ @:show }}"></${childTag}>
+            `
+        });
+
+        const [el, root] = setup(parentTag);
+
+        await nextFrame();
+
+        expect(instances).toBe(0);
+        expect(root.querySelector(childTag)).toBeNull();
+
+        el.watched.show = true;
+
+        await nextFrame();
+
+        expect(instances).toBe(1);
+        expect(root.querySelector(childTag)).not.toBeNull();
+    });
+
+    it('terminates recursive components when an IF condition becomes false', async () => {
+        const tag = 'enso-recursive-if-test';
+
+        let mounts = 0;
+
+        Enso.component(tag, {
+            watched: {
+                count: attr(0)
+            },
+
+            template: html`
+                <enso-recursive-if-test
+                    *if="{{ @:count > 0 }}"
+                    :count="{{ @:count - 1 }}">
+                </enso-recursive-if-test>
+            `,
+
+            script: {
+                mounted: watches(function () {
+                    mounts++;
+                }, [lifecycle.mount]),
+            }
+        });
+
+        const [el] = setup(tag, { count: 3 });
+
+        await nextFrame();
+
+        expect(mounts).toBe(4);
+    });
+    
 });
