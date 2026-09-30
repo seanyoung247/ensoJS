@@ -6,10 +6,13 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { testMode } from '../shared.js';
 
 
-let classList, cssObj, Range, range;
+let Enso, classList, cssObj, Range, range, comp;
 beforeAll(async () => {
-    const mod = await testMode.importHelpers();
-    ({ classList, cssObj, Range, range } = mod);
+    const mod = await testMode.importModule();
+    ({ default: Enso } = mod);
+
+    const helpers = await testMode.importHelpers();
+    ({ classList, cssObj, Range, range, comp } = helpers);
 });
 
 
@@ -308,3 +311,56 @@ function compareRangeValues(rng, vals) {
         expect(val).toBe(vals[i++]);
     }
 }
+
+describe('comp', () => {
+    it('creates a component tag with correct properties', () => {
+        const ComponentClass = Enso.component('enso-comp-test', {
+            template: '<div></div>'
+        });
+
+        const componentTag = comp(ComponentClass);
+
+        expect(componentTag.tag).toBe('enso-comp-test');
+        expect(componentTag.Class).toBe(ComponentClass);
+
+        // HTML template generation
+        expect(componentTag.html.toString())
+            .toBe('<enso-comp-test></enso-comp-test>');
+
+        expect(`${componentTag.html}`)
+            .toBe('<enso-comp-test></enso-comp-test>');
+
+        expect(componentTag.html(null, '<test>Hello World</test>'))
+            .toBe('<enso-comp-test><test>Hello World</test></enso-comp-test>');
+
+        expect(componentTag.html({ id: 'comp1', hidden: true }))
+            .toBe('<enso-comp-test id="comp1" hidden></enso-comp-test>');
+
+        expect(componentTag.html({
+            id: 'comp1',
+            omit1: null,
+            omit2: false
+        })).toBe('<enso-comp-test id="comp1"></enso-comp-test>');
+
+        expect(componentTag.html(
+            { id: 'comp1', hidden: true },
+            '<span>Content</span>'
+        )).toBe(
+            '<enso-comp-test id="comp1" hidden>' +
+            '<span>Content</span></enso-comp-test>'
+        );
+
+        // Live element creation
+        const el = componentTag(
+            { test: 'test_value' },
+            'Hello World'
+        );
+        const direct = document.createElement('enso-comp-test');
+
+        expect(direct).toBeInstanceOf(ComponentClass);
+        expect(el).toBeInstanceOf(ComponentClass);
+        expect(el.tagName.toLowerCase()).toBe('enso-comp-test');
+        expect(el.getAttribute('test')).toBe('test_value');
+        expect(el.textContent).toBe('Hello World');
+    });
+});

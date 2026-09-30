@@ -4,7 +4,6 @@
 
 import EnsoComponent from "../component.js";
 import { createComponent } from "./components.js";
-import { createComponentTag } from "./tags.js";
 import { parseScript } from "./watched.js";
 import { Watched } from "./watched.js";
 import { VERSION } from "../../version.js";
@@ -82,16 +81,16 @@ export const API = {
 
         if (registered) {
             if (registered === component) {
-                return createComponentTag(tag, component);
+                return component;
             }
             ensoError(101);
         }
 
         // Define the custom element
         customElements.define(tag, component);
+        component.tagName = tag;
 
-        /** @type {import('../types/api').ComponentTag} */
-        return createComponentTag(tag, component);
+        return component;
     },
 
     /**
