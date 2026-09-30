@@ -8,9 +8,16 @@ import { getOperator } from "./utils.js";
 export default function (register, ctx) {
     const {
         addBinding, parseSource,
-        compileValue, Action,
-        EnsoFragment
+        Action, EnsoFragment
     } = ctx;
+
+    const compileValue = code => (
+        /*js*/
+        `(()=>${code
+            .replaceAll('{{', '')
+            .replaceAll('}}', '')
+            .trim()})`
+    );
 
     class IfFragment extends EnsoFragment {
         #effect;
@@ -31,7 +38,7 @@ export default function (register, ctx) {
         }
     }
 
-    // *if="{{ <expression> }}"
+    // *if="<expression>"
     register.generator({
         type: 'enso:if',
 

@@ -10,7 +10,7 @@ const basicIF = 'enso-if-basic-test';
 Enso.component(basicIF, {
   watched: { show: true },
   template: html`
-    <div id="if-test" *if="{{ watched:show }}">Visible</div>
+    <div id="if-test" *if="watched:show">Visible</div>
     {{ @:show.toString() }}
   `
 });
@@ -40,8 +40,8 @@ const multiIF = 'enso-if-multi-test';
 Enso.component(multiIF, {
     watched: { show: true },
     template: html`
-        <div id="if-test1" *if="{{ watched:show }}">Content</div>
-        <div id="if-test2" enso-if="{{ watched:show === false }}">No Content</div>
+        <div id="if-test1" *if="watched:show">Content</div>
+        <div id="if-test2" enso-if="watched:show === false">No Content</div>
     `
 });
 
@@ -75,10 +75,10 @@ Enso.component(nestedIF, {
         showChild: false,
     },
     template: html`
-        <div id="if-test-parent" *if="{{ watched:show }}">
+        <div id="if-test-parent" *if="watched:show">
             Parent Div
-            <div id="never-shown" *if="{{ !watched:show }}">Never Shown</div>
-            <div id="if-test-child" *if="{{ watched:showChild }}">Child Content</div>
+            <div id="never-shown" *if="!watched:show">Never Shown</div>
+            <div id="if-test-child" *if="watched:showChild">Child Content</div>
         </div>
     `
 });
@@ -134,7 +134,7 @@ describe("If element creation", () => {
                 show: false
             },
             template: html`
-                <${childTag} *if="{{ @:show }}"></${childTag}>
+                <${childTag} *if="@:show"></${childTag}>
             `
         });
 
@@ -165,7 +165,7 @@ describe("If element creation", () => {
 
             template: html`
                 <enso-recursive-if-test
-                    *if="{{ @:count > 0 }}"
+                    *if="@:count > 0"
                     :count="{{ @:count - 1 }}">
                 </enso-recursive-if-test>
             `,

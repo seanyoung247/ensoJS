@@ -13,7 +13,7 @@ Enso.component('test-component', {
     expose: { range },
     template: html`
         <div id="test" #ref="root">
-            <div *if="{{ @:show }}">
+            <div *if="@:show">
                 Count is: {{ @:count }}
                 Count2 is: {{ @:count2 }}
             </div>

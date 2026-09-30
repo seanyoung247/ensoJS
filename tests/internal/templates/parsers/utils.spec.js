@@ -150,13 +150,13 @@ describe('getDirective', () => {
         const div = document.createElement('DIV');
         div.innerHTML = '<div></div>';
         noDir = div.firstElementChild;
-        div.innerHTML = '<div *if="{{ watched:test }}"></div>';
+        div.innerHTML = '<div *if="watched:test"></div>';
         single = div.firstElementChild;
         div.innerHTML = `
             <div 
-                *if="{{ watched:test }}"
-                *for="{{ item of list }}"
-                enso-if="{{ watched:test2 }}"
+                *if="watched:test"
+                *for="item of list"
+                enso-if="watched:test2"
             >
             </div>`;
         multi = div.firstElementChild;
@@ -172,7 +172,7 @@ describe('getDirective', () => {
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
-        expect(dir).toBe('{{ watched:test }}');
+        expect(dir).toBe('watched:test');
     });
 
     it('handles multiple directives', () => {
@@ -180,7 +180,7 @@ describe('getDirective', () => {
         expect(dir).not.toBeNull();
         expect(dir).toBeDefined();
         // Correct attribute returned
-        expect(dir).toBe('{{ watched:test }}');
+        expect(dir).toBe('watched:test');
     });
 
 });

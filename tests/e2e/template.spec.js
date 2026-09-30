@@ -12,7 +12,7 @@ Enso.component( templateTest, {
     template: html`
         <ul #ref="itemList">
             <enso-fragment *for="item of @:list">
-                <li *if="{{ item !== 2 }}">
+                <li *if="item !== 2">
                     {{ item }}
                 </li>
             </enso-fragment>
