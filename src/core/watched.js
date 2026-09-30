@@ -144,12 +144,12 @@ export function computed(fn, deps) {
 /**
  * Tags a script method to be notified when watched properties change
  * @param {Function} fn     - The function to call
- * @param {[String]} props  - List of watched properties to watch
+ * @param {[String]} deps   - List of watched properties to watch
  * @returns {Function} The watcher function
  */
-export function watches(fn, props = [], keep=false) {
+export function watches(fn, deps = [], keep = false) {
     if (typeof fn === 'function') {
-        fn.__watches = { props, keep };
+        fn.__watches = { deps, keep };
     } else {
         ensoError(221); // E_WATCHES_FN
     }
