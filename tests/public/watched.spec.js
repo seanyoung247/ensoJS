@@ -97,7 +97,7 @@ describe('watches()', () => {
 
         expect(result).toBe(fn); // returns original
         expect(result.__watches).toEqual({
-            props: ['a', 'b'],
+            deps: ['a', 'b'],
             keep: false
         });
     });
@@ -107,27 +107,27 @@ describe('watches()', () => {
         watches(fn, ['x'], true);
 
         expect(fn.__watches).toEqual({
-            props: ['x'],
+            deps: ['x'],
             keep: true
         });
     });
 
-    it('allows empty props array', () => {
+    it('allows empty deps array', () => {
         const fn = function() {};
         watches(fn, []);
 
         expect(fn.__watches).toEqual({
-            props: [],
+            deps: [],
             keep: false
         });
     });
 
-    it('allows missing props array', () => {
+    it('allows missing deps array', () => {
         const fn = function() {};
         watches(fn);
 
         expect(fn.__watches).toEqual({
-            props: [],
+            deps: [],
             keep: false
         });
     });

@@ -172,10 +172,9 @@ export function parseScript(script) {
 
     for (const [key, descriptor] of Object.entries(descriptors)) {
         // if (!('value' in descriptor)) continue;
-
         const fn = descriptor.value;
         if (fn?.__watches) {
-            for (const prop of fn.__watches.props) {
+            for (const prop of fn.__watches.deps) {
                 (watchers[prop] ||= []).push(fn);
             }
             if (!fn.__watches.keep) delete script[key];
