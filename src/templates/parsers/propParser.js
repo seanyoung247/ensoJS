@@ -7,7 +7,7 @@ import { getName, isAttr } from "./utils.js";
 
 export default function (register, ctx) {
     const {
-        parseSource, addWatcher,
+        parseSource, addBinding,
         Effect, Action
     } = ctx;
 
@@ -62,11 +62,11 @@ export default function (register, ctx) {
         },
 
         process(data, parent, element) {
-            const component = parent.component;
-            for (const prop of data) { 
+            for (const prop of data) {
                 const effect = prop.action.createEffect(parent, element);
+
                 for (const bind of prop.binds) {
-                    addWatcher(component, bind, ()=>effect.run());
+                    addBinding(parent, bind, effect);
                 }
             }
         }
