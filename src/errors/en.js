@@ -1,6 +1,9 @@
 
 export default {
     // Component Errors
+    '101': () => (
+        `Unable to register component, Tag is already in use.`
+    ),
     '102': () => (
         `Direct subclassing of Enso is not supported. Use Enso.component() instead.`
     ),

@@ -55,7 +55,6 @@ export default function (register, ctx) {
             }
             this._insertAfterAnchor(...elements);
             this.isAttached = true;
-            // this._requestUpdate();
         }
 
         unmount() {
