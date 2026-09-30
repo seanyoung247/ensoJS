@@ -248,3 +248,41 @@ describe('Watched Property accessors', () => {
     });
 
 });
+
+describe('Unmounted reactivity', () => {
+
+    it('does not run effects while unmounted', async () => {
+        const tag = 'enso-unmounted-reactivity-test';
+
+        Enso.component(tag, {
+            watched: {
+                value: 0
+            },
+            template: html`
+                <p #ref="value">{{ @:value }}</p>
+            `
+        });
+
+        const [el] = setup(tag);
+
+        await nextFrame();
+
+        expect(el.refs.value.textContent).toBe('0');
+
+        el.remove();
+
+        el.watched.value = 10;
+
+        await nextFrame();
+
+        expect(el.watched.value).toBe(10);
+        expect(el.refs.value.textContent).toBe('0');
+
+        document.body.append(el);
+
+        await nextFrame();
+
+        expect(el.refs.value.textContent).toBe('10');
+    });
+
+});
