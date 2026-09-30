@@ -125,12 +125,12 @@ Enso.component(scriptAccess, {
         },
 
         updateValues() {
-            let { message, counter } = getWatched(this);
+            // let { message, counter } = getWatched(this);
 
-            message = 'updated';
-            counter++;
+            this.message = 'updated';
+            this.counter++;
 
-            setWatched(this, { message, counter });
+            // setWatched(this, { message, counter });
         },
 
         getValues() {

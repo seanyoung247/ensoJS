@@ -18,7 +18,7 @@ export { lifecycle } from './component.js';
 // Watched properties
 export { 
     prop, attr, computed,
-    watches, getWatched, setWatched 
+    watches//, getWatched, setWatched 
 } from './core/watched.js';
 
 // Component creator and global settings - Retained for compatibility

@@ -118,15 +118,17 @@ export function computed(fn, deps) {
     });
 };
 
+// No real need for set and getWatched at the moment. Also potentially overrides computed.
+
 /**
  * Get all watched values for a given component.
  * 
  * @param {EnsoComponent} component - The component to retrieve watched values from.
  * @returns {Object<string, any>} An object literal containing all watched properties.
  */
-export function getWatched(component) {
-    return component.watched[VALUES];
-}
+// export function getWatched(component) {
+//     return component.watched[VALUES];
+// }
 
 /**
  * Set multiple watched values on a component, and triggers updates for changes.
@@ -135,9 +137,9 @@ export function getWatched(component) {
  * @param {Object<string, any>} values - Object containing key/value pairs to update.
  * @param {Boolean} notify - If false watchers subscribed to the properties will not run.
  */
-export function setWatched(component, values, notify=true) {
-    component.watched._update(values, notify);
-}
+// export function setWatched(component, values, notify=true) {
+//     component.watched._update(values, notify);
+// }
 
 /**
  * Tags a script method to be notified when watched properties change
@@ -256,7 +258,7 @@ export class Watched {
     #component;                      // Component owner
     #values = Object.create(null);   // Holds the actual property values
     #bindings = Object.create(null); // Bindings for the watched properties
-    #runWatchers = true;             // If true during update, watchers will run
+    //#runWatchers = true;             // If true during update, watchers will run
 
     constructor(component) {
         this.#component = component;
@@ -294,12 +296,11 @@ export class Watched {
     }
 
     get [BINDINGS]() { return this.#bindings; }
-    get [VALUES]() { return structuredClone(this.#values); }
+    // get [VALUES]() { return structuredClone(this.#values); }
     get _defs() { return this.constructor.defs; }
 
-    _addWatcher(prop, fn, force = false) {
+    _addWatcher(prop, fn) {
         if (this.#bindings[prop]) {
-            fn._force = force;
             this.#bindings[prop].watchers.push(fn);
         }
     }
@@ -310,9 +311,7 @@ export class Watched {
             const value = this.#values[prop];
 
             for (const watcher of watchers) {
-                if (this.#runWatchers || watcher._force) {
-                    watcher.call(this.#component, prop, value);
-                }
+                watcher.call(this.#component, prop, value);
             }
         }
     }
@@ -332,18 +331,11 @@ export class Watched {
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
     }
 
-    _update(values, runWatchers = true) {
-        const previous = this.#runWatchers
-        this.#runWatchers = runWatchers;
-
-        try {
-            for (const val in values) {
-                if (values[val] !== this.#values[val]) {
-                    this._setProp(this._defs[val], values[val]);
-                }
+    _update(values) {
+        for (const val in values) {
+            if (values[val] !== this.#values[val]) {
+                this._setProp(this._defs[val], values[val]);
             }
-        } finally {
-            this.#runWatchers = previous;
         }
     }
 }
