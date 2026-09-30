@@ -88,10 +88,19 @@ describe('Enso Attributes', () => {
         expect(el.hasAttribute('str')).toBe(true);
         el.watched.str = null;
         expect(el.hasAttribute('str')).toBe(false);
+    });
+
+    it('removes attributes when their binding evaluates to false', async () => {
+        expect(display.hasAttribute('data-show')).toBe(true);
 
         el.watched.show = false;
         await nextFrame();
-        expect(el.hasAttribute('data-show')).toBe(false);
-    });
 
+        expect(display.hasAttribute('data-show')).toBe(false);
+
+        el.watched.show = true;
+        await nextFrame();
+
+        expect(display.hasAttribute('data-show')).toBe(true);
+    });
 });
