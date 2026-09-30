@@ -73,7 +73,7 @@ export default function (register, ctx) {
                 const effect = prop.action.createEffect(parent, element);
 
                 for (const bind of prop.binds) {
-                    addWatcher(component, bind, () => effect.run());
+                    addWatcher(component, bind, () => effect.run(), true);
                 }
             }
         }

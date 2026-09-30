@@ -23,12 +23,14 @@ describe("Watched class", () => {
         // Mock component hosting the Watched instance
         class MockComponent {
             constructor() {
-                this[MARK_CHANGED] = vi.fn();
+                this[MARK_CHANGED] = vi.fn(prop => {
+                    this.watched._notify(prop);
+                });
+
                 this.reflectAttribute = vi.fn();
                 this.onPropertyChange = vi.fn();
             }
         }
-
         component = new MockComponent();
         component.watched = new MyWatched(component);
     });
@@ -138,6 +140,49 @@ describe("Watched class", () => {
         watched._notify('unknown');
 
         expect(spy).not.toBeCalled();
+    });
+
+    it('suppresses ordinary watchers but runs forced watchers', () => {
+        const normal = vi.fn();
+        const forced = vi.fn();
+
+        component.watched._addWatcher('count', normal);
+        component.watched._addWatcher('count', forced, true);
+
+        // Suppressed update
+        setWatched(component, { count: 10 }, false);
+
+        expect(normal).not.toHaveBeenCalled();
+        expect(forced).toHaveBeenCalledOnce();
+        expect(forced).toHaveBeenCalledWith('count', 10);
+
+        // Normal update
+        setWatched(component, { count: 20 });
+
+        expect(normal).toHaveBeenCalledOnce();
+        expect(forced).toHaveBeenCalledTimes(2);
+    });
+
+    it('restores notifications after an exception', () => {
+        const normal = vi.fn();
+        const forced = vi.fn(() => {
+            throw new Error('Test error');
+        });
+
+        component.watched._addWatcher('count', normal);
+        component.watched._addWatcher('count', forced, true);
+
+        expect(() => {
+            setWatched(component, { count: 10 }, false);
+        }).toThrow('Test error');
+
+        // Remove the throwing watcher.
+        component.watched[BINDINGS].count.watchers.pop();
+
+        // Notifications should have been restored.
+        setWatched(component, { count: 20 });
+
+        expect(normal).toHaveBeenCalledOnce();
     });
 
     it('does nothing when notifying an unknown prop', () => {

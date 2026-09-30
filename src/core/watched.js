@@ -133,9 +133,10 @@ export function getWatched(component) {
  *
  * @param {EnsoComponent} component - The component whose watched values are being updated.
  * @param {Object<string, any>} values - Object containing key/value pairs to update.
+ * @param {Boolean} notify - If false watchers subscribed to the properties will not run.
  */
-export function setWatched(component, values) {
-    component.watched._update(values);
+export function setWatched(component, values, notify=true) {
+    component.watched._update(values, notify);
 }
 
 /**
@@ -252,9 +253,10 @@ export class Watched {
         return cls;
     }
 
-    #component;                     // Component owner
-    #values = Object.create(null);  // Holds the actual property values
-    #bindings = Object.create(null);// Bindings for the watched properties
+    #component;                      // Component owner
+    #values = Object.create(null);   // Holds the actual property values
+    #bindings = Object.create(null); // Bindings for the watched properties
+    #runWatchers = true;             // If true during update, watchers will run
 
     constructor(component) {
         this.#component = component;
@@ -295,8 +297,9 @@ export class Watched {
     get [VALUES]() { return structuredClone(this.#values); }
     get _defs() { return this.constructor.defs; }
 
-    _addWatcher(prop, fn) {
+    _addWatcher(prop, fn, force = false) {
         if (this.#bindings[prop]) {
+            fn._force = force;
             this.#bindings[prop].watchers.push(fn);
         }
     }
@@ -307,9 +310,9 @@ export class Watched {
             const value = this.#values[prop];
 
             for (const watcher of watchers) {
-                watcher.call(
-                    this.#component, prop, value
-                );
+                if (this.#runWatchers || watcher._force) {
+                    watcher.call(this.#component, prop, value);
+                }
             }
         }
     }
@@ -329,11 +332,18 @@ export class Watched {
         if (prop.attribute) this.#component.reflectAttribute(prop.name);
     }
 
-    _update(values) {
-        for (const val in values) {
-            if (values[val] !== this.#values[val]) {
-                this._setProp(this._defs[val], values[val]);
+    _update(values, runWatchers = true) {
+        const previous = this.#runWatchers
+        this.#runWatchers = runWatchers;
+
+        try {
+            for (const val in values) {
+                if (values[val] !== this.#values[val]) {
+                    this._setProp(this._defs[val], values[val]);
+                }
             }
+        } finally {
+            this.#runWatchers = previous;
         }
     }
 }
