@@ -6,7 +6,7 @@ import { EnsoNode } from "./components.js";
 import { createEffectEnv } from "./effects.js";
 import { 
     NODES, ENV, ADD_CHILD, CHILDREN, SCHEDULE_UPDATE,
-    BINDINGS, UPDATE, ANCHOR, ENSO_FRAGMENT,
+    BINDINGS, UPDATE, ANCHOR,
 } from "./symbols.js";
 
 /**
@@ -47,7 +47,7 @@ export class EnsoFragment extends EnsoNode() {
         const bindings = new Map();
         for (const [prop, bind] of Object.entries(this.#component[BINDINGS])) {
             bindings[prop] = {
-                changed: false, watchers: bind.watchers, effects: []
+                watchers: bind.watchers, effects: []
             };
         }
         this[BINDINGS] = bindings;

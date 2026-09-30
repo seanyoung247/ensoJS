@@ -7,7 +7,7 @@ import { getName, isAttr } from "./utils.js";
 
 export default function (register, ctx) {
     const {
-        parseSource, addBinding,
+        parseSource, addWatcher,
         Effect, Action
     } = ctx;
 
@@ -61,12 +61,28 @@ export default function (register, ctx) {
             return true;
         },
 
+        // process(data, parent, element) {
+        //     for (const prop of data) {
+        //         const effect = prop.action.createEffect(parent, element);
+
+        //         for (const bind of prop.binds) {
+        //             addBinding(parent, bind, effect);
+        //         }
+        //     }
+        // }
+        /* Note for future jackasses, whom ever they maybe:
+         *  You can't fix scheduling errors with more scheduling errors
+         * Properties don't render, so need to be updated immediately,
+         * not during the next render.
+         */
         process(data, parent, element) {
+            const component = parent.component;
+
             for (const prop of data) {
                 const effect = prop.action.createEffect(parent, element);
 
                 for (const bind of prop.binds) {
-                    addBinding(parent, bind, effect);
+                    addWatcher(component, bind, () => effect.run());
                 }
             }
         }
