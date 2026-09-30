@@ -285,7 +285,6 @@ export class Watched {
             this.#values[defName] = value;
             // Create binding
             this.#bindings[defName] = {
-                changed: false,             // Has value changed?
                 watchers: prop.watchers,    // List of functions to notify of changes
                 effects: [],                // List of effects to schedule on change
             };

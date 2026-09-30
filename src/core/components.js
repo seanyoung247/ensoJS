@@ -62,7 +62,6 @@ export const EnsoNode = (Base = Object) => {
             const binding = this[GET_BINDING](bind);
             if (binding) {
                 binding.effects.push(effect);
-                binding.changed = true;
             }
         }
 
@@ -72,9 +71,7 @@ export const EnsoNode = (Base = Object) => {
 
         [MARK_CHANGED](prop) {
             const bind = this.#bindings[prop];
-            if (bind && !bind.changed) {
-                bind.changed = true;
-
+            if (bind) {
                 for (const effect of bind.effects) {
                     this[SCHEDULE_EFFECT](effect);
                 }
@@ -92,11 +89,6 @@ export const EnsoNode = (Base = Object) => {
                 effect.run();
             }
             this.#taskList.clear();
-
-            // reset all bindings
-            for (const bind of Object.values(this.#bindings)) {
-                bind.changed = false;
-            }
 
             // recurse into children safely
             const children = [...this.#children];

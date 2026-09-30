@@ -102,7 +102,6 @@ describe("EnsoNode", () => {
 
         const bind = instance[BINDINGS]["x"];
         expect(bind.effects).toContain(effect);
-        expect(bind.changed).toBe(true);
 
         instance[ADD_BINDING](null, effect);
         expect(instance[BINDINGS]['x'].effects.length).toBe(1);
@@ -121,7 +120,6 @@ describe("EnsoNode", () => {
         instance[MARK_CHANGED]("x");
 
         const bind = instance[BINDINGS]["x"];
-        expect(bind.changed).toBe(true);
 
         // Effects scheduled
         expect(instance[TASK_LIST].has(effect1)).toBe(true);
@@ -134,16 +132,17 @@ describe("EnsoNode", () => {
 
     it("MARK_CHANGED propagates to children", () => {
         const child = new Node();
-        child[BINDINGS] = new Map();
+        child[BINDINGS] = {};
         child[SCHEDULE_UPDATE] = vi.fn();
 
-        child[BINDINGS]["y"] = { changed: false, effects: [] };
+        const effect = { run: vi.fn() };
+        child[BINDINGS]["y"] = { effects: [effect] };
+
         instance[ADD_CHILD](child);
 
         instance[MARK_CHANGED]("y");
 
-        const bind = child[BINDINGS]["y"];
-        expect(bind.changed).toBe(true);
+        expect(child[TASK_LIST]).toContain(effect);
     });
 
 
@@ -162,17 +161,6 @@ describe("EnsoNode", () => {
         expect(effect2.run).toHaveBeenCalledTimes(1);
 
         expect(instance[TASK_LIST].size).toBe(0);
-    });
-
-
-    it("UPDATE resets changed flags", () => {
-        instance[BINDINGS]["a"] = { changed: true, effects: [] };
-        instance[BINDINGS]["b"] = { changed: true, effects: [] };
-
-        instance[UPDATE]();
-
-        expect(instance[BINDINGS]["a"].changed).toBe(false);
-        expect(instance[BINDINGS]["b"].changed).toBe(false);
     });
 
 
