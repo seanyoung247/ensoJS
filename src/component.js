@@ -30,6 +30,7 @@ export const lifecycles = Object.values(lifecycle);
 export default class EnsoComponent extends EnsoNode(HTMLElement) {
     //// Instance Fields
     #initialised = false;
+    #mounted = false;
     // Root element -> either this, or shadowroot
     #root = null;
     // Reactivity properties
@@ -73,32 +74,35 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     //// Web Component API
 
     connectedCallback() {
-        if (this.#initialised) return;
-        this.#initialised = true;
+        if (!this.#initialised) {
+            this.#initialised = true;
+        
+            // Loops through all properties defined as attributes 
+            // and sets their initial value if they're forced.
+            const attributes = this.constructor.observedAttributes;
+            for (const attr of attributes) {
+                if (this.watched._defs[attr].attribute.force) {
+                    this.reflectAttribute(attr);
+                }
+            }
 
-        // Loops through all properties defined as attributes 
-        // and sets their initial value if they're forced.
-        const attributes = this.constructor.observedAttributes;
-        for (const attr of attributes) {
-            if (this.watched._defs[attr].attribute.force) {
-                this.reflectAttribute(attr);
+            // Parse and attach template
+            this[ATTACH_TEMPLATE](
+                this.template.process(this, this.template)
+            );
+
+            if (this.styles) {
+                attachStyleSheets(this[ROOT], this.styles);
             }
         }
-
-        // Parse and attach template
-        this[ATTACH_TEMPLATE](
-            this.template.process(this, this.template)
-        );
-
-        if (this.styles) {
-            attachStyleSheets(this[ROOT], this.styles);
-        }
-
-        // Initial render
+        // Initial update
         this[UPDATE]();
+        this.#mounted = true;
+        this.#watched._notify(lifecycle.mount);
     }
 
     disconnectedCallback() {
+        this.#mounted = false;
         this.#watched._notify(lifecycle.unmount);
     }
       
@@ -112,6 +116,8 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
 
     //// Lifecycle
     [MARK_CHANGED](prop) {
+        if (!this.#mounted) return;
+ 
         super[MARK_CHANGED](prop);
         
         this.watched._notify(prop);
@@ -120,7 +126,6 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     [ATTACH_TEMPLATE](DOM) {
         const nodes = Array.from(DOM.firstElementChild.childNodes);
         this[ROOT].append(...nodes);
-        this.#watched._notify(lifecycle.mount);
     }
 
     reflectAttribute(attribute) {
