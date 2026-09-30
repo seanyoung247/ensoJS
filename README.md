@@ -151,4 +151,4 @@ npm run test:build
 
 Enso is open-source software released under the [MIT License](./LICENSE).
 
-_Currently licensed under MIT. Future releases may adopt Apache 2.0 if broader legal protections are needed._
+_licensed under the MIT License.
