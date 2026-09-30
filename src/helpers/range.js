@@ -31,9 +31,8 @@ export class Range {
 
     get start() { return this.#start; }
     get stop() { return this.#stop; }
-    get stepSize() { return this.#step; }
     get size() { return this.#size; }
-
+    get stepSize() { return this.#step; }
     get lastStep() {
         const size = this.#size;
         if (size === 0) return undefined;
