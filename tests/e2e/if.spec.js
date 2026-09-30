@@ -2,7 +2,7 @@
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
 import { describe, it, expect, beforeEach } from 'vitest';
-import Enso, { html, attr, lifecycle, watches } from "../../src/enso.js";
+import Enso, { html, attr, prop, lifecycle, watches } from "../../src/enso.js";
 import { nextFrame, setup } from '../shared.js';
 
 
@@ -184,4 +184,129 @@ describe("If element creation", () => {
         expect(mounts).toBe(4);
     });
     
+});
+
+// Mixed IF/FOR nesting
+
+const forInsideIf = 'enso-for-inside-if-test';
+
+Enso.component(forInsideIf, {
+    watched: {
+        show: false,
+        items: prop(['a', 'b'], true)
+    },
+    template: html`
+        <ul *if="@:show">
+            <li class="nested-item" *for="item of @:items">
+                {{ item }}
+            </li>
+        </ul>
+    `
+});
+
+describe('FOR inside IF', () => {
+    let el, root;
+
+    beforeEach(() => {
+        [el, root] = setup(forInsideIf);
+    });
+
+    it('uses the latest items when a lazy IF first mounts', async () => {
+        expect(root.querySelector('ul')).toBeNull();
+
+        el.watched.items = ['c', 'd', 'e'];
+        await nextFrame();
+
+        expect(root.querySelectorAll('.nested-item')).toHaveLength(0);
+
+        el.watched.show = true;
+        await nextFrame();
+
+        const items = root.querySelectorAll('.nested-item');
+
+        expect(items).toHaveLength(3);
+        expect(Array.from(items, item => item.textContent.trim()))
+            .toEqual(['c', 'd', 'e']);
+    });
+
+    it('uses updated items after unmounting and remounting', async () => {
+        el.watched.show = true;
+        await nextFrame();
+
+        expect(root.querySelectorAll('.nested-item')).toHaveLength(2);
+
+        el.watched.show = false;
+        await nextFrame();
+
+        expect(root.querySelector('ul')).toBeNull();
+
+        el.watched.items = ['x', 'y', 'z'];
+        await nextFrame();
+
+        el.watched.show = true;
+        await nextFrame();
+
+        const items = root.querySelectorAll('.nested-item');
+
+        expect(Array.from(items, item => item.textContent.trim()))
+            .toEqual(['x', 'y', 'z']);
+    });
+});
+
+
+const ifInsideFor = 'enso-if-inside-for-test';
+
+Enso.component(ifInsideFor, {
+    watched: {
+        items: prop([
+            { name: 'Alice', visible: true },
+            { name: 'Bob', visible: false },
+            { name: 'Charlie', visible: true }
+        ], true)
+    },
+    template: html`
+        <div class="outer-item" *for="item of @:items">
+            <span class="visible-item" *if="item.visible">
+                {{ item.name }}
+            </span>
+        </div>
+    `
+});
+
+describe('IF inside FOR', () => {
+    let el, root;
+
+    beforeEach(() => {
+        [el, root] = setup(ifInsideFor);
+    });
+
+    it('evaluates each iteration independently', () => {
+        const outer = root.querySelectorAll('.outer-item');
+
+        expect(outer).toHaveLength(3);
+        expect(outer[0].querySelector('.visible-item').textContent)
+            .toContain('Alice');
+        expect(outer[1].querySelector('.visible-item')).toBeNull();
+        expect(outer[2].querySelector('.visible-item').textContent)
+            .toContain('Charlie');
+    });
+
+    it('updates nested conditions when the array changes', async () => {
+        el.watched.items = [
+            { name: 'Alice', visible: false },
+            { name: 'Bob', visible: true },
+            { name: 'Diana', visible: true }
+        ];
+
+        await nextFrame();
+
+        const outer = root.querySelectorAll('.outer-item');
+
+        expect(outer).toHaveLength(3);
+        expect(outer[0].querySelector('.visible-item')).toBeNull();
+        expect(outer[1].querySelector('.visible-item').textContent)
+            .toContain('Bob');
+        expect(outer[2].querySelector('.visible-item').textContent)
+            .toContain('Diana');
+    });
 });
