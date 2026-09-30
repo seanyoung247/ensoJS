@@ -1,8 +1,10 @@
 
+const NORMALISER = 1e10;
+
 /**
- * A Python-like numeric range.
+ * A Python-inspired numeric range.
  *
- * Behaves like Python's `range()`:
+ * Inspired by Python's `range()`:
  * - `range(stop)` → 0..stop-1
  * - `range(start, stop)` → start..stop-1
  * - `range(start, stop, step)` → arithmetic progression
@@ -15,63 +17,37 @@ export class Range {
         return obj instanceof Range;
     }
 
+    #start;
+    #stop;
+    #step;
+    #size;
+
     constructor(start, stop = undefined, step = undefined) {
-        if (stop === undefined) {
-            stop = start;
-            start = 0;
-        }
+        [ this.#start, this.#stop, this.#step ] = 
+            validateRange(start, stop, step);
 
-        if (step === undefined) {
-            step = start < stop ? 1 : -1;
-        }
-
-        Object.defineProperties(this, {
-            _start: { value: start, enumerable: true, writable: false },
-            _stop:  { value: stop, enumerable: true, writable: false },
-            _step:  { value: step, enumerable: true, writable: false }
-        });
-
-        this._normaliser = 1e10;
-
-        if (!Number.isFinite(start) || !Number.isFinite(stop) || !Number.isFinite(step)) {
-            throw new TypeError("Invalid range parameters");
-        }
+        this.#size = calcSize(this);
     }
 
-    get size() {
-        const normStart = normalise(this._start, this);
-        const normStop  = normalise(this._stop,  this);
-        const normStep  = normalise(this._step,  this);
+    get start() { return this.#start; }
+    get stop() { return this.#stop; }
+    get stepSize() { return this.#step; }
+    get size() { return this.#size; }
 
-        if (normStep === 0) return 0;
-
-        const diff = normStop - normStart;
-
-        if (normStep > 0 && diff <= 0) return 0;
-        if (normStep < 0 && diff >= 0) return 0;
-
-        return Math.max(0, Math.ceil(diff / normStep));
-    }
-
-    get maxStep() {
-        const size = this.size;
+    get lastStep() {
+        const size = this.#size;
         if (size === 0) return undefined;
         return this.step(size - 1);
     }
 
     *[Symbol.iterator]() {
-        const normStart = normalise(this._start, this);
-        const normStep  = normalise(this._step, this);
-        let count = normStart;
-
-        for (let i = 0; i < this.size; i++) {
-            yield deNormalise(count, this);
-            count += normStep;
+        for (let i = 0; i < this.#size; i++) {
+            yield indexToStep(i, this);
         }
     }
 
     step(index) {
-        if (!Number.isInteger(index) || index < 0 || index >= this.size) {
+        if (!Number.isInteger(index) || index < 0 || index >= this.#size) {
             throw new Error('Invalid index');
         }
         return indexToStep(index, this);
@@ -83,39 +59,40 @@ export class Range {
     }
 
     inRange(value) {
-        const min = Math.min(this._start, this._stop);
-        const max = Math.max(this._start, this._stop);
-        if (value < min || value >= max) return false;
+        if (!isValidValue(value)) return false;
 
-        const normValue  = normalise(value, this);
-        const normStart  = normalise(this._start, this);
-        const normStep   = normalise(this._step, this);
+        const index = stepToIndex(value, this);
 
-        return (normValue - normStart) % normStep === 0;
+        return Number.isInteger(index) &&
+            index >= 0 &&
+            index < this.#size;
     }
 
     wrap(value) {
-        const min = Math.min(this._start, this._stop);
-        const rawRange = this._stop - this._start;
-        const wrapped = (((value - min) % rawRange) + rawRange) % rawRange + min;
+        validateValue(value);
+        if (this.#size === 0) return undefined;
 
-        // Snap into valid step *and snap down to maxStep if needed*
-        return makeValidStep(
-            Math.min(wrapped, this.maxStep),
-            this
-        );
+        const size = this.#size;
+        const index = Math.round(stepToIndex(value, this));
+        const wrappedIndex = ((index % size) + size) % size;
+
+        return indexToStep(wrappedIndex, this);
     }
 
     clamp(value) {
-        const min = Math.min(this._start, this._stop);
-        const max = this.maxStep;   // last valid step
-        const clamped = Math.min(Math.max(value, min), max);
-        return makeValidStep(clamped, this);
+        validateValue(value);
+        if (this.#size === 0) return undefined;
+
+        const size = this.#size;
+        const index = Math.round(stepToIndex(value, this));
+        const clamped = Math.max(0, Math.min(index, size - 1));
+
+        return indexToStep(clamped, this);
     }
 }
 
 /**
- * Create a Python-style range.
+ * Creates a Python-inspired range.
  *
  * @param {number} start - Start value or stop if only one argument.
  * @param {number} [stop] - Exclusive stop value.
@@ -127,22 +104,84 @@ export function range(start, stop, step) {
 }
 
 /* Helper functions */
-function normalise(value, rng) {
-    return Math.round(value * rng._normaliser);
+function normalise(value) {
+    return Math.round(value * NORMALISER);
 }
 
-function deNormalise(value, rng) {
-    return value / rng._normaliser;
+function deNormalise(value) {
+    return value / NORMALISER;
 }
 
 function stepToIndex(value, rng) {
-    return (normalise(value, rng) - normalise(rng._start, rng)) / normalise(rng._step, rng);
+    const index = (normalise(value) - normalise(rng.start)) /
+                  normalise(rng.stepSize);
+
+    return index === 0 ? 0 : index;
 }
 
 function indexToStep(index, rng) {
-    return deNormalise(normalise(rng._start, rng) + (normalise(rng._step, rng) * index), rng);
+    return deNormalise(normalise(rng.start) + (normalise(rng.stepSize) * index));
 }
 
-function makeValidStep(value, rng) {
-    return indexToStep(Math.round(stepToIndex(value, rng)), rng); 
+function calcSize(rng) {
+    const normStart = normalise(rng.start);
+    const normStop  = normalise(rng.stop);
+    const normStep  = normalise(rng.stepSize);
+    const diff = normStop - normStart;
+
+    if (normStep > 0 && diff <= 0) return 0;
+    if (normStep < 0 && diff >= 0) return 0;
+
+    return Math.max(0, Math.ceil(diff / normStep));
+} 
+
+function isValidValue(value) {
+    return Number.isFinite(value) &&
+           Number.isSafeInteger(normalise(value));
+}
+
+function validateValue(value) {
+    if (!isValidValue(value)) {
+        throw new TypeError("Invalid range value");
+    }
+}
+
+function validateRange(start, stop, step) {
+    if (stop === undefined) {
+        stop = start;
+        start = 0;
+    }
+
+    if (step === undefined) {
+        step = start < stop ? 1 : -1;
+    }
+
+    if (
+        !Number.isFinite(start) ||
+        !Number.isFinite(stop) ||
+        !Number.isFinite(step) ||
+        step === 0
+    ) {
+        throw new TypeError("Invalid range parameters");
+    }
+
+    const values = [start, stop, step].map(normalise);
+    const [normStart, normStop, normStep] = values;
+
+    if (normStep === 0) {
+        throw new RangeError(
+            "Step is smaller than the supported precision"
+        );
+    }
+
+    if (
+        !values.every(Number.isSafeInteger) ||
+        !Number.isSafeInteger(normStop - normStart)
+    ) {
+        throw new RangeError(
+            "Range exceeds supported numerical precision"
+        );
+    }
+
+    return [start, stop, step];
 }

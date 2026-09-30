@@ -113,6 +113,53 @@ describe('Range class (Python semantics)', () => {
             compareRangeValues(range(10,1), [10,9,8,7,6,5,4,3,2]);
             compareRangeValues(range(0.5,0.55,0.01), [0.5,0.51,0.52,0.53,0.54]);
         });
+
+        it('rejects zero and excessively small steps', () => {
+            expect(() => range(0, 10, 0)).toThrow(TypeError);
+            expect(() => range(0, 1, 1e-12)).toThrow(RangeError);
+        });
+
+        it('rejects values exceeding supported precision', () => {
+            expect(() => range(0, 1_000_000)).toThrow(RangeError);
+            expect(() => range(-500_000, 500_000)).toThrow(RangeError);
+        });
+
+        it('automatically selects descending steps', () => {
+            expect([...range(-3)]).toEqual([0, -1, -2]);
+            expect([...range(5, 0)]).toEqual([5, 4, 3, 2, 1]);
+        });
+
+        it('handles descending fractional ranges', () => {
+            const rng = range(1, 0, -0.2);
+
+            expect([...rng]).toEqual([1, 0.8, 0.6, 0.4, 0.2]);
+            expect(rng.size).toBe(5);
+            expect(rng.lastStep).toBe(0.2);
+        });
+
+        it('handles descending range membership', () => {
+            const rng = range(10, 0, -2);
+
+            expect(rng.inRange(10)).toBe(true);
+            expect(rng.inRange(6)).toBe(true);
+            expect(rng.inRange(0)).toBe(false);
+            expect(rng.inRange(7)).toBe(false);
+        });
+
+        it('round-trips indices and values', () => {
+            for (const rng of [
+                range(0, 1, 0.1),
+                range(1, 0, -0.1),
+                range(10, 0, -3)
+            ]) {
+                for (let i = 0; i < rng.size; i++) {
+                    const value = rng.step(i);
+
+                    expect(rng.indexOf(value)).toBe(i);
+                    expect(rng.inRange(value)).toBe(true);
+                }
+            }
+        });        
     });
 
     describe('Range iteration', () => {
@@ -149,11 +196,6 @@ describe('Range class (Python semantics)', () => {
             expect(new Range(10,0,-1).size).toBe(10);
         });
 
-        it("size = 0 when step is zero", () => {
-            const r = new Range(0, 10, 0);
-            expect(r.size).toBe(0);
-        });
-
         it("size = 0 when step > 0 but diff <= 0", () => {
             const r = new Range(5, 2, 1); // diff < 0
             expect(r.size).toBe(0);
@@ -174,27 +216,31 @@ describe('Range class (Python semantics)', () => {
             expect(r.size).toBe(5);
         });
 
-        it("maxStep returns last valid step", () => {
-            const r = new Range(0, 5, 1);
-            expect(r.maxStep).toBe(4);
+        it('lastStep returns undefined for an empty range', () => {
+            const rng = range(5, 5);
+
+            expect(rng.lastStep).toBeUndefined();
         });
 
-        it("maxStep with empty range gives undefined", () => {
-            const r = new Range(5, 5, 1);
-            expect(r.maxStep).toBeUndefined();
+        it('exposes range parameters', () => {
+            const rng = range(0, 10, 2);
+
+            expect(rng.start).toBe(0);
+            expect(rng.stop).toBe(10);
+            expect(rng.stepSize).toBe(2);
+            expect(rng.size).toBe(5);
+            expect(rng.lastStep).toBe(8);
         });
 
-        it('Range properties are read-only', () => {
-            const rng = new Range(10);
-            expect(() => (rng._start = 1)).toThrow();
-            expect(() => (rng._stop = 8)).toThrow();
-            expect(() => (rng._step = 2)).toThrow();
-        });
+        it('does not allow parameters to be modified', () => {
+            const rng = range(0, 10, 2);
 
-        it('Normaliser is writable', () => {
-            const rng = new Range(10);
-            expect(() => (rng._normaliser = 1)).not.toThrow();
-            expect(rng._normaliser).toBe(1);
+            expect(() => { rng.start = 5; }).toThrow(TypeError);
+            expect(() => { rng.stop = 20; }).toThrow(TypeError);
+            expect(() => { rng.stepSize = 4; }).toThrow(TypeError);
+            expect(() => { rng.size = 100; }).toThrow(TypeError);
+
+            expect([...rng]).toEqual([0, 2, 4, 6, 8]);
         });
     });
 
@@ -220,6 +266,15 @@ describe('Range class (Python semantics)', () => {
                 const rng = new Range(0,10,2);
                 expect(rng.inRange(5)).toBe(false);
                 expect(rng.inRange(6.5)).toBe(false);
+            });
+            
+            it('rejects invalid membership values', () => {
+                const rng = range(10);
+
+                for (const value of [null, undefined, '5', NaN, Infinity]) {
+                    expect(rng.inRange(value)).toBe(false);
+                    expect(rng.indexOf(value)).toBe(-1);
+                }
             });
         });
 
@@ -271,6 +326,14 @@ describe('Range class (Python semantics)', () => {
                 const rng = new Range(0,5,0.25);
                 expect(rng.wrap(1.23)).toBe(1.25);
             });
+
+            it('wraps descending ranges', () => {
+                const rng = range(10, 0, -2);
+
+                expect(rng.wrap(12)).toBe(2);
+                expect(rng.wrap(0)).toBe(10);
+                expect(rng.wrap(7)).toBe(6);
+            });
         });
 
         describe('clamp()', () => {
@@ -299,6 +362,30 @@ describe('Range class (Python semantics)', () => {
                 const rng = new Range(0, 5, 1);
                 expect(rng.clamp(2.7)).toBe(3);
             });
+
+            it('clamps descending ranges', () => {
+                const rng = range(10, 0, -2);
+
+                expect(rng.clamp(12)).toBe(10);
+                expect(rng.clamp(0)).toBe(2);
+                expect(rng.clamp(7)).toBe(6);
+            });
+        });
+
+        it('handles empty ranges in wrap and clamp', () => {
+            const rng = range(0, 10, -1);
+
+            expect(rng.wrap(5)).toBeUndefined();
+            expect(rng.clamp(5)).toBeUndefined();
+        });
+
+        it('rejects invalid values in wrap and clamp', () => {
+            const rng = range(0, 10, 2);
+
+            for (const value of [NaN, Infinity, -Infinity, null, undefined, '5']) {
+                expect(() => rng.wrap(value)).toThrow(TypeError);
+                expect(() => rng.clamp(value)).toThrow(TypeError);
+            }
         });
     });
 });
