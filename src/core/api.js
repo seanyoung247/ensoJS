@@ -28,8 +28,7 @@ export const API = {
     version: VERSION,
 
     /**
-     * Defines a new Enso component and registers it in the browser as a custom element.
-     * @param {String} tag                      - DOM tag name for this component
+     * Defines a new Enso component class.
      * @param {Object} props                    - Component properties
      *  @param {EnsoTemplate} props.template    - Template defining component HTML
      *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
@@ -37,28 +36,17 @@ export const API = {
      *  @param {Object} [props.watched]         - (optional) This component's watched properties
      *  @param {Object} [props.script]          - (Optional) Custom component code implementation
      *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
-     * @returns {import('../types/api').ComponentTag} - A tag function for use in component templates
-     * 
-     * @example
-     * const MyCounter = Enso.component('my-counter', {
-     *   watched: { count: 0 },
-     *   template: html`<button @click="this.increment">{{ watched:count }}</button>`,
-     *   script: {
-     *     increment() { this.count++; }
-     *   }
-     * });
+     * @returns {typeof EnsoComponent} - Enso component class
      */
-    component(tag, {
+    define({
             template,
             styles=null, 
             expose={},
             watched={},
             script=null,
             settings={}
-        }) { settings = defaultSettings(settings);
-
-        if (customElements.get(tag)) ensoError(101, tag); // E_COMPONENT_DEF
-
+        }) { settings = defaultSettings(settings); 
+        
         const watchers = parseScript(script);
         const component = createComponent(EnsoComponent, script);
 
@@ -80,10 +68,46 @@ export const API = {
             'expose': { get() { return expose; } },
         });
 
+        return component;
+    },
+
+    /**
+     * Registers an Enso component class as a custom element.
+     * @param {string} tag                     - DOM tag name for this component
+     * @param {typeof EnsoComponent} component - EnsoComponent class to register
+     * @returns {import('../types/api').ComponentTag} - A tag function for use in component templates
+     */
+    register(tag, component) {
         // Define the custom element
         customElements.define(tag, component);
         /** @type {import('../types/api').ComponentTag} */
         return createComponentTag(tag, component);
+    },
+
+    /**
+     * Defines a new Enso component and registers it in the browser as a custom element.
+     * @param {String} tag                      - DOM tag name for this component
+     * @param {Object} props                    - Component properties
+     *  @param {EnsoTemplate} props.template    - Template defining component HTML
+     *  @param {EnsoStylesheet|[]} [props.styles] - (Optional) Adoptable Style sheet(s)
+     *  @param {Object} [props.expose]          - (optional) Objects to expose to template expressions
+     *  @param {Object} [props.watched]         - (optional) This component's watched properties
+     *  @param {Object} [props.script]          - (Optional) Custom component code implementation
+     *  @param {EnsoSettings} [props.settings]  - (Optional) Settings object
+     * @returns {import('../types/api').ComponentTag} - A tag function for use in component templates
+     * 
+     * @example
+     * const MyCounter = Enso.component('my-counter', {
+     *   watched: { count: 0 },
+     *   template: html`<button @click="this.increment">{{ watched:count }}</button>`,
+     *   script: {
+     *     increment() { this.count++; }
+     *   }
+     * });
+     */
+    component(tag, props) {
+        const component = this.define(props);
+        return this.register(tag, component);
     },
 
     /**
