@@ -1,7 +1,7 @@
 /**
  * @module uuid - Defines a basic non-secure UUID generator.
  * 
- *   Inspired by the non-secure version of the Nanoid library.
+ *   Based on the non-secure version of the Nanoid library.
  */
 // Part of Enso
 // Licensed under the MIT License, see LICENSE file in root.
