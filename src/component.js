@@ -62,7 +62,7 @@ export default class EnsoComponent extends EnsoNode(HTMLElement) {
     //// Accessors - External
     get refs() { return this.#refs; }
     get component() { return this; }
-    get isAttached() { return this.#initialised; }
+    get isAttached() { return this.#mounted; }
     get watched() { return this.#watched; }
 
     get isComponent() { return true; }
