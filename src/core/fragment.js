@@ -98,9 +98,9 @@ export class EnsoFragment extends EnsoNode() {
         if (this.#attached || !this.#parentAttached) return;
 
         this._getChildren();
-        this.#anchor.after(...this.#nodes);
         this.#attached = true;
         this[UPDATE]();
+        this.#anchor.after(...this.#nodes);
     }
 
     [UPDATE]() {
