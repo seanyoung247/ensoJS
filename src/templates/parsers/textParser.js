@@ -15,7 +15,7 @@ export default function (register, ctx) {
         run() {
             const content = super.run();
             /* v8 ignore next */
-            if (this.element && content) {
+            if (this.element) {
                 this.element.textContent = content;
             }
         }
