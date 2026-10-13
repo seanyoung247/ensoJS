@@ -8,82 +8,65 @@ import type { ParserFunction } from "./parser";
 
 /* Lifecycle identifiers */
 export const lifecycle: {
-  mount: string;
-  update: string;
-  unmount: string;
+    readonly mount: 'lifecycle:mount';
+    readonly update: 'lifecycle:update';
+    readonly unmount: 'lifecycle:unmount';
 };
 
 export interface ComponentSettings {
-  useShadow?: boolean;
-  shadowMode?: ShadowRootMode; // 'open' | 'closed'
+    useShadow?: boolean;
+    shadowMode?: ShadowRootMode;
 }
 
 export interface ComponentDefinition {
     template: EnsoTemplate;
-    styles?: CSSStyleSheet;
+    styles?: CSSStyleSheet | readonly CSSStyleSheet[];
     expose?: Record<string, unknown>;
     watched?: Record<string, unknown>;
     script?: Record<string, unknown>;
     settings?: ComponentSettings;
 }
 
-export interface ComponentTag<T extends HTMLElement = HTMLElement> {
-    (
-        attrs?: Record<string, unknown> | null,
-        children?: string | null
-    ): T;
-    /** Custom element tag name */
-    readonly tag: string;
-    /** String template factory */
-    html(
-        attrs?: Record<string, unknown> | null,
-        children?: string | null
-    ): string;
+export interface EnsoComponentConstructor extends CustomElementConstructor {
+  readonly tagName?: string;
+}
 
-    readonly Class: CustomElementConstructor;
+export interface RegisteredEnsoComponentConstructor
+  extends EnsoComponentConstructor {
+  readonly tagName: string;
 }
 
 export interface EnsoAPI {
-    /**
-     * Defines a new Enso component and registers it as a custom element.
-     *
-     * The returned value is a callable component factory:
-     *  - Calling it creates a live element instance.
-     *  - The `.html()` method generates a string representation for templates.
-     *  - The `.tag` property exposes the custom element tag name.
-     *
-     * @param tag - Custom element tag name
-     * @param props - Component definition
-     * @returns A callable component tag factory
-     *
-     * @example
-     * const MyCounter = Enso.component('my-counter', {
-     *   watched: { count: 0 },
-     *   template: html`<button @click="this.increment">{{ @:count }}</button>`,
-     *   script: {
-     *     increment() { this.count++; }
-     *   }
-     * });
-     *
-     * const el = MyCounter();                    // HTMLElement
-     * const htmlStr = MyCounter.html();          // "<my-counter></my-counter>"
-     * const raw = document.createElement(MyCounter.tag);
-     */
-    component(tag: string, props: ComponentDefinition): ComponentTag;
-    /**
-     * Adds a custom template parser.
-     * @param {ParserFunction} plugin - Custom parser registration function
-     */    
-    use(plugin: ParserFunction): void;
-    /**
-     * Enables verbose diagnostic mode.
-     * @async
-     */
-    enableDiagnostics(): Promise<void>;
-    /**
-     * Disables verbose diagnostic mode
-     */
-    disableDiagnostics(): void;
+  readonly version: string;
+
+  /**
+   * Defines a new Enso component class without registering it.
+   */
+  define(
+    props: ComponentDefinition
+  ): EnsoComponentConstructor;
+
+  /**
+   * Registers an Enso component class as a custom element.
+   */
+  register(
+    tag: string,
+    component: EnsoComponentConstructor
+  ): RegisteredEnsoComponentConstructor;
+
+  /**
+   * Defines and registers a new Enso component.
+   */
+  component(
+    tag: string,
+    props: ComponentDefinition
+  ): RegisteredEnsoComponentConstructor;
+
+  use(plugin: ParserFunction): void;
+
+  enableDiagnostics(): Promise<void>;
+
+  disableDiagnostics(): void;
 }
 
 declare const Enso: EnsoAPI;

@@ -3,7 +3,7 @@
 // Licensed under the MIT License, see LICENSE file in root.
 
 
-export type EnsoAttr = string | number | boolean;
+export type EnsoAttr = string | number | boolean | null;
 export type EnsoAttrType =
   | StringConstructor
   | NumberConstructor
@@ -27,13 +27,14 @@ export function prop(
 /**
  * Create a watched attribute descriptor (string/number/boolean).
  *
- * - Automatically detects type from the default value if provided.
+ * - Automatically detects the attribute type from a non-null default value.
+ * - If the default value is null or omitted, the attribute type defaults to String.
+ * - The inferred/default type can be overridden with String, Number, or Boolean.
  * - Rejects object values and unsupported constructors.
  *
- * @param {string|number|boolean|null} value - Default attribute value. If non-null, determines the attribute type unless explicitly overridden.
- * @param {Function} [type=String] - Constructor representing the expected attribute type (String, Number, Boolean).
- * @throws {Error} - If value is an object, or type is not in the allowed attributeTypes list.
- * @returns {object} - A descriptor object defining attribute parsing, serialisation, and reactivity.
+ * @param value - Default attribute value.
+ * @param type - Explicit attribute type. Defaults to String when it cannot be inferred from the value.
+ * @returns A descriptor object consumed by the watched system.
  */
 export function attr(
   value?: EnsoAttr,
@@ -41,48 +42,36 @@ export function attr(
 ): object;
 
 /**
- * Creates a computed watched property descriptor.
- *  - Reruns the given function and saves the return value whenever
- *      watched properties in deps change.
- * 
- * @param {Function} fn - Function to recalculate computed value.
- * @param {Array<String>} deps - Array of string watched property names.
- * @returns - A descriptor object defining the computed property.
+ * A function invoked in response to a watched property or lifecycle change.
+ *
+ * @param prop - Name of the changed property or lifecycle event.
+ * @param value - New value of the changed property.
  */
-export function computed<T = unknown>(
-  fn: () => T,
-  deps: string[]
+export type Watcher<T = void> = (
+  prop: string,
+  value: unknown
+) => T;
+
+/**
+ * Creates a computed watched property descriptor.
+ *
+ * The watcher is rerun when one of its dependencies changes and its
+ * return value becomes the new value of the computed property.
+ */
+export function computed<T>(
+  fn: Watcher<T>,
+  deps: readonly string[]
 ): object;
 
 /**
- * Tags a script method to be notified when watched properties change
- * @param {Function} fn     - The function to call
- * @param {[String]} props  - List of watched properties to watch
- * @returns {Function} The watcher function
- */
-export function watches(
-  fn: Function,
-  props?: string[],
-  keep?: boolean
-): Function;
-
-/**
- * Get all watched values for a given component.
- * 
- * @param {EnsoComponent} component - The component to retrieve watched values from.
- * @returns {Record<string, unknown>} An object literal containing all watched properties.
- */
-export function getWatched(
-  component: unknown
-): Record<string, unknown>;
-
-/**
- * Set multiple watched values on a component, and triggers updates for changes.
+ * Tags a watcher to run when one of its dependencies changes.
  *
- * @param {EnsoComponent} component - The component whose watched values are being updated.
- * @param {Record<string, unknown>} values - Object containing key/value pairs to update.
+ * @param fn - Watcher to invoke.
+ * @param deps - Watched properties or lifecycle events to observe.
+ * @param keep - If true, the function is exposed on the component. Defaults to false.
  */
-export function setWatched(
-  component: unknown,
-  values: Record<string, unknown>
-): void;
+export function watches<T extends Watcher<void>>(
+  fn: T,
+  deps?: readonly string[],
+  keep?: boolean
+): T;

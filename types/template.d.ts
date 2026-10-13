@@ -1,26 +1,35 @@
 
-export type EnsoTemplate = unknown;
+declare const ensoTemplateBrand: unique symbol;
+
+/**
+ * An HTML template created by Enso's `html` template tag.
+ */
+export type EnsoTemplate = {
+    readonly [ensoTemplateBrand]: true;
+};
 
 /* Template tags */
 
 /**
- * Parses a template string and returns an Enso stylesheet
- * @param {TemplateStringsArray} strings 
- * @param {unknown[]} values 
- * @returns {CSSStyleSheet}
+ * Creates a constructable stylesheet from a template string.
  */
 export function css(
-  strings: TemplateStringsArray,
-  ...values: unknown[]
+    source: string
+): CSSStyleSheet;
+
+export function css(
+    strings: TemplateStringsArray,
+    ...values: unknown[]
 ): CSSStyleSheet;
 
 /**
- * Parses a template string and returns an Enso HTML template
- * @param {TemplateStringsArray} strings 
- * @param {unknown[]} values 
- * @returns {EnsoTemplate}
+ * Parses a template string and returns an Enso HTML template.
  */
 export function html(
-  strings: TemplateStringsArray,
-  ...values: unknown[]
+    source: string
+): EnsoTemplate;
+
+export function html(
+    strings: TemplateStringsArray,
+    ...values: unknown[]
 ): EnsoTemplate;
