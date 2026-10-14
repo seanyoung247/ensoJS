@@ -40,7 +40,8 @@
     "test": "vitest run --no-cache",
     "test:build": "BUILD=1 vitest run",
     "coverage": "vitest run --coverage",
-    "test:browser": "vitest --config=vitest.browser.config.js"
+    "test:browser": "vitest --config=vitest.browser.config.js",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
