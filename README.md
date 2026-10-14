@@ -91,7 +91,7 @@ A simple reactive counter component:
 ![rendered image of tiny-counter component](public/tiny-counter.png)
 
 ```javascript
-import Enso, { css, html, attr } from 'ensojs';
+import { Enso, css, html, attr } from 'ensojs';
 
 Enso.component('tiny-counter', {
     watched: { value: attr(0) },
@@ -123,7 +123,7 @@ npm i
 
 ## Documentation
 
-TBC
+EnsoJS documentation can be found on the [EnsoJS](https://ensojs.dev/) site: [Docs](https://docs.ensojs.dev/)
 
 ## Testing
 
