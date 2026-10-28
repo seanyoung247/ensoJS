@@ -5,32 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <script type="module" src="./test.js"></script>
+    <script type="module">
+        import { Enso, html, css } from '../src/index';
+        import '../src/extras/enso-slot';
+
+        Enso.component("slotting-test", {
+            styles: css`
+                ::slotted(*)::after {
+                    content: " v" attr(data-passes);
+                }
+            `,
+            template: html`
+                <enso-slot
+                    .on-add="el=>el.dataset.passes = 0"
+                    .on-remove="el=>delete el.dataset.passes"
+                    .for-each="el=>el.dataset.passes++"
+                ></enso-slot>
+            `,
+        });
+    </script>
 
 </head>
 <body>
-
-    <button id="test-btn">Show</button><input type="number" id="count-input" value="0" min="0" />
-    <test-component id="test"></test-component>
+    <slotting-test>
+        <div>slotted 1</div>
+        <div>slotted 2</div>
+    </slotting-test>
 </body>
-<script type="module">
-    import { Enso } from "ensojs";
-    document.addEventListener('DOMContentLoaded', async () => {
-        await Enso.enableDiagnostics(true);
 
-        const btn = document.getElementById('test-btn');
-        const countInput = document.getElementById('count-input');
-        const testComp = document.getElementById('test');
-        const testNest = document.getElementById('test-nest');
-
-        btn.addEventListener('click', () => {
-            testComp.watched.show = !testComp.watched.show;
-        });
-        testComp.count = parseInt(countInput.value);
-        countInput.addEventListener('input', () => {
-            const val = parseInt(countInput.value);
-            testComp.watched.count = isNaN(val) ? 0 : val;
-        });
-    });
-</script>
 </html>

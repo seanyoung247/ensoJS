@@ -31,6 +31,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         ensojs: path.resolve(__dirname, 'src/index.js'),
+        extras: path.resolve(__dirname, 'src/extras/index.js'),
         errors: path.resolve(__dirname, 'src/errors/index.js'),
         helpers: path.resolve(__dirname, 'src/helpers/index.js'),
       },

@@ -14,6 +14,10 @@
       "import": "./dist/ensojs.es.js",
       "default": "./dist/ensojs.es.js"
     },
+    "./extras": {
+      "import": "./dist/extras.es.js",
+      "default": "./dist/extras.es.js"
+    },
     "./helpers": {
       "types": "./types/helpers.d.ts",
       "import": "./dist/helpers.es.js",
