@@ -13,3 +13,4 @@ Enso.component('tiny-counter', {
         <button @click="()=>@:value++">+</button>
     `
 });
+

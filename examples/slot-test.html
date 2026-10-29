@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script type="module">
+        import { Enso, html, css, attr } from '../src/index';
+        import '../src/extras/enso-slot';
+
+        Enso.component("slotting-test", {
+            watched: {
+                makered: attr(false)
+            },
+            styles: css`
+                ::slotted(:not([slot=named-slot]))::after {
+                    content: " v" attr(data-passes);
+                }
+            `,
+            template: html`
+                <style>
+                    ::slotted(*) {
+                        color: {{ @:makered ? 'red' : 'black' }};
+                    }
+                </style>
+                <enso-slot
+                    name="named-slot"
+                ></enso-slot>
+                <enso-slot
+                    .on-add="el=>el.dataset.passes = 0"
+                    .on-remove="el=>delete el.dataset.passes"
+                    .for-each="el=>el.dataset.passes++"
+                    @changed="e=>console.log(e.detail)"
+                ></enso-slot>
+                <button @click="()=>@:makered = !@:makered">Test Red</button>
+            `,
+        });
+
+        const slotted = Array.from(
+            document.querySelectorAll('[id^="slotted-"]')
+        );
+        document.querySelector('#flipit').addEventListener('click', function() {
+            console.log('flipping out');
+            slotted.forEach(el => {
+                console.log(el);
+                if (el.hasAttribute('slot')) {
+                    el.removeAttribute('slot');
+                } else {
+                    el.setAttribute('slot', 'named-slot');
+                }
+            });
+        });
+    </script>
+
+</head>
+<body>
+    <slotting-test makered>
+        <div id="slotted-1">slotted 1</div>
+        <div id="slotted-2">slotted 2</div>
+        <div id="slotted-3" slot="named-slot">slotted 3</div>
+        <div id="slotted-4" slot="named-slot">slotted 4</div>
+    </slotting-test>
+    <button id="flipit">Flip slots</button>
+</body>
+
+</html>
