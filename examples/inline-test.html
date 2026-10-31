@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script type="module" src="../src/extras/inline.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100dvh;
+            gap: 1em;
+        }
+        tiny-counter {
+            max-width: 250px;
+            width: 50%;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    
+    <template enso-component="tiny-counter" inline value="5">
+        <script type="enso">
+            watched({
+                value: attr(0)
+            });
+
+            script({
+                increment() { this.value++; },
+                decrement() { this.value--; }
+            });
+        </script>
+
+        <style src="./assets/reset.css"></style>
+        <style>
+            :host{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            button {
+                padding: 0.15em 0.5em;
+            }
+        </style>
+
+        <template>
+            <style>
+                :host {
+                    color: {{ @:value > 10 ? 'red' : 'black' }};
+                }
+            </style>
+
+            <button @click="this.decrement">-</button>
+            {{ @:value }}
+            <button @click="this.increment">+</button>
+        </template>
+    </template>
+
+    <tiny-counter></tiny-counter>
+</body>
+</html>
