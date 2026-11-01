@@ -14,7 +14,7 @@ function collectChanged(elements, compare, onChange = null, onAll = null) {
     return changed;
 }
 
-Enso.component('enso-slot', {
+export default Enso.define({
     settings: { useShadow: false },
 
     watched: {
