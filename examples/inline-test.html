@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <script type="module" src="../src/extras/inline.js"></script>
+    <script type="module" src="../src/core/sfc.js"></script>
 
     <style>
         body {
@@ -33,7 +33,13 @@
 
             script({
                 increment() { this.value++; },
-                decrement() { this.value--; }
+                decrement() { this.value--; },
+                change(value) {
+                    const v = Number(value);
+
+                    this.value = (!Number.isNaN(v)) ? 
+                        v : this.value;
+                }
             });
         </script>
 
@@ -47,17 +53,30 @@
             button {
                 padding: 0.15em 0.5em;
             }
+            input {
+                border: none;
+                -webkit-appearance: none;
+                -moz-appearance: textfield;
+                text-align: center;
+                min-width: 0;
+                flex: 1;
+                margin: 0;
+            }
         </style>
 
         <template>
             <style>
-                :host {
+                input {
                     color: {{ @:value > 10 ? 'red' : 'black' }};
                 }
             </style>
 
             <button @click="this.decrement">-</button>
-            {{ @:value }}
+            <input
+                type="number"
+                .value="@:value"
+                @change="e=>this.change(e.target.value)"
+            />
             <button @click="this.increment">+</button>
         </template>
     </template>

@@ -97,7 +97,6 @@ async function defineComponent(definition) {
     }
 }
 
-
 (async ()=>{
     // Collect all template elements with enso-component attribute
     const definitions = document.querySelectorAll('template[enso-component]');
