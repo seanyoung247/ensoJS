@@ -12,6 +12,10 @@ export default {
         `Component expected object litteral but got "${ cType }"`
     ),
 
+    '104': () => (
+        `Enso.sfc expects a html template with the enso-component attribute.`
+    ),
+
     // Watched Errors
     '201': cType => (
         `Unsupported attribute type: "${cType}"`

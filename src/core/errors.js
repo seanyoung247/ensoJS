@@ -22,6 +22,7 @@ export const setErrorResolver = fn => {
 //  E_COMPONENT_DEF: 101,   //
 //  E_COMPONENT_SUB: 102,   //
 //  E_COMPONENT_OBJ: 103,   //
+//  E_COMPONENT_SFC: 104,   //
 
 // Watched Errors
 //  E_ATTR_BAD_TYPE: 201,   //

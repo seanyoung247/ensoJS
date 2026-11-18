@@ -16,11 +16,6 @@
             height: 100dvh;
             gap: 1em;
         }
-        tiny-counter {
-            max-width: 250px;
-            width: 50%;
-            border: 1px solid black;
-        }
     </style>
 </head>
 <body>
@@ -80,6 +75,24 @@
             <button @click="this.increment">+</button>
         </template>
     </template>
+
+    <!-- <template enso-component="tiny-counter" inline value="5">
+        <script type="enso">
+            watched({
+                value: attr(0)
+            });
+
+            script({
+                increment() { this.value++; }
+            });
+        </script>
+
+        <template>
+            <button @click="this.increment">
+                Count: {{ @:value }}
+            </button>
+        </template>
+    </template> -->
 
     <tiny-counter></tiny-counter>
 </body>
